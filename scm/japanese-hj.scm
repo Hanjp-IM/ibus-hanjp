@@ -150,6 +150,10 @@
 
 	(((hj-batchim-nn). ())("ん" "ン" "ﾝ"))
 	(((hj-batchim-ss). ())("っ" "ッ" "ｯ"))
+
+	((("<" "-"). ())("←" "←" ""))
+	((("-" ">"). ())("→" "→" ""))
+	((("." "." "."). ())("…" "…" ""))
 ))
 
 ;;foriegn prononciation rules
@@ -163,4 +167,22 @@
 	(((hj-jungseong-ya). ())("ゃ" "ャ" "ｬ"))
 	(((hj-jungseong-yu). ())("ゅ" "ュ" "ｭ"))
 	(((hj-jungseong-yo). ())("ょ" "ョ" "ｮ"))
-)) 
+))
+
+(define ja-hj-rule-foriegn-special-char '(
+	((hj-chosung-t hj-jungseong-i). ())(("て" "テ" "ﾃ")("ぃ" "ィ" "ｨ")))
+	((hj-chosung-t hj-jungseong-i). ())(("と" "ト" "ﾄ")("ぅ" "ゥ" "ｩ")))
+
+	((hj-chosung-d hj-jungseong-i). ())(("で" "デ" "ﾃﾞ")("ぃ" "ィ" "ｨ")))
+	((hj-chosung-d hj-jungseong-i). ())(("ど" "ド" "ﾄﾞ")("ぅ" "ゥ" "ｩ")))
+
+	((hj-chosung-ch hj-jungseong-a). ())(("ち" "チ" "ﾁ")("ぁ" "ァ" "ｧ")))
+	((hj-chosung-ch hj-jungseong-e). ())(("ち" "チ" "ﾁ")("ぇ" "ェ" "ｪ")))
+	((hj-chosung-ch hj-jungseong-o). ())(("ち" "チ" "ﾁ")("ぉ" "ォ" "ｫ")))
+
+	(((hj-choseong-dz hj-jungseong-a). ())("ざ" "ザ" "ｻﾞ"))
+	(((hj-choseong-dz hj-jungseong-e). ())("ぜ" "ゼ" "ｾﾞ"))
+	(((hj-choseong-dz hj-jungseong-o). ())("ぞ" "ゾ" "ｿﾞ"))
+))
+
+;;need compound vowel rules

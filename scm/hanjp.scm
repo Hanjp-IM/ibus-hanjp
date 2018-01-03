@@ -15,7 +15,9 @@
 
 (define (hj-jungseong-alone? jamo)) ;;currently no idea
 
-(deinfe (hj-compound-jungseong? jamo)) ;;currently no idea
+(define (hj-compound-jungseong? jamo)) ;;currently no idea
+
+(define (hj-foreign-char? jamo)) ;;currently no idea
 
 ;;define conversion rules
 
