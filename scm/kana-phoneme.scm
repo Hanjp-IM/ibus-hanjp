@@ -1,4 +1,4 @@
-;;Following is setting of hangul componant for kana
+;;Following is definition of hangul phoneme for kana
 ;;
 ;;
 
@@ -18,7 +18,7 @@
 (define hj-choseong-p '("ㅍ"))
 (define hj-choseong-m '("ㅁ"))
 (define hj-choseong-r '("ㄹ"))
-(define hj-choseong-w '("ᅌ"))
+(define hj-choseong-ng '("ᅌ"))
 (define hj-choseong-alist '(
 	hj-choseng-void
 	hj-choseong-k
@@ -31,11 +31,13 @@
 	hj-choseong-dz
 	hj-choseong-n
 	hj-choseong-h
+	hj-choseong-b
+	hj-choseong-p
 	hj-choseong-m
 	hj-choseong-r
-	hj-choseong-w))
+	hj-choseong-ng))
 
-;;define middle consonant
+;;define vowel
 (define hj-jungseong-a '("ㅏ"))
 (define hj-jungseong-i '("ㅣ"))
 (define hj-jungseong-u '("ㅜ" "ㅡ"))
@@ -44,7 +46,6 @@
 (define hj-jungseong-ya '("ㅑ"))
 (define hj-jungseong-yu '("ㅠ"))
 (define hj-jungseong-yo '("ㅛ"))
-(define hj-jungseong-oa '("ㅘ"))
 (define hj-jungseong-alist '(
 	hj-jungseong-a
 	hj-jungseong-i
@@ -53,8 +54,7 @@
 	hj-jungseong-o
 	hj-jungseong-ya
 	hj-jungseong-yu
-	hj-jungseong-yo
-	hj-jungseong-oa))
+	hj-jungseong-yo))
 
 ;;define final consonant
 (define hj-jongseong-g '("ㄱ"))
@@ -71,21 +71,29 @@
 	hj-jongseong-s
 	hj-jongseong-ng))
 
-;;define compound middle consonant
-;;need to add
-
 ;;define special final consonant
 (define hj-batchim-nn '("ᄔ"))
 (define hj-batchim-ss '("ㅆ"))
-(define hj-batchim '(
+(define hj-batchim-alist '(
 	hj-batchim-nn
 	hj-batchim-ss))
+
+(define hj-compound-jungseong-alist '(
+	((hj-jungseong-o . hj-jungseong-a) . hj-jungseong-wa)
+	((hj-jungseong-o . hj-jungseong-ae) . hj-jungseong-wae)
+	((hj-jungseong-o . hj-jungseong-i) . hj-jungseong-oe)
+	((hj-jungseong-u . hj-jungseong-a) . hj-jungseong-ua)
+	((hj-jungseong-u . hj-jungseong-eo) . hj-jungseong-wo)
+	((hj-jungseong-u . hj-jungseong-e) . hj-jungseong-we)
+	((hj-jungseong-u . hj-jungseong-i) . hj-jungseong-wi)))
 
 ;;define kana phoneme list
 (define hj-kana-phoneme-alist '(
 	hj-choseong-alist
 	hj-jungseong-alist
-	hj-jongseong-alist))
+	hj-jongseong-alist
+	hj-batchim-alist
+	hj-compound-jungseong-alist))
 
 ;;define compound middle consonant
 (define (hj-combine-compound jungseong1 junseong2)

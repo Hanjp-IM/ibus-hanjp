@@ -5,3 +5,4 @@ This software is provided under LGPL 3.0, and the documents for technology refer
 This project is currently in development state.
 Beta release: 2018.02.18
 Final release: 2018.04.15
+https://wiki.ubuntu-kr.org/index.php/HanJP_IM
