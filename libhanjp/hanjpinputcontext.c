@@ -13,6 +13,8 @@ HanjpInputContext* hanjp_ic_new(const char* keyboard)
     new_hic = (HanjpInputContext*) malloc(sizeof(HanjpInputContext));
 
     new_hic->hic = hangul_ic_new(keyboard);
+    hangul_ic_connect_callback(hic, "translaste", HanjpTranslate, NULL);
+    hangul_ic_connect_callback(hic, "transition", HanjpTransition, NULL);
     new_hic->preedit_string[0] = 0;
     new_hic->commit_string[0] = 0;
     new_hic->mode = HANJP_INPUT_MODE_EN;

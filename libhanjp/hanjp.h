@@ -1,19 +1,19 @@
 #include <hangul.h>
 
 typedef enum {
-	HANJP_INPUT_MODE_EN,
-	HANJP_INPUT_MODE_JP
+  HANJP_INPUT_MODE_EN,
+  HANJP_INPUT_MODE_JP
 } HanjpInputMode;
 
 typedef enum {
-	HANJP_INPUT_JP_HIRAGANA,
+  HANJP_INPUT_JP_HIRAGANA,
   HANJP_INPUT_JP_KATAKANA,
   HANJP_INPUT_JP_HALF_KATAKANA,
 } HanjpInputJpType;
 
 typedef enum {
-	HANJP_INPUT_EN,
-	HANJP_INPUT_EN_HALF,
+  HANJP_INPUT_EN,
+  HANJP_INPUT_EN_HALF,
   HANJP_INPUT_EN_FULL
 } HanjpInputEnType;
 
@@ -36,9 +36,9 @@ typedef enum {
  state: current state
 */
 typedef struct {
-	HangulInputContext* hic;
-	hanjp_automaton_state state;
-	ucschar preedit_string[64];
+  HangulInputContext* hic;
+  hanjp_automaton_state state;
+  ucschar preedit_string[64];
   ucschar commit_string[64];
   HanjpInputMode mode;
   HanjpState state;
