@@ -20,8 +20,8 @@ int main(gint    argc,
 	setlocale(LC_ALL, "");
 
 	bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
-    	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
-    	textdomain(GETTEXT_PACKAGE);
+    bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
+    textdomain(GETTEXT_PACKAGE);
 
 	// 옵션 컨텍스트 초기화
 	context = g_option_context_new("- ibus hanjp engine component");
@@ -33,7 +33,7 @@ int main(gint    argc,
     	}
 
 	// 엔진 컴포넌트 시작.
-    	start_component ();
+    start_component ();
    	return 0;
 }
 
@@ -68,6 +68,7 @@ static void start_component(void)
 	g_signal_connect(bus, "disconnected", G_CALLBACK(ibus_disconnected_callback), NULL);
 
 	// IBus Hanjp 엔진 초기화
+	ibus_hanjp_init(bus);
 
 	// IBus 컴포넌트 초기화
 	component = ibus_component_new("org.freedesktop.IBus.Hanjp",
@@ -89,11 +90,27 @@ static void start_component(void)
 								  "", // 아이콘 파일 경로
 								  "us"));
 
+	factory = ibus_factory_new (ibus_bus_get_connection (bus));
 
+    ibus_factory_add_engine (factory, "hanjp", IBUS_TYPE_HANJP_ENGINE);
+
+    if (ibus) {
+        ibus_bus_request_name (bus, "org.freedesktop.IBus.Hanjp", 0);
+    }
+    else {
+        ibus_bus_register_component (bus, component);
+    }
+
+    g_object_unref (component);
+
+    ibus_main ();
+
+    ibus_hanjp_exit ();
 }
 
 static void ibus_disconnected_callback(IBusBus  *bus,
                                        gpointer  user_data)
 {
-
+	g_debug("bus disconnected");
+	ibus_quit();
 }
