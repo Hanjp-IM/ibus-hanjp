@@ -64,6 +64,6 @@ void hanjp_init();
 void hanjp_fini();
 
 /*convert functions*/
-ucschar hanjp_syllable_to_kana(ucschar syllable, ucschar next_c, HanjpInputJpType type);
-ucschar hanjp_jamo_to_kana(ucschar cho, ucschar jung, ucschar jong, ucschar next_c, HanjpInputJpType type);
+bool hanjp_syllable_to_kana(ucschar *const dest, ucschar syllable, ucschar next_c, HanjpInputJpType type);
+bool hanjp_jamo_to_kana(ucschar *const dest, ucschar cho, ucschar jung, ucschar jong, ucschar next_c, HanjpInputJpType type);
 //need to add kana to kanji convert functions
