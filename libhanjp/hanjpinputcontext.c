@@ -1,10 +1,16 @@
 #include "hanjp.h"
 
 static bool HanjpOnTransition(HangulInputContext* hic, 
-        ucschar c, const ucschar* buf, void* data);
+        ucschar c, const ucschar* buf, void* data)
+{
+    
+}
 
 static void HanjpOnTranslate(HangulInputContext* hic, 
-        int ascii, ucschar* pc, void* data);
+        int ascii, ucschar* pc, void* data)
+{
+    
+}
 
 HanjpInputContext* hanjp_ic_new(const char* keyboard)
 {
@@ -19,8 +25,7 @@ HanjpInputContext* hanjp_ic_new(const char* keyboard)
     new_hic->commit_string[0] = 0;
     new_hic->mode = HANJP_INPUT_MODE_EN;
     new_hic->state = HANJP_STATE_COMMIT;
-    new_hic->EnType = HANJP_INPUT_EN;
-    new_hic->JpType = HANJP_INPUT_JP_HIRAGANA;
+    new_hic->Type = HANJP_INPUT_EN;
 }
 
 void hanjp_ic_delete(HanjpInputContext *hic)

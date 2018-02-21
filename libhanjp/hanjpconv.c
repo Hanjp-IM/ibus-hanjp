@@ -11,7 +11,7 @@ static const ucschar half_full_end = 0xFFEF;
 static const ucschar half_katakana_voiced_simbol = 0xFF9E;
 static const ucschar half_katakana_semi_voiced_simbol = 0xFF9F;
 
-static const ucschar hanjp_id_to_kana(int id, HanjpInputJpType type);
+static const ucschar hanjp_id_to_kana(int id, HanjpInputType type);
 static int hanjp_kana_to_id(const ucschar c);
 static const ucschar hanjp_id_to_choseong(int id);
 static int hanjp_choseong_to_id(const ucschar c);
@@ -328,14 +328,14 @@ static bool hanjp_final_conso_conjoinable(ucschar c, ucschar next_c)
     //will be written
 }
 
-bool hanjp_syllable_to_kana(ucschar *const dest, ucschar syllable, ucschar next_c, HanjpInputJpType type)
+bool hanjp_syllable_to_kana(ucschar *const dest, ucschar syllable, ucschar next_c, HanjpInputType type)
 {
     ucschar conv_char;
     //need to be written
 }
 
 
-bool hanjp_jamo_to_kana(ucschar *const dest, ucschar cho, ucschar jung, ucschar jong, ucschar next_c, HanjpInputJpType type)
+bool hanjp_jamo_to_kana(ucschar *const dest, ucschar cho, ucschar jung, ucschar jong, ucschar next_c, HanjpInputType type)
 {
     int kana_id, kana_add_id, kana_sup_id, cho_id, jung_id, jong_id;
     int dest_index = 0;
@@ -454,6 +454,12 @@ bool hanjp_jamo_to_kana(ucschar *const dest, ucschar cho, ucschar jung, ucschar 
         else
             kana_sup_id = HANJP_KANA_TO;
         break;
+        case HANJP_JONGSEONG_PIEUP:
+        if(hanjp_final_conso_conjoinable(jong, next_c))
+            kana_sup_id = HANJP_KANA_SMALL_TSU;
+        else
+            kana_sup_id = HANJP_KANA_BU;
+        break;  
         case HANJP_JONGSEONG_NIEUN:
         case HANJP_JONGSEONG_IEUNG:
         kana_sup_id = HANJP_KANA_NN;

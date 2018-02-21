@@ -6,16 +6,13 @@ typedef enum {
 } HanjpInputMode;
 
 typedef enum {
+  HANJP_INPUT_EN,
   HANJP_INPUT_JP_HIRAGANA,
   HANJP_INPUT_JP_KATAKANA,
   HANJP_INPUT_JP_HALF_KATAKANA,
-} HanjpInputJpType;
-
-typedef enum {
-  HANJP_INPUT_EN,
   HANJP_INPUT_EN_HALF,
   HANJP_INPUT_EN_FULL
-} HanjpInputEnType;
+} HanjpInputType;
 
 /*Description: Hanjp automaton states; it is checked whenever IFM calls key process functions.
  The state HANJP_STATE_START is non editting state when HangulInputContext is not being used.
@@ -42,15 +39,8 @@ typedef struct {
   ucschar commit_string[64];
   HanjpInputMode mode;
   HanjpState state;
-  HanjpInputEnType EnType;
-  HanjpInputJpType JpType;
+  HanjpInputType Type;
 } HanjpInputContext;
-
-/*special key event handler*/
-void hanjp_no_change_key_handler(HanjpInputContext* hic);
-void hanjp_change_key_handler(HanjpInputContext* hic);
-void hanjp_hiragana_katakana_toggle_key_handler(HanjpInputContext *hic);
-void hanjp_jp_en_toggle_key_handler(HanjpInputContext* hic);
 
 /*Input Context*/
 HanjpInputContext* hanjp_ic_new(const char* keyboard);
@@ -58,12 +48,16 @@ void hanjp_ic_delete(HanjpInputContext *hic);
 bool hanjp_ic_process(HanjpInputContext* hic, int ascii);
 void hanjp_ic_reset(HanjpInputContext *hic);
 bool hanjp_ic_backspace(HanjpInputContext *hic);
+void hanjp_ic_no_change_key(HanjpInputContext* hic);
+void hanjp_ic_change_key(HanjpInputContext* hic);
+void hanjp_ic_hiragana_katakana_toggle_key(HanjpInputContext *hic);
+void hanjp_ic_jp_en_toggle_key(HanjpInputContext* hic);
 
 /*start and quit*/
 void hanjp_init();
 void hanjp_fini();
 
 /*convert functions*/
-bool hanjp_syllable_to_kana(ucschar *const dest, ucschar syllable, ucschar next_c, HanjpInputJpType type);
-bool hanjp_jamo_to_kana(ucschar *const dest, ucschar cho, ucschar jung, ucschar jong, ucschar next_c, HanjpInputJpType type);
+bool hanjp_syllable_to_kana(ucschar *const dest, ucschar syllable, ucschar next_c, HanjpInputType type);
+bool hanjp_jamo_to_kana(ucschar *const dest, ucschar cho, ucschar jung, ucschar jong, ucschar next_c, HanjpInputType type);
 //need to add kana to kanji convert functions
