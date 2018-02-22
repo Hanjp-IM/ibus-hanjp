@@ -1,14 +1,38 @@
 #include "hanjp.h"
 
+/*Description:This functions is input filter that works as on_transition function in HangulInputContext.
+This function just filters jongseongs that are not listed in HanjpJongseong list.
+The key process is need in outside of HangulInputContext*/
 static bool HanjpOnTransition(HangulInputContext* hic, 
-        ucschar c, const ucschar* buf, void* data)
-{
-    
+        ucschar c, const ucschar* buf, void* data){
+    ucschar cho, jung, jong;
+    int jong_id;
+
+    hangul_syllable_to_jamo(buf, &cho, &jung, &jong);
+
+    if(cho) //jongseong rule
+    {
+        if(jung)
+        {
+            if(jong)
+            {
+                jong_id = hanjp_jongseong_to_id(jong);
+
+                //exit push function when not allowed character is pushed
+                if(jong_id == -1)  
+                    return false;
+            }
+        }
+    }
+
+    return true;
 }
 
+/*Description: This function is recover function that works as on_translate function in HangulInputContext.
+This function recovers latter that was filtered by HanjpOnTransition before processing key event.
+*/
 static void HanjpOnTranslate(HangulInputContext* hic, 
-        int ascii, ucschar* pc, void* data)
-{
+        int ascii, ucschar* pc, void* data){
     
 }
 
