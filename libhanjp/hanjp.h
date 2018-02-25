@@ -1,16 +1,9 @@
 #include <hangul.h>
 
 typedef enum {
-  HANJP_INPUT_MODE_EN,
-  HANJP_INPUT_MODE_JP
-} HanjpInputMode;
-
-typedef enum {
-  HANJP_INPUT_EN,
   HANJP_INPUT_JP_HIRAGANA,
   HANJP_INPUT_JP_KATAKANA,
   HANJP_INPUT_JP_HALF_KATAKANA,
-  HANJP_INPUT_EN_HALF,
   HANJP_INPUT_EN_FULL
 } HanjpInputType;
 
@@ -34,10 +27,8 @@ typedef enum {
 */
 typedef struct {
   HangulInputContext* hic;
-  hanjp_automaton_state state;
   ucschar preedit_string[64];
   ucschar commit_string[64];
-  HanjpInputMode mode;
   HanjpState state;
   HanjpInputType Type;
 } HanjpInputContext;
@@ -48,10 +39,11 @@ void hanjp_ic_delete(HanjpInputContext *hic);
 bool hanjp_ic_process(HanjpInputContext* hic, int ascii);
 void hanjp_ic_reset(HanjpInputContext *hic);
 bool hanjp_ic_backspace(HanjpInputContext *hic);
-void hanjp_ic_no_change_key(HanjpInputContext* hic);
-void hanjp_ic_change_key(HanjpInputContext* hic);
-void hanjp_ic_hiragana_katakana_toggle_key(HanjpInputContext *hic);
-void hanjp_ic_jp_en_toggle_key(HanjpInputContext* hic);
+bool hanjp_ic_no_change_key(HanjpInputContext* hic);
+bool hanjp_ic_change_key(HanjpInputContext* hic);
+bool hanjp_ic_hiragana_katakana_toggle_key(HanjpInputContext *hic);
+void hanjp_ic_set_input_type(HanjpInputType type);
+HanjpInputType hanjp_ic_get_input_type(void);
 
 /*start and quit*/
 void hanjp_init();
