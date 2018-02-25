@@ -370,7 +370,7 @@ bool hanjp_jamo_to_kana(ucschar *const dest, ucschar cho, ucschar jung, ucschar 
         return false;
         case HANJP_CHOSEONG_CH:
         case HANJP_CHOSEONG_Z:
-        kana_id += cho_id - 100;
+        kana_id += (cho_id - 100) * 5;
         break;
         case HANJP_CHOSEONG_OLD_IEUNG:
         break;
