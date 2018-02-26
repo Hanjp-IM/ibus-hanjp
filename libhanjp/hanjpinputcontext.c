@@ -1,5 +1,11 @@
 #include "hanjp.h"
 
+static bool hanjp_ic_internal_flush(HanjpInputContext* hic);
+static bool HanjpOnTransition(HangulInputContext* hic,
+        ucschar c, const ucschar *buf, void *data);
+static void HanjpOnTranslate(HangulInputContext* hic, 
+        int ascii, ucschar* pc, void* data);
+
 /*Description:This functions is input filter that works as on_transition function in HangulInputContext.
 This function just filters jongseongs that are not listed in HanjpJongseong list.
 The key process is need in outside of HangulInputContext*/
