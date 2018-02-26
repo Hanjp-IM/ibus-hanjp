@@ -427,7 +427,7 @@ int hanjp_jongseong_to_id(const ucschar c)
         case 20: //ㅇ
         id = HANJP_JONGSEONG_IEUNG;
         break;
-        case 103: //ㄴㄴㄴ
+        case 103: //ㄴㄴ
         id = HANJP_JONGSEONG_SSANGNIEUN;
         default:
         return -1;
