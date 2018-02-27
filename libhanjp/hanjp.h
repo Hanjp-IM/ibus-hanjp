@@ -39,18 +39,6 @@ The hangul syllable need to treat as string.
 Kana characters is single ucs.
 */
 
-const ucschar hiragana_base = 0x3040;
-const ucschar hiragana_end = 0x309F;
-const ucschar katakana_base = 0x30A0;
-const ucschar katakana_end = 0x30FF;
-const ucschar half_full_base = 0xFF00;
-const ucschar half_full_end = 0xFFEF;
-const ucschar half_katakana_voiced_simbol = 0xFF9E;
-const ucschar half_katakana_semi_voiced_simbol = 0xFF9F;
-const ucschar choseong_kiyeok = 0x1100;
-const ucschar jungseong_a = 0x1161;
-const ucschar jongseong_kiyeok = 0x11a8;
-
 const ucschar hanjp_id_to_kana(int id, HanjpInputType type);
 int hanjp_kana_to_id(const ucschar c);
 int hanjp_choseong_to_id(const ucschar c);

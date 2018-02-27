@@ -1,7 +1,20 @@
 #include "hanjp.h"
 
+static const ucschar hiragana_base = 0x3040;
+static const ucschar hiragana_end = 0x309F;
+static const ucschar katakana_base = 0x30A0;
+static const ucschar katakana_end = 0x30FF;
+static const ucschar half_full_base = 0xFF00;
+static const ucschar half_full_end = 0xFFEF;
+static const ucschar choseong_kiyeok = 0x1100;
+static const ucschar jungseong_a = 0x1161;
+static const ucschar jongseong_kiyeok = 0x11a8;
+
 const ucschar hanjp_id_to_kana(int id, HanjpInputJpType type)
 {
+    if(!((id >= HANJP_KANA_A) && (id <= HANJP_KANA_SMALL_TSU)))
+        return 0;
+
     switch(type)
     {
         case HANJP_INPUT_JP_HALF_KATAKANA:
@@ -434,9 +447,4 @@ int hanjp_jongseong_to_id(const ucschar c)
     }
 
     return id;
-}
-
-bool hanjp_final_conso_conjoinable(ucschar c, ucschar next_c)
-{
-    
 }
