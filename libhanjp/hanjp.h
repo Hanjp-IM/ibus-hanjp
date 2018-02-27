@@ -38,7 +38,11 @@ typedef struct {
 The hangul syllable need to treat as string.
 Kana characters is single ucs.
 */
-
+bool hanjp_is_kana(ucschar c);
+bool hanjp_is_choseong(ucschar c);
+bool hanjp_is_jungseong(ucschar c);
+bool hanjp_is_jongseong(ucschar c);
+bool hanjp_is_special_symbol(ucschar c);
 const ucschar hanjp_id_to_kana(int id, HanjpInputType type);
 int hanjp_kana_to_id(const ucschar c);
 int hanjp_choseong_to_id(const ucschar c);
@@ -278,10 +282,13 @@ HanjpInputContext* hanjp_ic_new(const char* keyboard);
 void hanjp_ic_delete(HanjpInputContext *hic);
 bool hanjp_ic_process(HanjpInputContext* hic, int ascii);
 void hanjp_ic_reset(HanjpInputContext *hic);
+bool hanjp_ic_flush(HanjpInputContext *hic);
+
 bool hanjp_ic_backspace(HanjpInputContext *hic);
 bool hanjp_ic_no_change_key(HanjpInputContext* hic);
 bool hanjp_ic_change_key(HanjpInputContext* hic);
 bool hanjp_ic_hiragana_katakana_toggle_key(HanjpInputContext *hic);
+
 void hanjp_ic_set_input_type(HanjpInputType type);
 HanjpInputType hanjp_ic_get_input_type(void);
 

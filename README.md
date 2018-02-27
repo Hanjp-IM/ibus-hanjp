@@ -9,7 +9,7 @@ This project is currently in development state.
 This software is provided under LGPL 3.0, and the documents for technology reference is available under GNU FDL 1.3 or later version.
 
 ## Estimated Schedule
-- 2018.02.18 : Beta release
+- 2018.03.18 : Beta release
 - 2018.04.15 : Final release
 
 ## Links

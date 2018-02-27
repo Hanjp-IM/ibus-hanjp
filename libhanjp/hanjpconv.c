@@ -3,8 +3,8 @@
 static bool hanjp_final_conso_conjoinable(ucschar batchim, ucschar next_c);
 static bool hanjp_is_voiced_by_id(int id);
 static bool hanjp_is_semi_voiced_by_id(int id);
-static const ucschar hanjp_half_katakana_voiced_simbol = 0xFF9E;
-static const ucschar hanjp_half_katakana_semi_voiced_simbol = 0xFF9F;
+static const ucschar hanjp_half_katakana_voiced_symbol = 0xFF9E;
+static const ucschar hanjp_half_katakana_semi_voiced_symbol = 0xFF9F;
 
 static bool hanjp_is_voiced_by_id(int id)
 {
@@ -388,27 +388,27 @@ bool hanjp_jamo_to_kana(ucschar *dest, ucschar cho, ucschar jung, ucschar jong, 
         case HANJP_INPUT_JP_HALF_KATAKANA:
         init_string[0] = hanjp_id_to_kana(kana_id, type);
         if(hanjp_is_voiced_by_id(kana_id))
-            init_string[1] = hanjp_half_katakana_voiced_simbol;
+            init_string[1] = hanjp_half_katakana_voiced_symbol;
         else if(hanjp_is_semi_voiced_by_id(kana_id));
-            init_string[1] = hanjp_half_katakana_semi_voiced_simbol;
+            init_string[1] = hanjp_half_katakana_semi_voiced_symbol;
 
         i = 0;
         add_string[i++] = hanjp_id_to_kana(kana_add_id, type);
         if(hanjp_is_voiced_by_id(kana_add_id))
-            add_string[i++] = hanjp_half_katakana_voiced_simbol;
+            add_string[i++] = hanjp_half_katakana_voiced_symbol;
         else if(hanjp_is_semi_voiced_by_id(kana_add_id))
-            add_string[i++] = hanjp_half_katakana_semi_voiced_simbol;
+            add_string[i++] = hanjp_half_katakana_semi_voiced_symbol;
         add_string[i++] = hanjp_id_to_kana(kana_add_id1, type);
         if(hanjp_is_voiced_by_id(kana_add_id1))
-            add_string[i++] = hanjp_half_katakana_voiced_simbol;
+            add_string[i++] = hanjp_half_katakana_voiced_symbol;
         else if(hanjp_is_semi_voiced_by_id(kana_add_id1))
-            add_string[i++] = hanjp_half_katakana_semi_voiced_simbol;
+            add_string[i++] = hanjp_half_katakana_semi_voiced_symbol;
         
         sup_string[0] = hanjp_id_to_kana(kana_sup_id, type);
         if(hanjp_is_voiced_by_id(kana_sup_id))
-            add_string[1] = hanjp_half_katakana_voiced_simbol;
+            add_string[1] = hanjp_half_katakana_voiced_symbol;
         else if(hanjp_is_semi_voiced_by_id(kana_sup_id))
-            add_string[1] = hanjp_half_katakana_semi_voiced_simbol;
+            add_string[1] = hanjp_half_katakana_semi_voiced_symbol;
         break;
         default:
         return false;

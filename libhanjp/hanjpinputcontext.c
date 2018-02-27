@@ -68,22 +68,51 @@ void hanjp_ic_delete(HanjpInputContext *hic)
     free(hic);
 }
 
+
+//need to be fixed
 bool hanjp_ic_process(HanjpInputContext* hic, int ascii)
 {
     ucschar c;
+    HanjpInputType type = hic->Type;
+    int tableid;
 
     if(hic == NULL)
     return false;
 
-    c = hangul_keyboard_get_mapping(hic->keyboard, 0, ascii);
+    switch(type)
+    {
+        case HANJP_INPUT_JP_HIRAGANA:
+        case HANJP_INPUT_JP_KATAKANA:
+        case HANJP_INPUT_JP_HALF_KATAKANA:
+        tableid = 0;
+        break;
+        case HANJP_INPUT_EN_FULL:
+        tableid = 1;
+        break;
+        default:
+        tableid = 0;
+    }
+
+    c = hangul_keyboard_get_mapping(hic->keyboard, tableid, ascii);
 
     if(ascii == '\b')
         return hanjp_ic_backspace(hic);
-
-    if(!hangul_ic_process(hic->hic, ascii)) //on not allowed batchim comes
+    
+    if(hanjp_is_special_symbol(c)) //number, \, . binding
     {
-        hangul_ic_save_commit_string(hic);
-        hangul_ic_flush(hic->hic);
+        
+    }
+    else if(!hangul_ic_process(hic->hic, ascii)) //on not allowed batchim comes
+    {
+        if(hanjp_is_jungseong(c))
+        {
+
+        }
+        else if(hanjp_is_jongseong(c))
+        {
+
+        }
+        
     }
 
     return true;
