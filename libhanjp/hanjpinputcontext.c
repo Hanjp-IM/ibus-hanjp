@@ -1,33 +1,36 @@
 #include "hanjp.h"
 
-static bool hanjp_ic_internal_flush(HanjpInputContext* hic);
+static bool hanjp_ic_flush_internal(HanjpInputContext* hic);
 static bool HanjpOnTransition(HangulInputContext* hic,
         ucschar c, const ucschar *buf, void *data);
 static void HanjpOnTranslate(HangulInputContext* hic, 
         int ascii, ucschar* pc, void* data);
+static bool hanjp_hic_push(HangulInputContext *hic, ucschar c);
+static void hanjp_ic_save_commit_string(HanjpInputContext* hic);
+static void hanjp_ic_append_commit_string(HanjpInputContext* hic, ucschar c);
 
 /*Description:This functions is input filter that works as on_transition function in HangulInputContext.
 This function just filters jongseongs that are not listed in HanjpJongseong list.
 The key process is need in outside of HangulInputContext*/
+/*need to add jungseong rules*/
 static bool HanjpOnTransition(HangulInputContext* hic, 
         ucschar c, const ucschar* buf, void* data){
     ucschar cho = 0;
     ucschar jung = 0;
     ucschar jong = 0;
-    int jong_id;
 
     hangul_syllable_to_jamo(buf, &cho, &jung, &jong);
 
-    if(cho) //jongseong rule
+    if(hangul_is_choseong(cho))
     {
-        if(jung)
+        if(hangul_is_jungseong(jung))
         {
-            if(jong)
-            {
-                jong_id = hanjp_jongseong_to_id(jong);
+            if(!hanjp_is_jungseong(jung)) //jungseong is on table?
+                return false;
 
-                //exit push function when not allowed character is pushed
-                if(jong_id == -1)  
+            if(hangul_is_jongseong(jong))
+            {
+                if(!hanjp_is_jongseong(jong)) //jongseong is on table
                     return false;
             }
         }
@@ -93,27 +96,37 @@ bool hanjp_ic_process(HanjpInputContext* hic, int ascii)
         tableid = 0;
     }
 
-    c = hangul_keyboard_get_mapping(hic->keyboard, tableid, ascii);
-
     if(ascii == '\b')
         return hanjp_ic_backspace(hic);
+    else if(ascii == /*change*/)
+        return hanjp_ic_change_key(hic);
+    else if(ascii == /*no change*/)
+        return hanjp_ic_no_change_key(hic);
+    else if(ascii == /*hiragana katakana toogle*/)
+        return hanjp_ic_hiragana_katakana_toggle_key(hic);
+
+    c = hangul_keyboard_get_mapping(hic->keyboard, tableid, ascii);
     
-    if(hanjp_is_special_symbol(c)) //number, \, . binding
+    if(hanjp_is_hangul(c)) //number, \, . binding
     {
-        
+        hic->state = HANJP_STATE_EDITTING;
+
+        if(!hangul_ic_process(hic->hic, ascii)) //on not allowed jungseong, jongseong comes
+        {
+            hanjp_ic_save_preedit_string(hic); //flushed and converted hic with this function
+            hanjp_hic_push(hic->hic, c);
+        }
     }
-    else if(!hangul_ic_process(hic->hic, ascii)) //on not allowed batchim comes
+    else
     {
-        if(hanjp_is_jungseong(c))
-        {
+        hic->state = HANJP_STATE_START;
 
-        }
-        else if(hanjp_is_jongseong(c))
-        {
-
-        }
-        
+        hanjp_ic_flush_internal(hic);
+        hanjp_ic_save_preedit_string(hic);
+        hanjp_ic_save_commit_string(hic);
+        hanjp_ic_append_commit_string(hic, c);
     }
+    
 
     return true;
 }

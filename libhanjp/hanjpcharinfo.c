@@ -9,6 +9,33 @@ static const ucschar half_full_end = 0xFFEF;
 static const ucschar choseong_kiyeok = 0x1100;
 static const ucschar jungseong_a = 0x1161;
 static const ucschar jongseong_kiyeok = 0x11a8;
+static const ucschar hanjp_tone_mark = 0x302F;
+
+bool hanjp_is_kana(ucschar c)
+{
+    return (hanjp_kana_to_id(c) != -1)
+}
+
+bool hanjp_is_choseong(ucschar c)
+{
+    return (hanjp_choseong_to_id(c) != -1)
+}
+
+bool hanjp_is_jungseong(ucschar c)
+{
+    return (hanjp_jungseong(c) != -1);
+}
+
+bool hanjp_is_jongseong(ucschar c)
+{
+    return (hanjp_is_jongseong(c) != -1);
+}
+
+bool hanjp_is_hangul(ucschar c)
+{
+    return (hanjp_is_choseong(c) || hanjp_is_jungseong(c) || 
+            hanjp_is_jongseong(c) || hanjp_tone_mark);
+}
 
 const ucschar hanjp_id_to_kana(int id, HanjpInputJpType type)
 {

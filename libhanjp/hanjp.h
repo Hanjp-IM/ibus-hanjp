@@ -15,8 +15,7 @@ typedef enum {
 */
 typedef enum {
   HANJP_STATE_START,
-  HANJP_STATE_EDITTING,
-  HANJP_STATE_COMMIT
+  HANJP_STATE_EDITTING
 } HanjpState;
 
 /*Description: Hanjp input context: it is the object that containing whole hanjp functional data.
@@ -42,7 +41,7 @@ bool hanjp_is_kana(ucschar c);
 bool hanjp_is_choseong(ucschar c);
 bool hanjp_is_jungseong(ucschar c);
 bool hanjp_is_jongseong(ucschar c);
-bool hanjp_is_special_symbol(ucschar c);
+bool hanjp_is_jamo(ucschar c);
 const ucschar hanjp_id_to_kana(int id, HanjpInputType type);
 int hanjp_kana_to_id(const ucschar c);
 int hanjp_choseong_to_id(const ucschar c);
@@ -282,15 +281,19 @@ HanjpInputContext* hanjp_ic_new(const char* keyboard);
 void hanjp_ic_delete(HanjpInputContext *hic);
 bool hanjp_ic_process(HanjpInputContext* hic, int ascii);
 void hanjp_ic_reset(HanjpInputContext *hic);
-bool hanjp_ic_flush(HanjpInputContext *hic);
-
 bool hanjp_ic_backspace(HanjpInputContext *hic);
 bool hanjp_ic_no_change_key(HanjpInputContext* hic);
 bool hanjp_ic_change_key(HanjpInputContext* hic);
 bool hanjp_ic_hiragana_katakana_toggle_key(HanjpInputContext *hic);
 
+bool hanjp_ic_is_empty(HanjpInputContext *hic);
+
 void hanjp_ic_set_input_type(HanjpInputType type);
 HanjpInputType hanjp_ic_get_input_type(void);
+
+const ucschar* hanjp_ic_get_preedit_string(HanjpInputContext* hic);
+const ucschar* hanjp_ic_get_commit_string(HanjpInputContext* hic);
+const ucschar* hanjp_ic_flush(HanjpInputContext *hic);
 
 /*start and quit*/
 void hanjp_init();
