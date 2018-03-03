@@ -2,7 +2,6 @@
 
 #include <hanjp.h>
 #include <ibus.h>
-
 #include "engine.h"
 
 typedef struct _IBusHanjpEngine IBusHanjpEngine;
@@ -26,8 +25,8 @@ struct _IBusHanjpEngineClass {
 /* functions prototype */
 static void	ibus_hanjp_engine_class_init	(IBusHanjpEngineClass	*klass);
 static void	ibus_hanjp_engine_init		(IBusHanjpEngine		*engine);
-static void	ibus_hanjp_engine_destroy		(IBusHanjpEngine		*engine);
-static gboolean 
+static void	ibus_hanjp_engine_destroy	(IBusHanjpEngine		*engine);
+static gboolean
 			ibus_hanjp_engine_process_key_event
                                             (IBusEngine             *engine,
                                              guint               	 keyval,
@@ -54,21 +53,26 @@ static void ibus_hanjp_property_activate  (IBusEngine             *engine,
                                              const gchar            *prop_name,
                                              gint                    prop_state);
 static void ibus_hanjp_engine_property_show
-											(IBusEngine             *engine,
+					(IBusEngine             *engine,
                                              const gchar            *prop_name);
 static void ibus_hanjp_engine_property_hide
-											(IBusEngine             *engine,
+					(IBusEngine             *engine,
                                              const gchar            *prop_name);
 
-static void ibus_hanjp_engine_commit_string
-                                            (IBusHanjpEngine      *hanjp,
+static void ibus_hanjp_engine_candidate_clicked(IBusEngine *engine,
+                                                guint       index,
+                                                guint       button,
+                                                guint       state);
+
+// Commits string to client
+static void ibus_hanjp_engine_commit_string(IBusHanjpEngine      *hanjp,
                                              const gchar            *string);
 static void ibus_hanjp_engine_update      (IBusHanjpEngine      *hanjp);
 
 static EnchantBroker *broker = NULL;
 static EnchantDict *dict = NULL;
 
-static const GTypeInfo type_info = {
+static const GTypeInfo type_info = { // Class Type Info
     sizeof(IBusHangulEngineClass),
 
     (GBaseInitFunc) NULL,
@@ -80,15 +84,13 @@ static const GTypeInfo type_info = {
 
     sizeof(IBusHanjpEngine),
     0,
-    (GInstanceInitFunc) ibus_hangul_engine_init,
+    (GInstanceInitFunc) ibus_hanjp_engine_init,
 
     NULL
 };
 
 GType ibus_hanjp_engine_get_type(void)
 {
-    GType type;
-
     type = g_type_register_static (IBUS_TYPE_ENGINE,
                                 "IBusHanjpEngine",
                                 &type_info,
@@ -97,24 +99,42 @@ GType ibus_hanjp_engine_get_type(void)
     return type;
 }
 
+// Class Init function
 static void
 ibus_hanjp_engine_class_init (IBusHanjpEngineClass *klass)
 {
 	IBusObjectClass *ibus_object_class = IBUS_OBJECT_CLASS (klass);
 	IBusEngineClass *engine_class = IBUS_ENGINE_CLASS (klass);
-	
+
 	ibus_object_class->destroy = (IBusObjectDestroyFunc) ibus_hanjp_engine_destroy;
 
-    engine_class->process_key_event = ibus_hanjp_engine_process_key_event;
+        engine_class->process_key_event = ibus_hanjp_engine_process_key_event;
+
+        engine_class->reset = ibus_hanjp_engine_reset;
+        engine_class->enable = ibus_hanjp_engine_enable;
+        engine_class->disable = ibus_hanjp_engine_disable;
+
+        engine_class->focus_in = ibus_hanjp_engine_focus_in;
+        engien_class->focus_out = ibus_hanjp_engine_focus_out;
+
+        engine_class->cursor_up = ibus_hanjp_engine_cursor_up;
+        engien_class->cursor_down = ibus_hanjp_engine_cursor_down;
+
+        engien_class->candidate_clicked = ibus_hanjp_engine_candidate_clicked;
 }
 
+// Engine init function
 static void
 ibus_hanjp_engine_init (IBusHanjpEngine *hanjp)
 {
+        /*
     if (broker == NULL) {
         broker = hanjp_broker_init ();
         dict = hanjp_broker_request_dict (broker, "en");
     }
+        */
+        // Init Context
+    hanjp->context = hanjp_ic_new("2hj");
 
     hanjp->preedit = g_string_new ("");
     hanjp->cursor_pos = 0;
@@ -235,6 +255,7 @@ ibus_hanjp_engine_update (IBusHanjpEngine *hanjp)
 
 #define is_alpha(c) (((c) >= IBUS_a && (c) <= IBUS_z) || ((c) >= IBUS_A && (c) <= IBUS_Z))
 
+// function that processes key press event
 static gboolean 
 ibus_hanjp_engine_process_key_event (IBusEngine *engine,
                                        guint       keyval,
@@ -348,4 +369,13 @@ ibus_hanjp_engine_process_key_event (IBusEngine *engine,
     }
 
     return FALSE;
+}
+
+// Process candidate click event
+static void ibus_hanjp_engine_candidate_clicked(IBusEngine *engine,
+                                                guint       index,
+                                                guint       button,
+                                                guint       state)
+{
+
 }
