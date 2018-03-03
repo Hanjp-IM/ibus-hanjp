@@ -414,13 +414,10 @@ bool hanjp_jamo_to_kana(ucschar *dest, ucschar cho, ucschar jung, ucschar jong, 
         return false;
     }
 
-    for(i = 0; (i < 3) && init_string[i]; i++)
-        dest[dest_index++] = init_string[i];
-    for(i = 0; (i < 6) && add_string[i]; i++)
-        dest[dest_index++] = add_string[i];
-    for(i = 0; (i < 3) && sup_string[i]; i++)
-        dest[dest_index++] = sup_string[i];
-    dest[dest_index] = 0;
+
+    ucs_append(dest, init_string);
+    ucs_append(dest, add_string);
+    ucs_append(dest, sup_string);
 
     return true;
 }
