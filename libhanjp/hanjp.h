@@ -37,6 +37,8 @@ typedef struct {
 The hangul syllable need to treat as string.
 Kana characters is single ucs.
 */
+bool hanjp_is_voiced_by_id(int id);
+bool hanjp_is_semi_voiced_by_id(int id);
 bool hanjp_is_kana(ucschar c);
 bool hanjp_is_choseong(ucschar c);
 bool hanjp_is_jungseong(ucschar c);

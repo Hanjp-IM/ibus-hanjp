@@ -11,6 +11,51 @@ static const ucschar jungseong_a = 0x1161;
 static const ucschar jongseong_kiyeok = 0x11a8;
 static const ucschar hanjp_tone_mark = 0x302F;
 
+bool hanjp_is_voiced_by_id(int id)
+{
+    switch(id)
+    {
+        case HANJP_KANA_GA:
+        case HANJP_KANA_GI:
+        case HANJP_KANA_GU:
+        case HANJP_KANA_GE:
+        case HANJP_KANA_GO:
+        case HANJP_KANA_ZA:
+        case HANJP_KANA_ZI:
+        case HANJP_KANA_ZU:
+        case HANJP_KANA_ZE:
+        case HANJP_KANA_ZO:
+        case HANJP_KANA_DA:
+        case HANJP_KANA_JI:
+        case HANJP_KANA_JU:
+        case HANJP_KANA_DE:
+        case HANJP_KANA_DO:
+        case HANJP_KANA_BA:
+        case HANJP_KANA_BI:
+        case HANJP_KANA_BU:
+        case HANJP_KANA_BE:
+        case HANJP_KANA_BO:
+        return true;
+        default:
+        return false;
+    }
+}
+
+bool hanjp_is_semi_voiced_by_id(int id)
+{
+    switch(id)
+    {
+        case HANJP_KANA_PA:
+        case HANJP_KANA_PI:
+        case HANJP_KANA_PU:
+        case HANJP_KANA_PE:
+        case HANJP_KANA_PO:
+        return true;
+        default:
+        return false;
+    }
+}
+
 const ucschar kana_ordinate_table[80][3] = {
     {0x3042, 0x30A2, 0xFF71}, //A
     {0x3044, 0x30A4, 0xFF72}, //I
