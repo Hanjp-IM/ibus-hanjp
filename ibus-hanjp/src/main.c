@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <locale.h>
 #include <hangul.h>
+#include "engine.h"
 
 static IBusBus *bus = NULL;
 static IBusFactory *factory = NULL;
@@ -16,14 +17,14 @@ int main(gint    argc,
 	GError *error = NULL;
 	GOptionContext *context;
 
-	// 로케일 설정
+	// Set System Locale
 	setlocale(LC_ALL, "");
 
 	bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
-    bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
-    textdomain(GETTEXT_PACKAGE);
+    	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
+	textdomain(GETTEXT_PACKAGE);
 
-	// 옵션 컨텍스트 초기화
+	// Init Option contect
 	context = g_option_context_new("- ibus hanjp engine component");
 
 	// 옵션 해석 실패시 종료.
@@ -33,7 +34,7 @@ int main(gint    argc,
     	}
 
 	// 엔진 컴포넌트 시작.
-    start_component ();
+    	start_component ();
    	return 0;
 }
 
@@ -92,20 +93,22 @@ static void start_component(void)
 
 	factory = ibus_factory_new (ibus_bus_get_connection (bus));
 
-    ibus_factory_add_engine (factory, "hanjp", IBUS_TYPE_HANJP_ENGINE);
+    	ibus_factory_add_engine (factory, "hanjp", IBUS_TYPE_HANJP_ENGINE);
 
-    if (ibus) {
-        ibus_bus_request_name (bus, "org.freedesktop.IBus.Hanjp", 0);
-    }
-    else {
-        ibus_bus_register_component (bus, component);
-    }
+    	if (ibus) {
+        	ibus_bus_request_name (bus, "org.freedesktop.IBus.Hanjp", 0);
+    	}
+    	else {
+        	ibus_bus_register_component (bus, component);
+   	}
 
-    g_object_unref (component);
+    	g_object_unref (component);
 
-    ibus_main ();
+	// Start Engine Loop
+	ibus_main ();
 
-    ibus_hanjp_exit ();
+	// Quit when engine loop end
+    	ibus_hanjp_exit ();
 }
 
 static void ibus_disconnected_callback(IBusBus  *bus,
