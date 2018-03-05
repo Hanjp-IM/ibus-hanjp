@@ -309,7 +309,7 @@ const ucschar hanjp_id_to_kana(int id, HanjpInputJpType type)
             return kana_ordinate_table[id][HANJP_INPUT_JP_KATAKANA];
         case HANJP_INPUT_JP_HIRAGANA:
         default:
-            return kana_ordinate_table[id][HANJP_INPUT_JP_HIRAGANA];
+            return 0;
     }
 }
 

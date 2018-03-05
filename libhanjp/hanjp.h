@@ -43,7 +43,7 @@ bool hanjp_is_kana(ucschar c);
 bool hanjp_is_choseong(ucschar c);
 bool hanjp_is_jungseong(ucschar c);
 bool hanjp_is_jongseong(ucschar c);
-bool hanjp_is_jamo(ucschar c);
+bool hanjp_is_hangul(ucschar c);
 const ucschar hanjp_id_to_kana(int id, HanjpInputType type);
 int hanjp_kana_to_id(const ucschar c);
 int hanjp_choseong_to_id(const ucschar c);

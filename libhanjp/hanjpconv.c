@@ -1,4 +1,5 @@
 #include "hanjp.h"
+#define ENABLE_EXTERNAL_KEYBOARDS 1
 
 static bool hanjp_final_conso_conjoinable(ucschar batchim, ucschar next_c);
 static const ucschar hanjp_half_katakana_voiced_symbol = 0xFF9E;

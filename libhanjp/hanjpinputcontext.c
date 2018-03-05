@@ -25,13 +25,11 @@ static bool HanjpOnTransition(HangulInputContext* hic,
 
     hangul_syllable_to_jamo(buf, &cho, &jung, &jong);
 
+    //There is no need to check choseong or jungseong
     if(hangul_is_choseong(cho))
     {
         if(hangul_is_jungseong(jung))
         {
-            if(!hanjp_is_jungseong(jung)) //jungseong is on table?
-                return false;
-
             if(hangul_is_jongseong(jong))
             {
                 if(!hanjp_is_jongseong(jong)) //jongseong is on table
@@ -41,6 +39,20 @@ static bool HanjpOnTransition(HangulInputContext* hic,
     }
 
     return true;
+}
+
+void hanjp_init()
+{
+    int res;
+    res = hangul_keyboard_list_init();
+    return res;
+}
+
+void hanjp_fini()
+{
+    int res;
+    res = hangul_keyboard_list_fini();
+    return res;
 }
 
 HanjpInputContext* hanjp_ic_new(const char* keyboard)
@@ -102,14 +114,11 @@ bool hanjp_ic_process(HanjpInputContext* hic, int ascii)
 
     if(ascii == '\b')
         return hanjp_ic_backspace(hic);
-    else if(ascii == /*change*/)
-        return hanjp_ic_change_key(hic);
-    else if(ascii == /*no change*/)
-        return hanjp_ic_no_change_key(hic);
-    else if(ascii == /*hiragana katakana toogle*/)
-        return hanjp_ic_hiragana_katakana_toggle_key(hic);
 
     c = hangul_keyboard_get_mapping(hic->keyboard, tableid, ascii);
+
+    if(c <= 0)
+        return false;
     
     if(hanjp_is_hangul(c)) //number, \, . binding
     {
@@ -233,10 +242,26 @@ bool hanjp_ic_hiragana_katakana_toggle_key(HanjpInputContext *hic)
 
 static bool hanjp_hic_push(HangulInputContext *hic, ucschar c)
 {
+    if(!hic)
+        return false;
+
+    if(!hic->hic)
+        return false;
+
     if(!hangul_is_jamo(c))
         return false;
 
-    hangul_buffer_push(&hic->buffer, c);
+    if (hangul_is_choseong(ch)) {
+	hic->hic->buffer.choseong = ch;
+    } else if (hangul_is_jungseong(ch)) {
+	hic->hic->buffer.jungseong = ch;
+    } else if (hangul_is_jongseong(ch)) {
+	hic->hic->buffer.jongseong = ch;
+    } else {
+    }
+
+    hic->hic->buffer.stack[++hic->hic->buffer.index] = ch;
+
     return true;
 }
 
