@@ -26,8 +26,7 @@ struct _IBusHanjpEngineClass {
 static void	ibus_hanjp_engine_class_init	(IBusHanjpEngineClass	*klass);
 static void	ibus_hanjp_engine_init		(IBusHanjpEngine		*engine);
 static void	ibus_hanjp_engine_destroy	(IBusHanjpEngine		*engine);
-static gboolean
-			ibus_hanjp_engine_process_key_event
+static gboolean ibus_hanjp_engine_process_key_event
                                             (IBusEngine             *engine,
                                              guint               	 keyval,
                                              guint               	 keycode,
@@ -134,27 +133,32 @@ ibus_hanjp_engine_init (IBusHanjpEngine *hanjp)
     }
         */
         // Init Context
-    hanjp->context = hanjp_ic_new("2hj");
+        hanjp->context = hanjp_ic_new("2hj");
 
-    hanjp->preedit = g_string_new ("");
-    hanjp->cursor_pos = 0;
-
-    hanjp->table = ibus_lookup_table_new (9, 0, TRUE, TRUE);
-    g_object_ref_sink (hanjp->table);
+        hanjp->preedit = g_string_new ("");
+        hanjp->cursor_pos = 0;
+        hanjp->table = ibus_lookup_table_new (9, 0, TRUE, TRUE);
+        g_object_ref_sink (hanjp->table);
 }
 
+// Engine object destroy func
 static void
 ibus_hanjp_engine_destroy (IBusHanjpEngine *hanjp)
 {
-    if (hanjp->preedit) {
-        g_string_free (hanjp->preedit, TRUE);
-        hanjp->preedit = NULL;
-    }
+        if (hanjp->preedit) {
+                g_string_free (hanjp->preedit, TRUE);
+                hanjp->preedit = NULL;
+        }
 
-    if (hanjp->table) {
-        g_object_unref (hanjp->table);
-        hanjp->table = NULL;
-    }
+        if (hanjp->table) {
+                g_object_unref (hanjp->table);
+                hanjp->table = NULL;
+        }
+
+        if(hanjp->context){
+                hanjp_ic_delete(hanjp->context);
+                hanjp->context = NULL;
+        }
 
 	((IBusObjectClass *) ibus_hanjp_engine_parent_class)->destroy ((IBusObject *)hanjp);
 }
@@ -268,29 +272,19 @@ ibus_hanjp_engine_process_key_event (IBusEngine *engine,
     if (modifiers & IBUS_RELEASE_MASK)
         return FALSE;
 
-    modifiers &= (IBUS_CONTROL_MASK | IBUS_MOD1_MASK);
-
-    if (modifiers == IBUS_CONTROL_MASK && keyval == IBUS_s) {
-        ibus_hanjp_engine_update_lookup_table (hanjp);
-        return TRUE;
-    }
-
     if (modifiers != 0) {
         if (hanjp->preedit->len == 0)
             return FALSE;
-        else
-            return TRUE;
     }
 
-
     switch (keyval) {
-    case IBUS_space:
+    case IBUS_KEY_space:
+            //TODO - Replace with kanji conversion process
         g_string_append (hanjp->preedit, " ");
         return ibus_hanjp_engine_commit_preedit (hanjp);
-    case IBUS_Return:
+    case IBUS_KEY_Return:
         return ibus_hanjp_engine_commit_preedit (hanjp);
-
-    case IBUS_Escape:
+    case IBUS_KEY_Escape:
         if (hanjp->preedit->len == 0)
             return FALSE;
 
@@ -299,7 +293,7 @@ ibus_hanjp_engine_process_key_event (IBusEngine *engine,
         ibus_hanjp_engine_update (hanjp);
         return TRUE;        
 
-    case IBUS_Left:
+    case IBUS_KEY_Left:
         if (hanjp->preedit->len == 0)
             return FALSE;
         if (hanjp->cursor_pos > 0) {
@@ -308,7 +302,7 @@ ibus_hanjp_engine_process_key_event (IBusEngine *engine,
         }
         return TRUE;
 
-    case IBUS_Right:
+    case IBUS_KEY_Right:
         if (hanjp->preedit->len == 0)
             return FALSE;
         if (hanjp->cursor_pos < hanjp->preedit->len) {
@@ -317,7 +311,7 @@ ibus_hanjp_engine_process_key_event (IBusEngine *engine,
         }
         return TRUE;
     
-    case IBUS_Up:
+    case IBUS_KEY_Up:
         if (hanjp->preedit->len == 0)
             return FALSE;
         if (hanjp->cursor_pos != 0) {
@@ -326,7 +320,7 @@ ibus_hanjp_engine_process_key_event (IBusEngine *engine,
         }
         return TRUE;
 
-    case IBUS_Down:
+    case IBUS_KEY_Down:
         if (hanjp->preedit->len == 0)
             return FALSE;
         
@@ -337,17 +331,18 @@ ibus_hanjp_engine_process_key_event (IBusEngine *engine,
         
         return TRUE;
     
-    case IBUS_BackSpace:
+    case IBUS_KEY_BackSpace:
         if (hanjp->preedit->len == 0)
             return FALSE;
         if (hanjp->cursor_pos > 0) {
-            hanjp->cursor_pos --;
-            g_string_erase (hanjp->preedit, hanjp->cursor_pos, 1);
-            ibus_hanjp_engine_update (hanjp);
+                hanjp->cursor_pos --;
+                g_string_erase (hanjp->preedit, hanjp->cursor_pos, 1);
+                hanjp_ic_backspace(hanjp->context);
+                ibus_hanjp_engine_update (hanjp);
         }
         return TRUE;
-    
-    case IBUS_Delete:
+
+    case IBUS_KEY_Delete:
         if (hanjp->preedit->len == 0)
             return FALSE;
         if (hanjp->cursor_pos < hanjp->preedit->len) {
