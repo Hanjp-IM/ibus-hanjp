@@ -1,5 +1,4 @@
 #include "hanjp.h"
-#define ENABLE_EXTERNAL_KEYBOARDS 1
 
 static bool hanjp_final_conso_conjoinable(ucschar batchim, ucschar next_c);
 static const ucschar hanjp_half_katakana_voiced_symbol = 0xFF9E;
@@ -97,13 +96,13 @@ static bool hanjp_syllable_to_kana(ucschar *dest, ucschar syllable, ucschar next
 
 bool hanjp_jamo_to_kana(ucschar *dest, ucschar cho, ucschar jung, ucschar jong, ucschar next_c, HanjpInputType type)
 {
-    int kana_id, kana_add_id, kana_add_id1, kana_sup_id, cho_id, jung_id, jong_id;
+    int kana_id, kana_add_id, kana_add_id1, kana_sup_id, kana_sup_id1, cho_id, jung_id, jong_id;
     int dest_index = 0;
     int i;
 
     ucschar init_string[3] = {0, };
     ucschar add_string[6] = {0, };
-    ucschar sup_string[3] = {0, };
+    ucschar sup_string[6] = {0, };
 
     if(!dest)
         return false;
@@ -117,8 +116,18 @@ bool hanjp_jamo_to_kana(ucschar *dest, ucschar cho, ucschar jung, ucschar jong, 
     jung_id = hanjp_jungseong_to_id(jung);
     jong_id = hanjp_jongseong_to_id(jong);
 
-    if((cho_id == -1) && (jung_id == -1) && (jong_id == -1))
+    if(!jung)
         return false;
+
+    if(!cho)
+    {
+        if(hanjp_is_jongseong(jung))
+        {
+            return true;
+        }
+        else
+            return false;
+    }
 
     switch(cho_id) //process choseong
     {
@@ -128,6 +137,20 @@ bool hanjp_jamo_to_kana(ucschar *dest, ucschar cho, ucschar jung, ucschar jong, 
         break;
         case HANJP_CHOSEONG_OLD_IEUNG:
         break;
+        case HANJP_CHOSEONG_VOID:
+        switch(jung_id)
+        {
+            case HANJP_JUNGSEONG_A:
+            case HANJP_JUNGSEONG_E:
+            case HANJP_JUNGSEONG_I:
+            case HANJP_JUNGSEONG_O:
+            case HANJP_JUNSEOONG_U:
+            kana_id = HANJP_KANA_SMALL_A + jung_id;
+            ucs_append(dest, hanjp_id_to_kana(kana_id));
+            return true;
+            default:
+            return false;
+        }
         default:
         break;
         kana_id += cho_id * 5;
@@ -187,7 +210,7 @@ bool hanjp_jamo_to_kana(ucschar *dest, ucschar cho, ucschar jung, ucschar jong, 
         {
             case HANJP_CHOSEONG_OLD_IEUNG:
             return false;
-            case HANJP_CHOSEONG_VOID:
+            case HANJP_CHOSEONG_IEUNG:
             kana_id = HANJP_KANA_YA + (jung_id - HANJP_JUNGSEONG_YA);
             kana_add_id = -1;
             case HANJP_CHOSEONG_T:
@@ -218,7 +241,7 @@ bool hanjp_jamo_to_kana(ucschar *dest, ucschar cho, ucschar jung, ucschar jong, 
         {
             case HANJP_CHOSOENG_OLD_IEUNG:
             return false;
-            case HANJP_CHOSEONG_VOID:
+            case HANJP_CHOSEONG_IEUNG:
             switch(jung_id)
             {
                 case HANJP_JUNGSEONG_OA:
@@ -326,48 +349,64 @@ bool hanjp_jamo_to_kana(ucschar *dest, ucschar cho, ucschar jung, ucschar jong, 
         break;  
         case HANJP_JONGSEONG_NIEUN:
         case HANJP_JONGSEONG_IEUNG:
-        kana_sup_id = HANJP_KANA_NN;
+        if(hanjp_final_conso_conjoinable(jong, next_c))
+            kana_sup_id = HANJP_KANA_NN;
+        else
+            kana_sup_id = HANJP_KANA_NU;
         break;
     }
+
+    if(hanjp_is_jungseong(next_c))
+    {
+        kana_sup_id1 = HANJP_KANA_SMALL_A + hanjp_jungseong_to_id(next_c);
+    }
+
+
+
     switch(type)
     {
         case HANJP_INPUT_JP_HIRAGANA:
         case HANJP_INPUT_JP_KATAKANA:
-        init_string[0] = hanjp_id_to_kana(kana_id, type);
-        add_string[0] = hanjp_id_to_kana(kana_add_id, type);
-        add_string[1] = hanjp_id_to_kana(kana_add_id1, type);
-        sup_string[0] = hanjp_id_to_kana(kana_sup_id, type);
+        ucs_append_char(init_string, hanjp_id_to_kana(kana_id, type));
+        ucs_append_char(add_string, hanjp_id_to_kana(kana_add_id, type));
+        ucs_append_char(add_string, hanjp_id_to_kana(kana_add_id1, type));
+        ucs_append_char(sup_string, hanjp_id_to_kana(kana_sup_id, tyep));
+        ucs_append_char(sup_string, hanjp_id_to_kana(kana_sup_id1, type));
         break;
 
         case HANJP_INPUT_JP_HALF_KATAKANA:
-        init_string[0] = hanjp_id_to_kana(kana_id, type);
+        ucs_append_char(init_string, hanjp_id_to_kana(kana_id, type));
         if(hanjp_is_voiced_by_id(kana_id))
-            init_string[1] = hanjp_half_katakana_voiced_symbol;
+            ucs_append_char(init_string, hanjp_half_katakana_voiced_symbol);
         else if(hanjp_is_semi_voiced_by_id(kana_id));
-            init_string[1] = hanjp_half_katakana_semi_voiced_symbol;
+            ucs_append_char(init_string, hanjp_half_katakana_semi_voiced_symbol);
 
-        i = 0;
-        add_string[i++] = hanjp_id_to_kana(kana_add_id, type);
+        ucs_append_char(add_string, hanjp_id_to_kana(kana_add_id, type));
         if(hanjp_is_voiced_by_id(kana_add_id))
-            add_string[i++] = hanjp_half_katakana_voiced_symbol;
+            ucs_append_char(add_string, hanjp_half_katakana_voiced_symbol);
         else if(hanjp_is_semi_voiced_by_id(kana_add_id))
-            add_string[i++] = hanjp_half_katakana_semi_voiced_symbol;
-        add_string[i++] = hanjp_id_to_kana(kana_add_id1, type);
+            ucs_append_char(add_string, hanjp_half_katakana_semi_voiced_symbol);
+        ucs_append_char(add_string, hanjp_id_to_kana(kana_add_id1, tyep));
         if(hanjp_is_voiced_by_id(kana_add_id1))
-            add_string[i++] = hanjp_half_katakana_voiced_symbol;
+            ucs_append_char(add_string, hanjp_half_katakana_voiced_symbol);
         else if(hanjp_is_semi_voiced_by_id(kana_add_id1))
-            add_string[i++] = hanjp_half_katakana_semi_voiced_symbol;
+            ucs_append_char(add_string, hanjp_half_katakana_semi_voiced_symbol);
         
-        sup_string[0] = hanjp_id_to_kana(kana_sup_id, type);
+        ucs_append_char(sup_string, hanjp_id_to_kana(kana_sup_id, type));
         if(hanjp_is_voiced_by_id(kana_sup_id))
-            add_string[1] = hanjp_half_katakana_voiced_symbol;
+            ucs_append_char(sup_string, hanjp_half_katakana_voiced_symbol);
         else if(hanjp_is_semi_voiced_by_id(kana_sup_id))
-            add_string[1] = hanjp_half_katakana_semi_voiced_symbol;
+            ucs_append_char(sup_string, hanjp_half_katakana_semi_voiced_symbol);
+
+        ucs_append_char(sup_string, hanjp_id_to_kana(kana_sup_id1, type));
+        if(hanjp_is_voiced_by_id(kana_sup_id))
+            ucs_append_char(sup_string, hanjp_half_katakana_voiced_symbol);
+        else if(hanjp_is_semi_voiced_by_id(kana_sup_id))
+            ucs_append_char(sup_string, hanjp_half_katakana_semi_voiced_symbol);
         break;
         default:
         return false;
     }
-
 
     ucs_append(dest, init_string);
     ucs_append(dest, add_string);

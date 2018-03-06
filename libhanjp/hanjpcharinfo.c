@@ -223,7 +223,8 @@ enum _HanjpKanaId{
 };
 
 enum _HanjpChoseongId {
-    HANJP_CHOSEONG_VOID,
+    HANJP_CHOSEONG_VOID = -1,
+    HANJP_CHOSEONG_IEUNG,
     HANJP_CHOSEONG_K,
     HANJP_CHOSEONG_G,
     HANJP_CHOSEONG_S,
@@ -607,7 +608,7 @@ int hanjp_choseong_to_id(const ucschar c)
         id = HANJP_CHOSEONG_S;
         break;
         case 11: //ㅇ
-        id = HANJP_CHOSEONG_VOID;
+        id = HANJP_CHOSEONG_IEUNG;
         break;
         case 12: //ㅈ
         id = HANJP_CHOSEONG_Z;

@@ -1,5 +1,7 @@
 #include <hangul.h>
 
+#define ENABLE_EXTERNAL_KEYBOARDS 1
+
 typedef enum {
   HANJP_INPUT_JP_HIRAGANA,
   HANJP_INPUT_JP_KATAKANA,
@@ -7,7 +9,8 @@ typedef enum {
   HANJP_INPUT_EN_FULL
 } HanjpInputType;
 
-/*Description: Hanjp automaton states; it is checked whenever IFM calls key process functions.
+/*Description: Hanjp automaton states; it indicates current working state of the HanjpInputContext, and
+ it will be used in key handlers and the ibus.
  The state HANJP_STATE_START is non editting state when HangulInputContext is not being used.
  The state HANJP_STATE_EDITTING is editting state when HangulInputContext is being used.
  The state HANJP_STATE_COMMIT is state that committing whole string of Japanese that user written; it's the
@@ -19,7 +22,7 @@ typedef enum {
 } HanjpState;
 
 /*Description: Hanjp input context: it is the object that containing whole hanjp functional data.
- preedit_string: it is more like preedit for hangul than Japanese.
+ preedit_string: it is more like preedit for Japanese than hangul.
  commit_string: commiting string
  mode: input mode
  state: current state
@@ -80,14 +83,12 @@ bool hanjp_ic_no_change_key(HanjpInputContext* hic);
 bool hanjp_ic_change_key(HanjpInputContext* hic);
 bool hanjp_ic_hiragana_katakana_toggle_key(HanjpInputContext *hic);
 
-bool hanjp_ic_is_empty(HanjpInputContext *hic);
-
-void hanjp_ic_set_input_type(HanjpInputType type);
-HanjpInputType hanjp_ic_get_input_type(void);
+void hanjp_ic_set_input_type(HanjpInputContext* hic, HanjpInputType type);
+HanjpInputType hanjp_ic_get_input_type(HanjpInputContext* hic);
 
 const ucschar* hanjp_ic_get_preedit_string(HanjpInputContext* hic);
 const ucschar* hanjp_ic_get_commit_string(HanjpInputContext* hic);
-const ucschar* hanjp_ic_flush(HanjpInputContext *hic);
+void hanjp_ic_flush(HanjpInputContext *hic);
 
 /*start and quit*/
 void hanjp_init();
@@ -98,7 +99,7 @@ bool hanjp_jamo_to_kana(ucschar *const dest, ucschar cho, ucschar jung, ucschar 
 bool hanjp_syllable_to_kana(ucschar *const dest, ucschar syllable, ucschar next_c, HanjpInputType type);
 //need to add kana to kanji convert functions
 
-
-//utils
+/*utils*/
 void ucs_append(ucschar *dest, ucschar * add);
 void ucs_copy(ucschar *dest, ucschar * src);
+void ucs_append_char(ucschar *dest, ucschar add);
