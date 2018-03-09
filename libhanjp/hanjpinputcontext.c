@@ -346,7 +346,7 @@ static void hanjp_ic_save_commit_string(HanjpInputContext* hic)
     ucschar *commit_string = hic->commit_string;
     ucschar *preedit_string = hic->preedit_string;
 
-    ucs_append(commit_string, preedit_string);
+    ucs_copy(commit_string, preedit_string);
     hanjp_ic_flush_internal(hic);
 }
 
