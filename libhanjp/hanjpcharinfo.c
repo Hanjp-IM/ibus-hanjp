@@ -11,51 +11,6 @@ static const ucschar jungseong_a = 0x1161;
 static const ucschar jongseong_kiyeok = 0x11a8;
 static const ucschar hanjp_tone_mark = 0x302F;
 
-bool hanjp_is_voiced_by_id(int id)
-{
-    switch(id)
-    {
-        case HANJP_KANA_GA:
-        case HANJP_KANA_GI:
-        case HANJP_KANA_GU:
-        case HANJP_KANA_GE:
-        case HANJP_KANA_GO:
-        case HANJP_KANA_ZA:
-        case HANJP_KANA_ZI:
-        case HANJP_KANA_ZU:
-        case HANJP_KANA_ZE:
-        case HANJP_KANA_ZO:
-        case HANJP_KANA_DA:
-        case HANJP_KANA_JI:
-        case HANJP_KANA_JU:
-        case HANJP_KANA_DE:
-        case HANJP_KANA_DO:
-        case HANJP_KANA_BA:
-        case HANJP_KANA_BI:
-        case HANJP_KANA_BU:
-        case HANJP_KANA_BE:
-        case HANJP_KANA_BO:
-        return true;
-        default:
-        return false;
-    }
-}
-
-bool hanjp_is_semi_voiced_by_id(int id)
-{
-    switch(id)
-    {
-        case HANJP_KANA_PA:
-        case HANJP_KANA_PI:
-        case HANJP_KANA_PU:
-        case HANJP_KANA_PE:
-        case HANJP_KANA_PO:
-        return true;
-        default:
-        return false;
-    }
-}
-
 const ucschar kana_ordinate_table[80][3] = {
     {0x3042, 0x30A2, 0xFF71}, //A
     {0x3044, 0x30A4, 0xFF72}, //I
@@ -139,156 +94,69 @@ const ucschar kana_ordinate_table[80][3] = {
     {0x3063, 0x30C3, 0xFF6F}, //s TSU
 };
 
-enum _HanjpKanaId{
-    HANJP_KANA_A, //A
-    HANJP_KANA_I, //I
-    HANJP_KANA_U, //U
-    HANJP_KANA_E, //E
-    HANJP_KANA_O, //O
-    HANJP_KANA_KA, //KA
-    HANJP_KANA_KI, //KI
-    HANJP_KANA_KU, //KU
-    HANJP_KANA_KE, //KE
-    HANJP_KANA_KO, //KO
-    HANJP_KANA_GA, //GA
-    HANJP_KANA_GI, //GI
-    HANJP_KANA_GU, //GU
-    HANJP_KANA_GE, //GE
-    HANJP_KANA_GO, //GO
-    HANJP_KANA_SA, //SA
-    HANJP_KANA_SI, //SI
-    HANJP_KANA_SU, //SU
-    HANJP_KANA_SE, //SE
-    HANJP_KANA_SO, //SO
-    HANJP_KANA_ZA, //ZA
-    HANJP_KANA_ZI, //ZI
-    HANJP_KANA_ZU, //ZU
-    HANJP_KANA_ZE, //ZE
-    HANJP_KANA_ZO, //ZO
-    HANJP_KANA_TA, //TA
-    HANJP_KANA_CHI, //CHI
-    HANJP_KANA_TSU, //TSU
-    HANJP_KANA_TE, //TE
-    HANJP_KANA_TO, //TO
-    HANJP_KANA_DA, //DA
-    HANJP_KANA_JI, //JI
-    HANJP_KANA_JU, //JU
-    HANJP_KANA_DE, //DE
-    HANJP_KANA_DO, //DO
-    HANJP_KANA_NA, //NA
-    HANJP_KANA_NI, //NI
-    HANJP_KANA_NU, //NU
-    HANJP_KANA_NE, //NE
-    HANJP_KANA_NO, //NO
-    HANJP_KANA_HA, //HA
-    HANJP_KANA_HI, //HI
-    HANJP_KANA_HU, //HU
-    HANJP_KANA_HE, //HE
-    HANJP_KANA_HO, //HO
-    HANJP_KANA_BA, //BA
-    HANJP_KANA_BI, //BI
-    HANJP_KANA_BU, //BU
-    HANJP_KANA_BE, //BE
-    HANJP_KANA_BO, //BO
-    HANJP_KANA_PA, //PA
-    HANJP_KANA_PI, //PI
-    HANJP_KANA_PU, //PU
-    HANJP_KANA_PE, //PE
-    HANJP_KNAA_PO, //PO
-    HANJP_KANA_MA, //MA
-    HANJP_KANA_MI, //MI
-    HANJP_KANA_MU, //MU
-    HANJP_KANA_ME, //ME
-    HANJP_KANA_MO, //MO
-    HANJP_KANA_RA, //RA
-    HANJP_KANA_RI, //RI
-    HANJP_KANA_RU, //RU
-    HANJP_KANA_RE, //RE
-    HANJP_KANA_RO, //RO
-    HANJP_KANA_YA, //YA
-    HANJP_KANA_YU, //YU
-    HANJP_KANA_YO, //YO
-    HANJP_KANA_WA, //WA
-    HANJP_KANA_WO, //WO
-    HANJP_KANA_NN, //NN
-    HANJP_KANA_SMALL_A, //s A
-    HANJP_KANA_SMALL_I, //s I
-    HANJP_KANA_SMALL_U, //s U
-    HANJP_KANA_SMALL_E, //s E
-    HANJP_KANA_SMALL_O, //s O
-    HANJP_KANA_SMALL_YA, //s YA
-    HANJP_KANA_SMALL_YU, //s YU
-    HANJP_KANA_SMALL_YO, //s YO
-    HANJP_KANA_SMALL_TSU, //s TSU
-};
+bool hanjp_is_voiced_by_id(int id)
+{
+    switch(id)
+    {
+        case HANJP_KANA_GA:
+        case HANJP_KANA_GI:
+        case HANJP_KANA_GU:
+        case HANJP_KANA_GE:
+        case HANJP_KANA_GO:
+        case HANJP_KANA_ZA:
+        case HANJP_KANA_ZI:
+        case HANJP_KANA_ZU:
+        case HANJP_KANA_ZE:
+        case HANJP_KANA_ZO:
+        case HANJP_KANA_DA:
+        case HANJP_KANA_JI:
+        case HANJP_KANA_JU:
+        case HANJP_KANA_DE:
+        case HANJP_KANA_DO:
+        case HANJP_KANA_BA:
+        case HANJP_KANA_BI:
+        case HANJP_KANA_BU:
+        case HANJP_KANA_BE:
+        case HANJP_KANA_BO:
+        return true;
+        default:
+        return false;
+    }
+}
 
-enum _HanjpChoseongId {
-    HANJP_CHOSEONG_VOID = -1,
-    HANJP_CHOSEONG_IEUNG,
-    HANJP_CHOSEONG_K,
-    HANJP_CHOSEONG_G,
-    HANJP_CHOSEONG_S,
-    HANJP_CHOSEONG_Z,
-    HANJP_CHOSEONG_T,
-    HANJP_CHOSEONG_CH = 105,
-    HANJP_CHOSEONG_D = 6,
-    HANJP_CHOSEONG_J = 106,
-    HANJP_CHOSEONG_N = 7,
-    HANJP_CHOSEONG_H,
-    HANJP_CHOSEONG_B,
-    HANJP_CHOSEONG_P,
-    HANJP_CHOSEONG_M,
-    HANJP_CHOSEONG_R,
-    HANJP_CHOSEONG_OLD_IEUNG
-};
-
-enum _HanjpJungseongId {
-    HANJP_JUNGSEONG_A,
-    HANJP_JUNGSEONG_I,
-    HANJP_JUNGSEONG_U,
-    HANJP_JUNGSEONG_E,
-    HANJP_JUNGSEONG_O,
-    HANJP_JUNGSEONG_YA,
-    HANJP_JUNGSEONG_YU,
-    HANJP_JUNGSEONG_YO,
-    HANJP_JUNGSEONG_YE,
-    HANJP_JUNGSEONG_OA,
-    HANJP_JUNGSEONG_OE,
-    HANJP_JUNGSEONG_UA,
-    HANJP_JUNGSEONG_UI,
-    HANJP_JUNGSEONG_UE,
-    HANJP_JUNGSEONG_UO,
-};
-
-enum _HanjpJongseongId {
-    HANJP_JONGSEONG_KIYEOK,
-    HANJP_JONGSEONG_NIEUN,
-    HANJP_JONGSEONG_MIEUM,
-    HANJP_JONGSEONG_PIEUP,
-    HANJP_JONGSEONG_SIOS,
-    HANJP_JONGSEONG_IEUNG,
-    HANJP_JONGSEONG_SSANGSIOS,
-    HANJP_JONGSEONG_SSANGNIEUN
-};
+bool hanjp_is_semi_voiced_by_id(int id)
+{
+    switch(id)
+    {
+        case HANJP_KANA_PA:
+        case HANJP_KANA_PI:
+        case HANJP_KANA_PU:
+        case HANJP_KANA_PE:
+        case HANJP_KANA_PO:
+        return true;
+        default:
+        return false;
+    }
+}
 
 bool hanjp_is_kana(ucschar c)
 {
-    return (hanjp_kana_to_id(c) != -1)
+    return (hanjp_kana_to_id(c) != -1);
 }
 
 bool hanjp_is_choseong(ucschar c)
 {
-    return (hanjp_choseong_to_id(c) != -1)
+    return (hanjp_choseong_to_id(c) != -1);
 }
 
 bool hanjp_is_jungseong(ucschar c)
 {
-    return (hanjp_jungseong(c) != -1);
+    return (hanjp_jungseong_to_id(c) != -1);
 }
 
 bool hanjp_is_jongseong(ucschar c)
 {
-    return (hanjp_is_jongseong(c) != -1);
+    return (hanjp_jongseong_to_id(c) != -1);
 }
 
 bool hanjp_is_hangul(ucschar c)
@@ -297,7 +165,7 @@ bool hanjp_is_hangul(ucschar c)
             hanjp_is_jongseong(c) || hanjp_tone_mark);
 }
 
-const ucschar hanjp_id_to_kana(int id, HanjpInputJpType type)
+const ucschar hanjp_id_to_kana(int id, HanjpInputType type)
 {
     if(!((id >= HANJP_KANA_A) && (id <= HANJP_KANA_SMALL_TSU)))
         return 0;
@@ -314,7 +182,7 @@ const ucschar hanjp_id_to_kana(int id, HanjpInputJpType type)
     }
 }
 
-int hanjp_kana_to_id(const ucschar c);
+int hanjp_kana_to_id(const ucschar c)
 {
     int id;
     int num;
@@ -332,7 +200,7 @@ int hanjp_kana_to_id(const ucschar c);
     else if(c >= katakana_base && c <= katakana_end) //katakana
     {
         num = c - katakana_base;
-        flag = FLAG_NOMAL;
+        flag = FLAG_NORMAL;
     }
     else if(c >= half_full_base && half_full_end) //half katakana
     {
@@ -373,21 +241,21 @@ int hanjp_kana_to_id(const ucschar c);
             case 16:
             case 18:
             case 20:
-            id = HANJP_KANA_GA + (num - 12) / 2:
+            id = HANJP_KANA_GA + (num - 12) / 2;
             break;
             case 21: //sa, si, su, se, so
             case 23:
             case 25:
             case 27:
             case 29:
-            id = HANJP_KANA_SA + (num - 21) / 2:
+            id = HANJP_KANA_SA + (num - 21) / 2;
             break;
             case 22: //za, zi, zu, ze, zo
             case 24:
             case 26:
             case 28:
             case 30:
-            id = HANJP_KANA_ZA + (num - 22) / 2:
+            id = HANJP_KANA_ZA + (num - 22) / 2;
             break;
             case 31: //ta, chi, tsu, te, to
             case 33:
@@ -407,7 +275,7 @@ int hanjp_kana_to_id(const ucschar c);
             break;
             case 37:
             case 39:
-            case 41;
+            case 41:
             id = HANJP_KANA_JU + (num - 37) / 2;
             break;
             case 42: //na, ni, nu, ne, no
@@ -415,7 +283,7 @@ int hanjp_kana_to_id(const ucschar c);
             case 44:
             case 45:
             case 46:
-            id = HANJP_KANA_NA + (num - 42):
+            id = HANJP_KANA_NA + (num - 42);
             break;
             case 47: //ha, hi, hu, he, ho
             case 50:
@@ -719,7 +587,7 @@ int hanjp_jongseong_to_id(const ucschar c)
         id = HANJP_JONGSEONG_PIEUP;
         break;
         case 18: //ㅅ
-        id = HANJP_JONGSOENG_SIOS;
+        id = HANJP_JONGSEONG_SIOS;
         break;
         case 19: //ㅆ
         id = HANJP_JONGSEONG_SSANGSIOS;
@@ -734,4 +602,14 @@ int hanjp_jongseong_to_id(const ucschar c)
     }
 
     return id;
+}
+
+const ucschar hanjp_kana_to_small(ucschar c)
+{
+    return c - 1;
+}
+
+const ucschar hanjp_conv_to_full(ucschar c)
+{
+    return c + 0xfee0;
 }

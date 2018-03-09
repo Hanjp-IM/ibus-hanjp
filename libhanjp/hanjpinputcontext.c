@@ -1,4 +1,5 @@
 #include "hanjp.h"
+#include <stdlib.h>
 
 static bool HanjpOnTransition(HangulInputContext* hic,
         ucschar c, const ucschar *buf, void *data);
@@ -18,11 +19,9 @@ The key process is need in outside of HangulInputContext*/
 /*need to add jungseong rules*/
 static bool HanjpOnTransition(HangulInputContext* hic, 
         ucschar c, const ucschar* buf, void* data){
-    ucschar cho = 0;
-    ucschar jung = 0;
-    ucschar jong = 0;
-
-    hangul_syllable_to_jamo(buf, &cho, &jung, &jong);
+    ucschar cho = buf[0];
+    ucschar jung = buf[1];
+    ucschar jong = buf[2];
 
     //There is no need to check choseong or jungseong
     if(hangul_is_choseong(cho))
@@ -43,14 +42,14 @@ static bool HanjpOnTransition(HangulInputContext* hic,
 
 /*Description: hangul on-translate-character function.
 it change passing character into full width character when the type is full en.*/
-static void HanjpOnTranslate(HangulInputContext* hic, 
+static void HanjpOnTranslate(HangulInputContext *hic, 
         int ascii, ucschar* pc, void* data){
-    HanjpInputType type = hic->Type;
+    HanjpInputType type = *(HanjpInputType*)data;
 
     switch(type)
     {
         case HANJP_INPUT_EN_FULL:
-        *pc = hangul_keyboard_get_mapping(hic->hic->keyboard, 1, ascii); //change to full en
+        *pc = hangul_keyboard_get_mapping(hic->keyboard, 1, ascii); //change to full en
         return;
         case HANJP_INPUT_JP_HIRAGANA: //pass jamo
         case HANJP_INPUT_JP_KATAKANA:
@@ -60,18 +59,14 @@ static void HanjpOnTranslate(HangulInputContext* hic,
     }
 }
 
-void hanjp_init()
+int hanjp_init()
 {
-    int res;
-    res = hangul_keyboard_list_init();
-    return res;
+    return hangul_init();
 }
 
-void hanjp_fini()
+int hanjp_fini()
 {
-    int res;
-    res = hangul_keyboard_list_fini();
-    return res;
+    return hangul_fini();
 }
 
 HanjpInputContext* hanjp_ic_new(const char* keyboard)
@@ -81,12 +76,14 @@ HanjpInputContext* hanjp_ic_new(const char* keyboard)
     new_hic = (HanjpInputContext*) malloc(sizeof(HanjpInputContext));
 
     new_hic->hic = hangul_ic_new(keyboard);
-    hangul_ic_connect_callback(hic, "translaste", HanjpTranslate, NULL);
-    hangul_ic_connect_callback(hic, "transition", HanjpTransition, NULL);
+    hangul_ic_connect_callback(new_hic->hic, "translaste", HanjpOnTranslate, NULL);
+    hangul_ic_connect_callback(new_hic->hic, "transition", HanjpOnTransition, (void*) &new_hic->Type); //let on_transition knows type
     new_hic->preedit_string[0] = 0;
     new_hic->commit_string[0] = 0;
-    new_hic->state = HANJP_STATE_COMMIT;
+    new_hic->state = HANJP_STATE_START;
     new_hic->Type = HANJP_INPUT_JP_HIRAGANA;
+
+    return new_hic;
 }
 
 void hanjp_ic_delete(HanjpInputContext *hic)
@@ -104,22 +101,29 @@ bool hanjp_ic_process(HanjpInputContext* hic, int ascii)
 {
     ucschar c;
     HanjpInputType type = hic->Type;
-    ucschar* hangul_preedit, hangul_commit;
     static int len_hangul_commit_prev = 0;
     static int len_hangul_commit = 0;
+    int tableid;
 
-    if(hic == NULL)
-    return false;
+    if(!hic)
+        return false;
 
-    hangul_preedit = hangul_ic_get_preedit_string(hic->hic);
-    hangul_commit = hangul_ic_get_commit_string(hic->hic);
     len_hangul_commit_prev = len_hangul_commit;
     len_hangul_commit = N_ELEMENTS(hangul_commit);
 
     if(ascii == '\b')
         return hanjp_ic_backspace(hic);
 
-    c = hangul_keyboard_get_mapping(hic->keyboard, tableid, ascii);
+    switch(type)
+    {
+        case HANJP_INPUT_EN_FULL:
+        tableid = 1;
+        break;
+        default:
+        tableid = 0;
+    }
+
+    c = hangul_keyboard_get_mapping(hic->hic->keyboard, tableid, ascii);
 
     if(c <= 0)
         return false;
@@ -277,16 +281,16 @@ static bool hanjp_hic_push(HangulInputContext *hic, ucschar c)
     if(!hangul_is_jamo(c))
         return false;
 
-    if (hangul_is_choseong(ch)) {
-	hic->hic->buffer.choseong = ch;
-    } else if (hangul_is_jungseong(ch)) {
-	hic->hic->buffer.jungseong = ch;
-    } else if (hangul_is_jongseong(ch)) {
-	hic->hic->buffer.jongseong = ch;
+    if (hangul_is_choseong(c)) {
+	hic->hic->buffer.choseong = c;
+    } else if (hangul_is_jungseong(c)) {
+	hic->hic->buffer.jungseong = c;
+    } else if (hangul_is_jongseong(c)) {
+	hic->hic->buffer.jongseong = c;
     } else {
     }
 
-    hic->hic->buffer.stack[++hic->hic->buffer.index] = ch;
+    hic->hic->buffer.stack[++hic->hic->buffer.index] = c;
 
     return true;
 }
@@ -302,7 +306,6 @@ static void hanjp_ic_process_on_hangul_commit(HanjpInputContext* hic)
     ucschar *hangul_commit;
     ucschar conv_string[10] = {0, };
     ucschar cho, jung, jong, next_c;
-    int i;
     int idx;
 
     static int len_commit = 0;
@@ -334,13 +337,12 @@ static void hanjp_ic_process_on_hangul_commit(HanjpInputContext* hic)
 
     next_c = hic->hic->buffer.choseong;
 
-    hanjp_jamo_to_kana(conv_string, cho, jung, jong, next_c, hic->type);
+    hanjp_jamo_to_kana(conv_string, cho, jung, jong, next_c, hic->Type);
     ucs_append(hic->preedit_string, conv_string);
 }
 
 static void hanjp_ic_save_commit_string(HanjpInputContext* hic)
 {
-    int idx;
     ucschar *commit_string = hic->commit_string;
     ucschar *preedit_string = hic->preedit_string;
 
