@@ -226,6 +226,7 @@ int hanjp_fini();
 /*convert functions*/
 bool hanjp_jamo_to_kana(ucschar *const dest, ucschar cho, ucschar jung, ucschar jong, ucschar next_c, HanjpInputType type);
 bool hanjp_syllable_to_kana(ucschar *const dest, ucschar syllable, ucschar next_c, HanjpInputType type);
+bool hanjp_string_hiragana_katakana_toggle(ucschar * dest, ucschar * source, HanjpInputType type);
 //need to add kana to kanji convert functions
 
 /*utils*/
