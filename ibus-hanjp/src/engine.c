@@ -7,6 +7,12 @@
 typedef struct _IBusHanjpEngine IBusHanjpEngine;
 typedef struct _IBusHanjpEngineClass IBusHanjpEngineClass;
 
+enum {
+    INPUT_MODE_EN,
+    INPUT_MODE_JP,
+    INPUT_MODE_KR
+};
+
 struct _IBusHanjpEngine {
 	IBusEngine parent;
 
@@ -25,6 +31,11 @@ struct _IBusHanjpEngineClass {
 /* functions prototype */
 static void	ibus_hanjp_engine_class_init	(IBusHanjpEngineClass	*klass);
 static void	ibus_hanjp_engine_init		(IBusHanjpEngine		*engine);
+static GObject*
+                ibus_hangul_engine_constructor
+                                            (GType                   type,
+                                             guint                   n_construct_params,
+                                             GObjectConstructParam  *construct_params);
 static void	ibus_hanjp_engine_destroy	(IBusHanjpEngine		*engine);
 static gboolean ibus_hanjp_engine_process_key_event
                                             (IBusEngine             *engine,
@@ -48,7 +59,7 @@ static void ibus_hanjp_engine_page_up     (IBusEngine             *engine);
 static void ibus_hanjp_engine_page_down   (IBusEngine             *engine);
 static void ibus_hanjp_engine_cursor_up   (IBusEngine             *engine);
 static void ibus_hanjp_engine_cursor_down (IBusEngine             *engine);
-static void ibus_hanjp_property_activate  (IBusEngine             *engine,
+static void ibus_hanjp_engine_property_activate  (IBusEngine             *engine,
                                              const gchar            *prop_name,
                                              gint                    prop_state);
 static void ibus_hanjp_engine_property_show
@@ -64,9 +75,25 @@ static void ibus_hanjp_engine_candidate_clicked(IBusEngine *engine,
                                                 guint       state);
 
 // Commits string to client
-static void ibus_hanjp_engine_commit_string(IBusHanjpEngine      *hanjp,
-                                             const gchar            *string);
-static void ibus_hanjp_engine_update      (IBusHanjpEngine      *hanjp);
+static void ibus_hanjp_engine_flush        (IBusHanjpEngine       *hanjp);
+static void ibus_hanjp_engine_clear_preedit_text
+                                            (IBusHanjpEngine       *hanjp);
+static void ibus_hanjp_engine_update_preedit_text
+                                            (IBusHanjpEngine       *hanjp);
+
+static void ibus_hanjp_engine_update_lookup_table
+                                            (IBusHanjpEngine       *hanjp);
+static gboolean ibus_hanjp_engine_has_preedit
+                                            (IBusHanjpEngine       *hanjp);
+static void ibus_hanjp_engine_switch_input_mode
+                                            (IBusHanjpEngine       *hanjp);
+static void ibus_hanjp_engine_set_input_mode
+                                            (IBusHanjpEngine       *hanjp,
+                                             int                     input_mode);
+static IBusText*
+            ibus_hanjp_engine_get_input_mode_symbol
+                                            (IBusHanjpEngine       *hangul,
+                                             int                     input_mode);
 
 static EnchantBroker *broker = NULL;
 static EnchantDict *dict = NULL;
