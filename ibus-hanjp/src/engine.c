@@ -227,27 +227,32 @@ ibus_hanjp_engine_update_lookup_table (IBusHanjpEngine *hanjp)
 static void
 ibus_hanjp_engine_update_preedit (IBusHanjpEngine *hanjp)
 {
+    const ucschar *hic_preedit;
     IBusText *text;
     gint retval;
 
-    text = ibus_text_new_from_static_string (hanjp->preedit->str);
-    text->attrs = ibus_attr_list_new ();
-    
-    ibus_attr_list_append (text->attrs,
-                           ibus_attr_underline_new (IBUS_ATTR_UNDERLINE_SINGLE, 0, hanjp->preedit->len));
+    hic_preedit = hanjp_ic_get_preedit_string (hanjp->context);
+    // text->attrs = ibus_attr_list_new ();
+
 
     if (hanjp->preedit->len > 0) {
-        retval = hanjp_dict_check (dict, hanjp->preedit->str, hanjp->preedit->len);
-        if (retval != 0) {
-            ibus_attr_list_append (text->attrs,
-                               ibus_attr_foreground_new (0xff0000, 0, hanjp->preedit->len));
-        }
+        IBusPreeditFocusMode preedit_option = IBUS_ENGINE_PREEDIT_COMMIT;
+        // retval = hanjp_dict_check (dict, hanjp->preedit->str, hanjp->preedit->len);
+        
+        if (retval != NULL)
+            preedit_option = IBUS_ENGINE_PREEDIT_CLEAR;
+        /*
+        ibus_attr_list_append (text->attrs,
+                            ibus_attr_underline_new (IBUS_ATTR_UNDERLINE_SINGLE, 0, hanjp->preedit->len));
+        ibus_attr_list_append (text->attrs,
+                            ibus_attr_foreground_new (0xff0000, 0, hanjp->preedit->len));
+        ibus_attr_list_append (text->attrs,
+                            ibus_attr_background_new (0x000000, 0, hanjp->preedit->len));
+        */
+    } else {
+        text = ibus_text_new_from_static_string (hanjp->preedit->str);
+        ibus_engine_update_preedit_text ((IBusEngine *)hanjp, text, hanjp->cursor_pos, TRUE);
     }
-    
-    ibus_engine_update_preedit_text ((IBusEngine *)hanjp,
-                                     text,
-                                     hanjp->cursor_pos,
-                                     TRUE);
 
 }
 
