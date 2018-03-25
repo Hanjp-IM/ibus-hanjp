@@ -7,6 +7,12 @@
 typedef struct _IBusHanjpEngine IBusHanjpEngine;
 typedef struct _IBusHanjpEngineClass IBusHanjpEngineClass;
 
+enum {
+    INPUT_MODE_EN,
+    INPUT_MODE_JP,
+    INPUT_MODE_KR
+};
+
 struct _IBusHanjpEngine {
 	IBusEngine parent;
 
@@ -25,6 +31,11 @@ struct _IBusHanjpEngineClass {
 /* functions prototype */
 static void	ibus_hanjp_engine_class_init	(IBusHanjpEngineClass	*klass);
 static void	ibus_hanjp_engine_init		(IBusHanjpEngine		*engine);
+static GObject*
+                ibus_hangul_engine_constructor
+                                            (GType                   type,
+                                             guint                   n_construct_params,
+                                             GObjectConstructParam  *construct_params);
 static void	ibus_hanjp_engine_destroy	(IBusHanjpEngine		*engine);
 static gboolean ibus_hanjp_engine_process_key_event
                                             (IBusEngine             *engine,
@@ -48,7 +59,7 @@ static void ibus_hanjp_engine_page_up     (IBusEngine             *engine);
 static void ibus_hanjp_engine_page_down   (IBusEngine             *engine);
 static void ibus_hanjp_engine_cursor_up   (IBusEngine             *engine);
 static void ibus_hanjp_engine_cursor_down (IBusEngine             *engine);
-static void ibus_hanjp_property_activate  (IBusEngine             *engine,
+static void ibus_hanjp_engine_property_activate  (IBusEngine             *engine,
                                              const gchar            *prop_name,
                                              gint                    prop_state);
 static void ibus_hanjp_engine_property_show
@@ -64,9 +75,25 @@ static void ibus_hanjp_engine_candidate_clicked(IBusEngine *engine,
                                                 guint       state);
 
 // Commits string to client
-static void ibus_hanjp_engine_commit_string(IBusHanjpEngine      *hanjp,
-                                             const gchar            *string);
-static void ibus_hanjp_engine_update      (IBusHanjpEngine      *hanjp);
+static void ibus_hanjp_engine_flush        (IBusHanjpEngine       *hanjp);
+static void ibus_hanjp_engine_clear_preedit_text
+                                            (IBusHanjpEngine       *hanjp);
+static void ibus_hanjp_engine_update_preedit_text
+                                            (IBusHanjpEngine       *hanjp);
+
+static void ibus_hanjp_engine_update_lookup_table
+                                            (IBusHanjpEngine       *hanjp);
+static gboolean ibus_hanjp_engine_has_preedit
+                                            (IBusHanjpEngine       *hanjp);
+static void ibus_hanjp_engine_switch_input_mode
+                                            (IBusHanjpEngine       *hanjp);
+static void ibus_hanjp_engine_set_input_mode
+                                            (IBusHanjpEngine       *hanjp,
+                                             int                     input_mode);
+static IBusText*
+            ibus_hanjp_engine_get_input_mode_symbol
+                                            (IBusHanjpEngine       *hangul,
+                                             int                     input_mode);
 
 static EnchantBroker *broker = NULL;
 static EnchantDict *dict = NULL;
@@ -257,6 +284,7 @@ ibus_hanjp_engine_update (IBusHanjpEngine *hanjp)
     ibus_engine_hide_lookup_table ((IBusEngine *)hanjp);
 }
 
+// is_alpha macro checks if keyval is alphabet(a~z or A~Z)
 #define is_alpha(c) (((c) >= IBUS_a && (c) <= IBUS_z) || ((c) >= IBUS_A && (c) <= IBUS_Z))
 
 // function that processes key press event
@@ -269,8 +297,10 @@ ibus_hanjp_engine_process_key_event (IBusEngine *engine,
     IBusText *text;
     IBusHanjpEngine *hanjp = (IBusHanjpEngine *)engine;
 		gboolean return_val;
-		ucschar *commit_str;
-		ucschar *preedit_str;
+		ucschar *kana_commit_str;
+		ucschar *kana_preedit_str;
+    ucschar *hangul_commit_str;
+    ucschar *hangul_preedit_str;
 
     if (modifiers & IBUS_RELEASE_MASK)
         return FALSE;
@@ -357,15 +387,23 @@ ibus_hanjp_engine_process_key_event (IBusEngine *engine,
 
     if (is_alpha (keyval)) {
 			// Process input context here.
-			// 1. pass keyval to hanjp input Context
-			// 2. get preedit string from hangul input context(hanjp->context->hic)
-			// 3. get preedit string from hanjp input context(hanjp->context)
-			// 4. check if hanjp ic preedit is empty. unless show it first
-			// 5. afer that, show hangul ic preedit.
+      // 1. pass keyval to hanjp input Context
 				return_val = hanjp_ic_process(hanjp->context, keyval);
 				if(return_val){
-					commit_str = hanjp_ic_get_commit_string(hanjp->context);
-					preedit_str = hanjp_ic_get_preedit_string(hanjp->context);
+          // 2. get preedit string from hangul input context(hanjp->context->hic)
+          hangul_commit_str = hangul_ic_get_commit_string(hanjp->context->hic);
+          hangul_preedit_str = hangul_ic_get_preedit_string(hanjp->context->hic);
+
+          // 3. get preedit string from hanjp input context(hanjp->context)
+					kana_commit_str = hanjp_ic_get_commit_string(hanjp->context);
+					kana_preedit_str = hanjp_ic_get_preedit_string(hanjp->context);
+
+          // 4. check if hanjp ic preedit is empty. unless show it first
+          if(sizeof(kana_preedit_str)>=sizeof(ucschar)){
+            // Update preedit string of ibus-hanjp here
+          }
+          // 5. afer that, show hangul ic preedit.
+          // Append hangul preedit to preedit of ibus-hanjp here
 				}
 
 
