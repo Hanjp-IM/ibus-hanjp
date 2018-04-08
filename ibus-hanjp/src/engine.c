@@ -193,7 +193,7 @@ ibus_hanjp_engine_update_lookup_table (IBusHanjpEngine *hanjp)
     }
 
     ibus_lookup_table_clear (hanjp->table);
-    
+
     sugs = hanjp_dict_suggest (dict,
                                  hanjp->preedit->str,
                                  hanjp->preedit->len,
@@ -224,11 +224,10 @@ ibus_hanjp_engine_update_preedit (IBusHanjpEngine *hanjp)
     hic_preedit = hanjp_ic_get_preedit_string (hanjp->context);
     // text->attrs = ibus_attr_list_new ();
 
-
     if (hanjp->preedit->len > 0) {
         IBusPreeditFocusMode preedit_option = IBUS_ENGINE_PREEDIT_COMMIT;
         // retval = hanjp_dict_check (dict, hanjp->preedit->str, hanjp->preedit->len);
-        
+      
         if (retval != NULL)
             preedit_option = IBUS_ENGINE_PREEDIT_CLEAR;
         /*
@@ -252,7 +251,7 @@ ibus_hanjp_engine_commit_preedit (IBusHanjpEngine *hanjp)
 {
     if (hanjp->preedit->len == 0)
         return FALSE;
-    
+
     ibus_hanjp_engine_commit_string (hanjp, hanjp->preedit->str);
     g_string_assign (hanjp->preedit, "");
     hanjp->cursor_pos = 0;
@@ -279,10 +278,11 @@ ibus_hanjp_engine_update (IBusHanjpEngine *hanjp)
     ibus_engine_hide_lookup_table ((IBusEngine *)hanjp);
 }
 
+// is_alpha macro checks if keyval is alphabet(a~z or A~Z)
 #define is_alpha(c) (((c) >= IBUS_a && (c) <= IBUS_z) || ((c) >= IBUS_A && (c) <= IBUS_Z))
 
 // function that processes key press event
-static gboolean 
+static gboolean
 ibus_hanjp_engine_process_key_event (IBusEngine *engine,
                                        guint       keyval,
                                        guint       keycode,
@@ -290,6 +290,11 @@ ibus_hanjp_engine_process_key_event (IBusEngine *engine,
 {
     IBusText *text;
     IBusHanjpEngine *hanjp = (IBusHanjpEngine *)engine;
+		gboolean return_val;
+		ucschar *kana_commit_str;
+		ucschar *kana_preedit_str;
+    ucschar *hangul_commit_str;
+    ucschar *hangul_preedit_str;
 
     if (modifiers & IBUS_RELEASE_MASK)
         return FALSE;
@@ -302,7 +307,7 @@ ibus_hanjp_engine_process_key_event (IBusEngine *engine,
     switch (keyval) {
     case IBUS_KEY_space:
             //TODO - Replace with kanji conversion process
-        g_string_append (hanjp->preedit, " ");
+        // g_string_append (hanjp->preedit, " ");
         return ibus_hanjp_engine_commit_preedit (hanjp);
     case IBUS_KEY_Return:
         return ibus_hanjp_engine_commit_preedit (hanjp);
@@ -313,7 +318,7 @@ ibus_hanjp_engine_process_key_event (IBusEngine *engine,
         g_string_assign (hanjp->preedit, "");
         hanjp->cursor_pos = 0;
         ibus_hanjp_engine_update (hanjp);
-        return TRUE;        
+        return TRUE;
 
     case IBUS_KEY_Left:
         if (hanjp->preedit->len == 0)
@@ -332,7 +337,7 @@ ibus_hanjp_engine_process_key_event (IBusEngine *engine,
             ibus_hanjp_engine_update (hanjp);
         }
         return TRUE;
-    
+
     case IBUS_KEY_Up:
         if (hanjp->preedit->len == 0)
             return FALSE;
@@ -345,21 +350,21 @@ ibus_hanjp_engine_process_key_event (IBusEngine *engine,
     case IBUS_KEY_Down:
         if (hanjp->preedit->len == 0)
             return FALSE;
-        
+
         if (hanjp->cursor_pos != hanjp->preedit->len) {
             hanjp->cursor_pos = hanjp->preedit->len;
             ibus_hanjp_engine_update (hanjp);
         }
-        
+
         return TRUE;
-    
+
     case IBUS_KEY_BackSpace:
         if (hanjp->preedit->len == 0)
             return FALSE;
         if (hanjp->cursor_pos > 0) {
                 hanjp->cursor_pos --;
                 g_string_erase (hanjp->preedit, hanjp->cursor_pos, 1);
-                hanjp_ic_backspace(hanjp->context);
+                retval = hanjp_ic_backspace(hanjp->context);
                 ibus_hanjp_engine_update (hanjp);
         }
         return TRUE;
@@ -375,13 +380,33 @@ ibus_hanjp_engine_process_key_event (IBusEngine *engine,
     }
 
     if (is_alpha (keyval)) {
-        g_string_insert_c (hanjp->preedit,
-                           hanjp->cursor_pos,
-                           keyval);
+			// Process input context here.
+      // pass keyval to hanjp input Context
+				return_val = hanjp_ic_process(hanjp->context, keyval);
+				if(return_val){
+          // get preedit string from hangul input context(hanjp->context->hic)
+          hangul_commit_str = hangul_ic_get_commit_string(hanjp->context->hic);
+          hangul_preedit_str = hangul_ic_get_preedit_string(hanjp->context->hic);
+
+          // get preedit string from hanjp input context(hanjp->context)
+					kana_commit_str = hanjp_ic_get_commit_string(hanjp->context);
+					kana_preedit_str = hanjp_ic_get_preedit_string(hanjp->context);
+          // Empty preedit
+          
+          // check if hanjp ic preedit is empty. unless show it first
+          if(sizeof(kana_preedit_str)>=sizeof(ucschar)){
+            // Update preedit string of ibus-hanjp here
+            g_string_append_ucs4 (hanjp->preedit, kana_preedit_str, sizeof(kana_preedit_str)/sizeof(ucschar));
+
+          }
+          // afer that, show hangul ic preedit.
+          // Append hangul preedit to preedit of ibus-hanjp here
+				}
+
 
         hanjp->cursor_pos ++;
         ibus_hanjp_engine_update (hanjp);
-        
+
         return TRUE;
     }
 
