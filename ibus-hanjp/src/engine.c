@@ -227,7 +227,7 @@ ibus_hanjp_engine_update_preedit (IBusHanjpEngine *hanjp)
     if (hanjp->preedit->len > 0) {
         IBusPreeditFocusMode preedit_option = IBUS_ENGINE_PREEDIT_COMMIT;
         // retval = hanjp_dict_check (dict, hanjp->preedit->str, hanjp->preedit->len);
-
+      
         if (retval != NULL)
             preedit_option = IBUS_ENGINE_PREEDIT_CLEAR;
         /*
