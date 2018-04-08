@@ -381,22 +381,25 @@ ibus_hanjp_engine_process_key_event (IBusEngine *engine,
 
     if (is_alpha (keyval)) {
 			// Process input context here.
-      // 1. pass keyval to hanjp input Context
+      // pass keyval to hanjp input Context
 				return_val = hanjp_ic_process(hanjp->context, keyval);
 				if(return_val){
-          // 2. get preedit string from hangul input context(hanjp->context->hic)
+          // get preedit string from hangul input context(hanjp->context->hic)
           hangul_commit_str = hangul_ic_get_commit_string(hanjp->context->hic);
           hangul_preedit_str = hangul_ic_get_preedit_string(hanjp->context->hic);
 
-          // 3. get preedit string from hanjp input context(hanjp->context)
+          // get preedit string from hanjp input context(hanjp->context)
 					kana_commit_str = hanjp_ic_get_commit_string(hanjp->context);
 					kana_preedit_str = hanjp_ic_get_preedit_string(hanjp->context);
-
-          // 4. check if hanjp ic preedit is empty. unless show it first
+          // Empty preedit
+          
+          // check if hanjp ic preedit is empty. unless show it first
           if(sizeof(kana_preedit_str)>=sizeof(ucschar)){
             // Update preedit string of ibus-hanjp here
+            g_string_append_ucs4 (hanjp->preedit, kana_preedit_str, sizeof(kana_preedit_str)/sizeof(ucschar));
+
           }
-          // 5. afer that, show hangul ic preedit.
+          // afer that, show hangul ic preedit.
           // Append hangul preedit to preedit of ibus-hanjp here
 				}
 
