@@ -95,9 +95,6 @@ static IBusText*
                                             (IBusHanjpEngine       *hangul,
                                              int                     input_mode);
 
-static EnchantBroker *broker = NULL;
-static EnchantDict *dict = NULL;
-
 static const GTypeInfo type_info = { // Class Type Info
     sizeof(IBusHangulEngineClass),
 
@@ -153,13 +150,6 @@ ibus_hanjp_engine_class_init (IBusHanjpEngineClass *klass)
 static void
 ibus_hanjp_engine_init (IBusHanjpEngine *hanjp)
 {
-        /*
-    if (broker == NULL) {
-        broker = hanjp_broker_init ();
-        dict = hanjp_broker_request_dict (broker, "en");
-    }
-        */
-        // Init Context
         hanjp->context = hanjp_ic_new("2hj");
 
         hanjp->preedit = g_string_new ("");
