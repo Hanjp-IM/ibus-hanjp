@@ -278,8 +278,8 @@ ibus_hanjp_engine_update (IBusHanjpEngine *hanjp)
     ibus_engine_hide_lookup_table ((IBusEngine *)hanjp);
 }
 
-// is_alpha macro checks if keyval is alphabet(a~z or A~Z)
-#define is_alpha(c) (((c) >= IBUS_a && (c) <= IBUS_z) || ((c) >= IBUS_A && (c) <= IBUS_Z))
+// is_alphabet macro checks if keyval is alphabet(a~z or A~Z)
+#define is_alphabet(c) (((c) >= IBUS_a && (c) <= IBUS_z) || ((c) >= IBUS_A && (c) <= IBUS_Z))
 
 // function that processes key press event
 static gboolean
@@ -379,29 +379,30 @@ ibus_hanjp_engine_process_key_event (IBusEngine *engine,
         return TRUE;
     }
 
-    if (is_alpha (keyval)) {
-			// Process input context here.
-      // pass keyval to hanjp input Context
-				return_val = hanjp_ic_process(hanjp->context, keyval);
-				if(return_val){
-          // get preedit string from hangul input context(hanjp->context->hic)
-          hangul_commit_str = hangul_ic_get_commit_string(hanjp->context->hic);
-          hangul_preedit_str = hangul_ic_get_preedit_string(hanjp->context->hic);
+    if (is_alphabet (keyval)) {
+		// Process input context here.
+        // pass keyval to hanjp input Context
+		return_val = hanjp_ic_process(hanjp->context, keyval);
+		if(return_val){
+            // get preedit string from hangul input context(hanjp->context->hic)
+            hangul_commit_str = hangul_ic_get_commit_string(hanjp->context->hic);
+            hangul_preedit_str = hangul_ic_get_preedit_string(hanjp->context->hic);
 
-          // get preedit string from hanjp input context(hanjp->context)
-					kana_commit_str = hanjp_ic_get_commit_string(hanjp->context);
-					kana_preedit_str = hanjp_ic_get_preedit_string(hanjp->context);
-          // Empty preedit
-          
-          // check if hanjp ic preedit is empty. unless show it first
-          if(sizeof(kana_preedit_str)>=sizeof(ucschar)){
-            // Update preedit string of ibus-hanjp here
-            g_string_append_ucs4 (hanjp->preedit, kana_preedit_str, sizeof(kana_preedit_str)/sizeof(ucschar));
+            // get preedit string from hanjp input context(hanjp->context)
+            kana_commit_str = hanjp_ic_get_commit_string(hanjp->context);
+            kana_preedit_str = hanjp_ic_get_preedit_string(hanjp->context);
 
-          }
-          // afer that, show hangul ic preedit.
-          // Append hangul preedit to preedit of ibus-hanjp here
-				}
+            // Assign empty string to preedit
+            g_string_assign (hanjp->preedit, "");
+
+            // check if hanjp ic preedit is empty. unless, append it first
+            if(sizeof(kana_preedit_str)>=sizeof(ucschar)){
+                // Update preedit string of ibus-hanjp here
+                g_string_append_ucs4 (hanjp->preedit, kana_preedit_str, sizeof(kana_preedit_str)/sizeof(ucschar));
+            }
+            // afer that, append hangul ic preedit.
+            g_string_append_ucs4 (hanjp->preedit, hangul_preedit_str, sizeof(hangul_preedit_str)/sizeof(ucschar));
+		}
 
 
         hanjp->cursor_pos ++;
