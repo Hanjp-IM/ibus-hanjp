@@ -219,28 +219,38 @@ ibus_hanjp_engine_update_preedit (IBusHanjpEngine *hanjp)
 {
     const ucschar *hic_preedit;
     IBusText *text;
-    gint retval;
+    // gint retval;
 
-    hic_preedit = hanjp_ic_get_preedit_string (hanjp->context);
+    // hic_preedit = hanjp_ic_get_preedit_string (hanjp->context);
     // text->attrs = ibus_attr_list_new ();
 
     if (hanjp->preedit->len > 0) {
-        IBusPreeditFocusMode preedit_option = IBUS_ENGINE_PREEDIT_COMMIT;
+        // IBusPreeditFocusMode preedit_option = IBUS_ENGINE_PREEDIT_COMMIT;
         // retval = hanjp_dict_check (dict, hanjp->preedit->str, hanjp->preedit->len);
       
-        if (retval != NULL)
-            preedit_option = IBUS_ENGINE_PREEDIT_CLEAR;
-        /*
-        ibus_attr_list_append (text->attrs,
-                            ibus_attr_underline_new (IBUS_ATTR_UNDERLINE_SINGLE, 0, hanjp->preedit->len));
-        ibus_attr_list_append (text->attrs,
-                            ibus_attr_foreground_new (0xff0000, 0, hanjp->preedit->len));
-        ibus_attr_list_append (text->attrs,
-                            ibus_attr_background_new (0x000000, 0, hanjp->preedit->len));
-        */
-    } else {
+        // if (retval != NULL)
+        //     preedit_option = IBUS_ENGINE_PREEDIT_CLEAR;
+        
+        // ibus_attr_list_append (text->attrs,
+        //                     ibus_attr_underline_new (IBUS_ATTR_UNDERLINE_SINGLE, 0, hanjp->preedit->len));
+        // ibus_attr_list_append (text->attrs,
+        //                     ibus_attr_foreground_new (0xff0000, 0, hanjp->preedit->len));
+        // ibus_attr_list_append (text->attrs,
+        //                     ibus_attr_background_new (0x000000, 0, hanjp->preedit->len));
         text = ibus_text_new_from_static_string (hanjp->preedit->str);
-        ibus_engine_update_preedit_text ((IBusEngine *)hanjp, text, hanjp->cursor_pos, TRUE);
+        ibus_engine_update_preedit_text (
+            (IBusEngine *)hanjp, 
+            text, 
+            // hanjp->cursor_pos, 
+            ibus_text_get_length (text),
+            TRUE);
+    } else {
+        text = ibus_text_new_from_static_string ("");
+        ibus_engine_update_preedit_text (
+            (IBusEngine *)hanjp, 
+            text, 
+            0,
+            TRUE);
     }
 
 }
