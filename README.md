@@ -1,6 +1,6 @@
 # hanjp-im
 
-##시작하기
+## 시작하기
 ```
 git clone https://github.com/ubuntu-kr/hanjp-im.git
 cd hanjp_new
