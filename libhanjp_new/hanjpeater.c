@@ -1,5 +1,6 @@
 #include "hanjp.h"
 #include "hanjpeater.h"
+#include <stdlib.h>
 
 /*오타마타 조작 함수*/
 static void hic_on_translate(HangulInputContext*, int, ucschar*, void*);
