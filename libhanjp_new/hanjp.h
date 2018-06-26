@@ -15,7 +15,6 @@ typedef struct _HanjpInputContext HanjpInputContext;
 HanjpInputContext* hanjp_ic_new(const char* keyboard);
 void hanjp_ic_delete(HanjpInputContext *hhic);
 bool hanjp_ic_process(HanjpInputContext* hjic, int ascii);
-void hanjp_ic_reset(HanjpInputContext *hjic);
 bool hanjp_ic_backspace(HanjpInputContext *hjic);
 bool hanjp_ic_no_change_key(HanjpInputContext* hjic);
 bool hanjp_ic_change_key(HanjpInputContext* hjic);

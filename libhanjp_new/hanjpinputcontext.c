@@ -22,7 +22,7 @@ struct _HanjpInputContext {
   ucschar commit_string[STR_MAX];
 };
 
-void hanjp_ic_flush_internal(HanjpInputContext* hjic);
+static void hanjp_ic_flush_internal(HanjpInputContext* hjic);
 
 HanjpInputContext* hanjp_ic_new(const char* keyboard)
 {
@@ -79,8 +79,13 @@ bool hanjp_ic_process(HanjpInputContext* hjic, int ascii)
   return true;
 }
 
+const ucschar* hanjp_ic_get_commit_string(HanjpInputContext* hjic)
+{
+  return hjic->commit_string;
+}
+
 //commit string으로 옮김
-void hanjp_ic_flush_internal(HanjpInputContext* hjic){
+static void hanjp_ic_flush_internal(HanjpInputContext* hjic){
   int i;
 
   for(i=0; i<hjic->preedit_length; i++){
@@ -96,4 +101,14 @@ void hanjp_ic_flush(HanjpInputContext* hjic){
   hjic->commit_string[0] = 0;
   hjic->state = STATE_DT;
   eater_flush(hjic->eater);
+}
+
+int hanjp_init()
+{
+  return hangul_init();
+}
+
+int hanjp_fini()
+{
+  return hangul_fini();
 }
