@@ -58,6 +58,7 @@ void eater_flush(HanjpEater* eater)
 
 int eater_push(HanjpEater* eater, ucschar ch, ucschar* outer, int outer_length)
 {
+    int res;
     int flag = 0;
 
     if(0 <= ch || ch >= 127){ //ascii
