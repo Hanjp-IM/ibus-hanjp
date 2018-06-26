@@ -13,17 +13,17 @@ typedef struct _HanjpInputContext HanjpInputContext;
 
 /*Input Context*/
 HanjpInputContext* hanjp_ic_new(const char* keyboard);
-void hanjp_ic_delete(HanjpInputContext *hic);
-bool hanjp_ic_process(HanjpInputContext* hic, int ascii);
-void hanjp_ic_reset(HanjpInputContext *hic);
-bool hanjp_ic_backspace(HanjpInputContext *hic);
-bool hanjp_ic_no_change_key(HanjpInputContext* hic);
-bool hanjp_ic_change_key(HanjpInputContext* hic);
-bool hanjp_ic_hiragana_katakana_toggle_key(HanjpInputContext *hic);
+void hanjp_ic_delete(HanjpInputContext *hhic);
+bool hanjp_ic_process(HanjpInputContext* hjic, int ascii);
+void hanjp_ic_reset(HanjpInputContext *hjic);
+bool hanjp_ic_backspace(HanjpInputContext *hjic);
+bool hanjp_ic_no_change_key(HanjpInputContext* hjic);
+bool hanjp_ic_change_key(HanjpInputContext* hjic);
+bool hanjp_ic_hiragana_katakana_toggle_key(HanjpInputContext *hjic);
 
-const ucschar* hanjp_ic_get_preedit_string(HanjpInputContext* hic, HanjpOutputType type);
-const ucschar* hanjp_ic_get_commit_string(HanjpInputContext* hic);
-void hanjp_ic_flush(HanjpInputContext *hic);
+const ucschar* hanjp_ic_get_preedit_string(HanjpInputContext* hjic, HanjpOutputType type);
+const ucschar* hanjp_ic_get_commit_string(HanjpInputContext* hjic);
+void hanjp_ic_flush(HanjpInputContext *hjic);
 
 int hanjp_init();
 int hanjp_fini();
