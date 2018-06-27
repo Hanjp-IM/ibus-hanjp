@@ -30,7 +30,7 @@ HanjpEater* eater_new(const char* keyboard)
 
 void eater_delete(HanjpEater* eater)
 {
-    hangul_ic_delete(hic);
+    hangul_ic_delete(eater->hic);
     free(eater);
 }
 
@@ -96,7 +96,7 @@ bool eater_backspace(HanjpEater* eater)
         return false;
     }
 
-    if(hangul_ic_is_empty(hic)) {
+    if(hangul_ic_is_empty(eater->hic)) {
        eater_flush(eater); //한글 조합 중이 아니면 eater 전체를 비움 
     }
 
