@@ -7,6 +7,7 @@
 typedef struct _HanjpEater HanjpEater;
 
 HanjpEater* eater_new(const char* keyboard);
+void eater_delete(HanjpEater* eater);
 int eater_push(HanjpEater* eater, ucschar ch, ucschar* outer, int outer_length);
 const ucschar* eater_get_preedit(HanjpEater* eater);
 bool eater_backspace(HanjpEater* eater);

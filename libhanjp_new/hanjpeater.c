@@ -28,6 +28,12 @@ HanjpEater* eater_new(const char* keyboard)
     hangul_ic_connect_callback(eater->hic, "transition", hic_on_transition, NULL);
 }
 
+void eater_delete(HanjpEater* eater)
+{
+    hangul_ic_delete(eater->hic);
+    free(eater);
+}
+
 static void hic_on_translate(HangulInputContext* hic, int ascii, ucschar* ch, void* data)
 {
     //구현할 부분
@@ -73,6 +79,28 @@ int eater_push(HanjpEater* eater, ucschar ch, ucschar* outer, int outer_length)
     }
 
     return flag;
+}
+
+bool eater_backspace(HanjpEater* eater)
+{
+    int ret;
+
+    //오류시 false
+    if(!eater) {
+        return false;
+    }
+
+    ret = hangul_ic_backspace(eater->hic);
+
+    if(!ret) {
+        return false;
+    }
+
+    if(hangul_ic_is_empty(eater->hic)) {
+       eater_flush(eater); //한글 조합 중이 아니면 eater 전체를 비움 
+    }
+
+    return true;
 }
 
 const ucschar* eater_get_preedit(HanjpEater* eater){
