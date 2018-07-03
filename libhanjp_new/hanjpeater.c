@@ -84,9 +84,9 @@ int eater_push(HanjpEater* eater, ucschar ch, ucschar* outer, int outer_length)
 {
     int res;
     int flag = 0;
-    ucschar* hic_commit;
-    ucschar* hic_preedit;
-    ucschar* hic_flushed;
+    const ucschar* hic_commit;
+    const ucschar* hic_preedit;
+    const ucschar* hic_flushed;
     ucschar* q = eater->q;
 
     if(0 <= ch || ch >= 127){ //ascii
@@ -96,8 +96,8 @@ int eater_push(HanjpEater* eater, ucschar ch, ucschar* outer, int outer_length)
             hangul_ic_process(eater->hic, ch);
         }
 
-        hic_commit = hangul_ic_get_commit_string(hic);
-        hic_preedit = hangul_ic_get_preedit_string(hic);
+        hic_commit = hangul_ic_get_commit_string(eater->hic);
+        hic_preedit = hangul_ic_get_preedit_string(eater->hic);
         q[3] = hic_preedit[0];
         
         if(hic_commit[0] != 0){ //hic commit이 일어남
@@ -131,7 +131,7 @@ int eater_push(HanjpEater* eater, ucschar ch, ucschar* outer, int outer_length)
 bool eater_backspace(HanjpEater* eater)
 {
     int ret;
-    ucschar* preedit;
+    const ucschar* preedit;
 
     //오류시 false
     if(!eater) {

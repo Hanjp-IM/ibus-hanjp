@@ -39,7 +39,7 @@ HanjpInputContext* hanjp_ic_new(const char* keyboard)
 void hanjp_ic_delete(HanjpInputContext *hjic)
 {
   if(!hjic) {
-    return false;
+    return;
   }
 
   eater_delete(hjic->eater);
