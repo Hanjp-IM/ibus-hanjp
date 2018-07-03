@@ -38,6 +38,10 @@ HanjpInputContext* hanjp_ic_new(const char* keyboard)
 
 void hanjp_ic_delete(HanjpInputContext *hjic)
 {
+  if(!hjic) {
+    return false;
+  }
+
   eater_delete(hjic->eater);
   free(hjic);
 }
@@ -45,6 +49,10 @@ void hanjp_ic_delete(HanjpInputContext *hjic)
 bool hanjp_ic_process(HanjpInputContext* hjic, int ascii)
 {
   int eatFlag;
+
+  if(!hjic) {
+    return false;
+  }
 
   eatFlag = eater_push(hjic->eater, ascii, hjic->preedit_string, hjic->preedit_length); //eater에 푸시
 
@@ -79,8 +87,35 @@ bool hanjp_ic_process(HanjpInputContext* hjic, int ascii)
   return true;
 }
 
+bool hanjp_ic_backspace(HanjpInputContext *hjic)
+{
+  int ret;
+
+  if(!hjic){
+    return false;
+  }
+
+  ret = eater_backspace(hjic->eater);
+
+  if(!ret){
+    return false;
+  }
+
+  if(eater_is_empty(hjic->eater)){ //eater가 한글 조합중이 아니면
+    hjic->state = STATE_DT;
+    if(hjic->preedit_length > 0) {
+      hjic->preedit_length--;
+      hjic->preedit_string[hjic->preedit_length - 1] = 0;
+    }
+  }
+}
+
 const ucschar* hanjp_ic_get_commit_string(HanjpInputContext* hjic)
 {
+  if(!hjic){
+    return NULL;
+  }
+
   return hjic->commit_string;
 }
 
@@ -96,11 +131,17 @@ static void hanjp_ic_flush_internal(HanjpInputContext* hjic){
   hjic->preedit_length = 0;
 }
 
-void hanjp_ic_flush(HanjpInputContext* hjic){
+bool hanjp_ic_flush(HanjpInputContext* hjic){
+  if(!hjic){
+    return false;
+  }
+
   hjic->preedit_string[0] = 0;
   hjic->commit_string[0] = 0;
   hjic->state = STATE_DT;
   eater_flush(hjic->eater);
+
+  return true;
 }
 
 int hanjp_init()
