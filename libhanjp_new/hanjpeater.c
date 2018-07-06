@@ -8,6 +8,7 @@ static bool hic_on_transition(HangulInputContext*, ucschar, const ucschar*, void
 static const ucschar hangul_to_kana(ucschar pprev, ucschar prev, ucschar* hangul, ucschar next);
 
 const ucschar kana_table[][] = {
+    // {*A, *I, *U, *E, *O}
     {0x3042, 0x3044, 0x3046, 0x3048, 0x304A}, // O
     {0x304B, 0x304D, 0x304F, 0x3051, 0x3053}, // K
     {0x3055, 0x3057, 0x3059, 0x305B, 0x305D}, // S
@@ -15,6 +16,10 @@ const ucschar kana_table[][] = {
     {0x306A, 0x306B, 0x306C, 0x306D, 0x306E}, // N
     {0x306F, 0x3072, 0x3075, 0x3078, 0x307B}, // H
     {0x307E, 0x307F, 0x3080, 0x3081, 0x3082}, // M
+    {0x3084, 0, 0x3086, 0, 0x3088}, // Y
+    {0x3089, 0x308A, 0x308B, 0x308C, 0x308D}, // R
+    {0x308F, 0, 0, 0, 0x3092}, // W
+    {0x3093} // NN
 };
 struct _HanjpEater{
     ucschar q[4];
@@ -83,28 +88,38 @@ static const ucschar hangul_to_kana(ucschar pprev, ucschar prev, ucschar* hangul
     int i=-1, j=-1;
 
     switch(hangul[0]){
-        case HANJP_CHOSEONG_VOID: i=-1; break;
-        case HANJP_CHOSEONG_IEUNG: i=0; break;
-        case HANJP_CHOSEONG_K: i=1; break;
-        case HANJP_CHOSEONG_S: i=2; break;
-        case HANJP_CHOSEONG_T: i=3; break;
-        case HANJP_CHOSEONG_N: i=4; break;
-        case HANJP_CHOSEONG_H: i=5; break;
-        case HANJP_CHOSEONG_M: i=6; break;
-        case HANJP_CHOSEONG_R: i=8; break;
-        case HANJP_CHOSEONG_OLD_IEUNG: i=9; break;
+        case HANGUL_CHOSEONG_FILLER: i=-1; break;
+        case HANJP_CHOSEONG_IEUNG: i=0; break; // ㅇ
+        case HANJP_CHOSEONG_KHIEUKH: i=1; break; // ㅋ
+        case HANJP_CHOSEONG_SIOS: i=2; break; // ㅅ
+        case HANJP_CHOSEONG_THIEUTH: i=3; break; // ㅌ
+        case HANJP_CHOSEONG_NIEUN: i=4; break; // ㅜ
+        case HANJP_CHOSEONG_HIEUH: i=5; break; // ㅎ
+        case HANJP_CHOSEONG_MIEUM: i=6; break; // ㅁ
+        case HANJP_CHOSEONG_RIEUL: i=8; break; // ㄹ
+        case HANJP_CHOSEONG_OLD_IEUNG: // OLD ㅇ
+            i = (hangul[1]==HANJP_JUNGSEONG_O)? 9 : 0;
+            break; 
         default: i=-1; break
     }
 
     switch(hangul[1]){
-        case HANJP_JUNGSEONG_A: j=0; break;
-        case HANJP_JUNGSEONG_I: j=1; break;
-        case HANJP_JUNGSEONG_U: j=2; break;
-        case HANJP_JUNGSEONG_E: j=3; break;
-        case HANJP_JUNGSEONG_O: j=4; break;
+        case HANGUL_JUNGSEONG_FILLER: j=-1; break;
+        case HANJP_JUNGSEONG_A: j=0; break; //ㅏ
+        case HANJP_JUNGSEONG_I: j=1; break; // ㅣ
+        case HANJP_JUNGSEONG_EU: // ㅡ
+        case HANJP_JUNGSEONG_U: j=2; break; // ㅜ
+        case HANJP_JUNGSEONG_AE: // ㅐ
+        case HANJP_JUNGSEONG_E: j=3; break; // ㅔ
+        case HANJP_JUNGSEONG_O: j=4; break; // ㅗ
+        case HANJP_JUNGSEONG_YA: i=(i==0)?7:i; j=0; break; // 야
+        case HANJP_JUNGSEONG_YU: i=(i==0)?7:i; j=2; break; // 유
+        case HANJP_JUNGSEONG_YO: i=(i==0)?7:i; j=4; break; // 요
+        case HANJP_JUNGSEONG_WA: i=(i==0)?9:i; j=0; break; // 와
         default: j=-1; break;
     }
 
+    return kana_table[i][j];
 }
 
 void eater_flush(HanjpEater* eater)
