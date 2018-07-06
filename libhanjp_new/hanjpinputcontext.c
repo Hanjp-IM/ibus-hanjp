@@ -10,7 +10,7 @@
 */
 
 struct _HanjpInputContext {
-  HanjpEater* eaters;
+  HanjpEater* eater;
   ucschar preedit_string[STR_MAX];
   int preedit_length; 
   ucschar commit_string[STR_MAX];
