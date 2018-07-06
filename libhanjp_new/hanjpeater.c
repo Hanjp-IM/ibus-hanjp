@@ -7,6 +7,13 @@ static void hic_on_translate(HangulInputContext*, int, ucschar*, void*);
 static bool hic_on_transition(HangulInputContext*, ucschar, const ucschar*, void*);
 static const ucschar hangul_to_kana(ucschar* src);
 
+const ucschar kana_table[][] = {
+    {0x3042, 0x3044, 0x3046, 0x3048, 0x304A}, // O
+    {0x304B, 0x304D, 0x304F, 0x3051, 0x3053}, // K
+    {0x3055, 0x3057, 0x3059, 0x305B, 0x305D}, // S
+    {0x305F, 0x3061, 0x3063, 0x3066, 0x3068},
+    {}
+};
 struct _HanjpEater{
     ucschar q[2];
     HangulInputContext* hic;
@@ -53,6 +60,33 @@ static const ucschar hangul_to_kana(ucschar* src)
 {
     //구현할 부분
     //ucschar key 2개로 kana 문자 맵핑
+    // src[0] - 초성, src[1] - 중성
+
+    int i=-1, j=-1;
+
+    switch(src[0]){
+        case HANJP_CHOSEONG_VOID: i=-1; break;
+        case HANJP_CHOSEONG_IEUNG: i=0; break;
+        case HANJP_CHOSEONG_K: i=1; break;
+        case HANJP_CHOSEONG_S: i=2; break;
+        case HANJP_CHOSEONG_T: i=3; break;
+        case HANJP_CHOSEONG_N: i=4; break;
+        case HANJP_CHOSEONG_H: i=5; break;
+        case HANJP_CHOSEONG_M: i=6; break;
+        case HANJP_CHOSEONG_R: i=8; break;
+        case HANJP_CHOSEONG_OLD_IEUNG: i=9; break;
+        default: i=-1; break
+    }
+
+    switch(src[1]){
+        case HANJP_JUNGSEONG_A: j=0; break;
+        case HANJP_JUNGSEONG_I: j=1; break;
+        case HANJP_JUNGSEONG_U: j=2; break;
+        case HANJP_JUNGSEONG_E: j=3; break;
+        case HANJP_JUNGSEONG_O: j=4; break;
+        default: j=-1; break;
+    }
+
 }
 
 void eater_flush(HanjpEater* eater)
