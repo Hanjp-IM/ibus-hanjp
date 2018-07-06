@@ -12,6 +12,7 @@ int eater_push(HanjpEater* eater, ucschar ch, ucschar* outer, int outer_length);
 const ucschar* eater_get_preedit(HanjpEater* eater);
 bool eater_backspace(HanjpEater* eater);
 void eater_flush(HanjpEater* eater);
+bool eater_is_empty(HanjpEater* eater);
 
 typedef enum {
     HANJP_CHOSEONG_VOID = -1,
