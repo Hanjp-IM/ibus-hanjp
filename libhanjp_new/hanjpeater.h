@@ -1,6 +1,5 @@
 #include <hangul.h>
 
-#define EATFLG_ATDT 04
 #define EATFLG_Q    02
 #define EATFLG_P    01
 

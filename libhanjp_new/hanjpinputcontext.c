@@ -9,14 +9,8 @@
  ucs string은 끝에 0이 들어있는 것으로 문자열 끝을 구분합니다. 
 */
 
-enum {
-  STATE_AT,
-  STATE_DT
-};
-
 struct _HanjpInputContext {
-  HanjpEater* eater;
-  int state;
+  HanjpEater* eaters;
   ucschar preedit_string[STR_MAX];
   int preedit_length; 
   ucschar commit_string[STR_MAX];
@@ -30,7 +24,6 @@ HanjpInputContext* hanjp_ic_new(const char* keyboard)
   hjic = malloc(sizeof(HanjpInputContext));
 
   hjic->eater = eater_new(keyboard);
-  hjic->state = STATE_DT;
   hjic->preedit_string[0] = 0;
   hjic->preedit_length = 0;
   hjic->commit_string[0] = 0;
@@ -66,20 +59,6 @@ bool hanjp_ic_process(HanjpInputContext* hjic, int ascii)
     }
   }
 
-  if(eatFlag && EATFLG_ATDT){ //ATDT인 경우
-    switch(hjic->state){
-      case STATE_AT:
-      hjic->state = STATE_DT;
-      hanjp_ic_flush_internal(hjic); //commit string으로 옮김
-      break;
-      case STATE_DT:
-      hjic->state = STATE_AT;
-      break;
-      default:
-      return false;
-    }
-  }
-
   if(eatFlag && EATFLG_Q){
     //추가 구현
   }
@@ -102,7 +81,6 @@ bool hanjp_ic_backspace(HanjpInputContext *hjic)
   }
 
   if(eater_is_empty(hjic->eater)){ //eater가 한글 조합중이 아니면
-    hjic->state = STATE_DT;
     if(hjic->preedit_length > 0) {
       hjic->preedit_length--;
       hjic->preedit_string[hjic->preedit_length - 1] = 0;
@@ -138,7 +116,6 @@ bool hanjp_ic_flush(HanjpInputContext* hjic){
 
   hjic->preedit_string[0] = 0;
   hjic->commit_string[0] = 0;
-  hjic->state = STATE_DT;
   eater_flush(hjic->eater);
 
   return true;

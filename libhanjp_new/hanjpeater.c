@@ -86,10 +86,9 @@ int eater_push(HanjpEater* eater, ucschar ch, ucschar* outer, int outer_length)
     int flag = 0;
     const ucschar* hic_commit;
     const ucschar* hic_preedit;
-    const ucschar* hic_flushed;
     ucschar* q = eater->q;
 
-    if(0 <= ch || ch >= 127){ //ascii
+    if(0 <= ch && ch >= 127){ //ascii
         res = hangul_ic_process(eater->hic, ch); //hic에 자소 푸쉬
 
         if(!res){ //처리가 안됐으면 다시 넣음
@@ -101,28 +100,27 @@ int eater_push(HanjpEater* eater, ucschar ch, ucschar* outer, int outer_length)
         q[3] = hic_preedit[0];
         
         if(hic_commit[0] != 0){ //hic commit이 일어남
-            outer[outer_length] = q[0];
             q[0] = q[1];
             q[1] = q[2];
             //hic commit string은 다음 ic_process까지만 유지됨//
-            q[2] = hangul_to_kana(q[0], q[1], hic_commit, q[3]); 
+            q[2] = hangul_to_kana(q[0], q[1], hic_commit, q[3]);
+            outer[outer_length] = q[2]; 
             flag = flag || EATFLG_P;
             if(q[2] == 0x302f) //방점이면
                 flag = flag || EATFLG_Q;
         }
     }
     else { //non ascii
-        if(q[3] != 0){
-            hic_flushed = hangul_ic_flush(eater->hic);
-
-            outer[outer_length] = q[0];
-            q[0] = q[1];
-            q[1] = q[2];
-            q[2] = hangul_to_kana(q[0], q[1], hic_flushed, q[3]); 
-            flag = flag || EATFLG_P;
-            if(q[2] == 0x302f) //방점이면
-                flag = flag || EATFLG_Q;
-        }
+        hangul_ic_flush(eater->hic);
+        
+        q[3] = 0;
+        q[0] = q[1];
+        q[1] = q[2];
+        q[2] = ch;
+        outer[outer_length] = ch;
+        flag = flag || EATFLG_P;
+        if(q[2] == 0x302f) //방점이면
+            flag = flag || EATFLG_Q;
     }
 
     return flag;
@@ -166,9 +164,5 @@ const ucschar* eater_get_preedit(HanjpEater* eater){
 
 bool eater_is_empty(HanjpEater* eater)
 {
-    if(!eater){
-        return NULL;
-    }
-
     return hangul_ic_is_empty(eater->hic);
 }
