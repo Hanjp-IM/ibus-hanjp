@@ -11,8 +11,10 @@ const ucschar kana_table[][] = {
     {0x3042, 0x3044, 0x3046, 0x3048, 0x304A}, // O
     {0x304B, 0x304D, 0x304F, 0x3051, 0x3053}, // K
     {0x3055, 0x3057, 0x3059, 0x305B, 0x305D}, // S
-    {0x305F, 0x3061, 0x3063, 0x3066, 0x3068},
-    {}
+    {0x305F, 0x3061, 0x3063, 0x3066, 0x3068}, // T
+    {0x306A, 0x306B, 0x306C, 0x306D, 0x306E}, // N
+    {0x306F, 0x3072, 0x3075, 0x3078, 0x307B}, // H
+    {0x307E, 0x307F, 0x3080, 0x3081, 0x3082}, // M
 };
 struct _HanjpEater{
     ucschar q[4];
@@ -80,7 +82,7 @@ static const ucschar hangul_to_kana(ucschar pprev, ucschar prev, ucschar* hangul
 
     int i=-1, j=-1;
 
-    switch(src[0]){
+    switch(hangul[0]){
         case HANJP_CHOSEONG_VOID: i=-1; break;
         case HANJP_CHOSEONG_IEUNG: i=0; break;
         case HANJP_CHOSEONG_K: i=1; break;
@@ -94,7 +96,7 @@ static const ucschar hangul_to_kana(ucschar pprev, ucschar prev, ucschar* hangul
         default: i=-1; break
     }
 
-    switch(src[1]){
+    switch(hangul[1]){
         case HANJP_JUNGSEONG_A: j=0; break;
         case HANJP_JUNGSEONG_I: j=1; break;
         case HANJP_JUNGSEONG_U: j=2; break;
