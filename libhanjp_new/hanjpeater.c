@@ -84,16 +84,16 @@ static bool hic_on_transition(HangulInputContext* hic, ucschar ch, const ucschar
     return true;
 }
 
-static const ucschar hangul_to_kana(ucschar pprev, ucschar prev, ucschar* hangul, ucschar next)
+static const void hangul_to_kana(ucschar pprev, ucschar prev, ucschar* hangul, ucschar next, ucschar* dest)
 {
     //구현할 부분
     //ucschar key 2개로 kana 문자 맵핑
     // src[0] - 초성, src[1] - 중성
 
-    int i=-1, j=-1;
+    int i=-1, j=-1, is_choseong_void=0, is_jungseong_void=0, adjust=0;
 
     switch(hangul[0]){
-        case HANGUL_CHOSEONG_FILLER: i=-1; break;
+        case HANGUL_CHOSEONG_FILLER: i=-1; is_choseong_void=1; break;
         case HANJP_CHOSEONG_IEUNG: i=0; break; // ㅇ
         case HANJP_CHOSEONG_KHIEUKH: i=1; break; // ㅋ
         case HANJP_CHOSEONG_KIEYEOK: i=2; break // ㄱ // ㅋ -> ㄱ 탁음
@@ -118,22 +118,23 @@ static const ucschar hangul_to_kana(ucschar pprev, ucschar prev, ucschar* hangul
     }
 
     switch(hangul[1]){
-        case HANGUL_JUNGSEONG_FILLER: j=-1; break;
-        case HANJP_JUNGSEONG_A: j=0; break; //ㅏ
-        case HANJP_JUNGSEONG_I: j=1; break; // ㅣ
+        case HANGUL_JUNGSEONG_FILLER: j=-1; is_jungseong_void=1; break;
+        case HANJP_JUNGSEONG_A: i=is_choseong_void?0:i; j=0; break; //ㅏ
+        case HANJP_JUNGSEONG_I: i=is_choseong_void?0:i; j=1; break; // ㅣ
         case HANJP_JUNGSEONG_EU: // ㅡ
-        case HANJP_JUNGSEONG_U: j=2; break; // ㅜ
+        case HANJP_JUNGSEONG_U: i=is_choseong_void?0:i; j=2; break; // ㅜ
         case HANJP_JUNGSEONG_AE: // ㅐ
-        case HANJP_JUNGSEONG_E: j=3; break; // ㅔ
-        case HANJP_JUNGSEONG_O: j=4; break; // ㅗ
-        case HANJP_JUNGSEONG_YA: i=(i==0)?7:i; j=0; break; // 야
-        case HANJP_JUNGSEONG_YU: i=(i==0)?7:i; j=2; break; // 유
-        case HANJP_JUNGSEONG_YO: i=(i==0)?7:i; j=4; break; // 요
-        case HANJP_JUNGSEONG_WA: i=(i==0)?9:i; j=0; break; // 와
+        case HANJP_JUNGSEONG_E: i=is_choseong_void?0:i; j=3; break; // ㅔ
+        case HANJP_JUNGSEONG_O: i=is_choseong_void?0:i; j=4; break; // ㅗ
+        case HANJP_JUNGSEONG_YA: i=(i==0 || is_choseong_void)?7:i; j=0; break; // 야
+        case HANJP_JUNGSEONG_YU: i=(i==0 || is_choseong_void)?7:i; j=2; break; // 유
+        case HANJP_JUNGSEONG_YO: i=(i==0 || is_choseong_void)?7:i; j=4; break; // 요
+        case HANJP_JUNGSEONG_WA: i=(i==0 || is_choseong_void)?9:i; j=0; break; // 와
         default: j=-1; break;
     }
 
-    return kana_table[i][j];
+    adjust = is_choseong_void? -1 : 0;
+    dest[0] = kana_table[i][j] + adjust;
 }
 
 void eater_flush(HanjpEater* eater)
