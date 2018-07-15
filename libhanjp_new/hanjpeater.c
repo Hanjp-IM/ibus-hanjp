@@ -93,7 +93,7 @@ static const void hangul_to_kana(ucschar pprev, ucschar prev, ucschar* hangul, u
     int i=-1, j=-1, is_choseong_void=0, is_jungseong_void=0, adjust=0;
 
     switch(hangul[0]){
-        case HANGUL_CHOSEONG_FILLER: i=-1; is_choseong_void=1; break;
+        case HANGUL_CHOSEONG_FILLER: i=0; is_choseong_void=1; break;
         case HANJP_CHOSEONG_IEUNG: i=0; break; // ㅇ
         case HANJP_CHOSEONG_KHIEUKH: i=1; break; // ㅋ
         case HANJP_CHOSEONG_KIEYEOK: i=2; break // ㄱ // ㅋ -> ㄱ 탁음
@@ -118,7 +118,7 @@ static const void hangul_to_kana(ucschar pprev, ucschar prev, ucschar* hangul, u
     }
 
     switch(hangul[1]){
-        case HANGUL_JUNGSEONG_FILLER: j=-1; is_jungseong_void=1; break;
+        case HANGUL_JUNGSEONG_FILLER: j=2; is_jungseong_void=1; break;
         case HANJP_JUNGSEONG_A: i=is_choseong_void?0:i; j=0; break; //ㅏ
         case HANJP_JUNGSEONG_I: i=is_choseong_void?0:i; j=1; break; // ㅣ
         case HANJP_JUNGSEONG_EU: // ㅡ
