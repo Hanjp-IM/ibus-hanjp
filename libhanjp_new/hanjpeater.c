@@ -101,6 +101,10 @@ static const ucschar hangul_to_kana(ucschar pprev, ucschar prev, ucschar* hangul
         case HANJP_CHOSEONG_CIEUC: i=4; break; // ㅈ // ㅅ -> ㅈ 탁음
         case HANJP_CHOSEONG_THIEUTH: i=5; break; // ㅌ
         case HANJP_CHOSEONG_TIKEUT: i=6; break // ㄷ // ㅌ -> ㄷ 탁음
+        case HANJP_CHOSEONG_PANSIOS:
+            i = (hangul[1]==HANJP_JUNGSEONG_I || 
+                hangul[1]==HANJP_JUNGSEONG_EU ||
+                hangul[1]==HANJP_JUNGSEONG_U)? 6 : 4;
         case HANJP_CHOSEONG_NIEUN: i=7; break; // ㄴ
         case HANJP_CHOSEONG_HIEUH: i=8; break; // ㅎ
         case HANJP_CHOSEONG_PIEUP: i=9; break; // ㅂ // ㅎ -> ㅂ 탁음
