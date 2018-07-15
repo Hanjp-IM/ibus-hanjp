@@ -41,27 +41,19 @@ void hanjp_ic_delete(HanjpInputContext *hjic)
 
 bool hanjp_ic_process(HanjpInputContext* hjic, int ascii)
 {
-  int eatFlag;
+  int push_length;
 
   if(!hjic) {
     return false;
   }
 
-  eatFlag = eater_push(hjic->eater, ascii, hjic->preedit_string, hjic->preedit_length); //eater에 푸시
+  push_length = eater_push(hjic->eater, ascii, hjic->preedit_string, hjic->preedit_length); //push to eater
 
-  if(eatFlag && EATFLG_P){ //푸시 됐을 경우
-    hjic->preedit_length++; //preedit string length 1증가
-    if(hjic->preedit_length == STR_MAX){
-      hanjp_ic_flush_internal(hjic);
-    }
-    else{
-      hjic->preedit_string[hjic->preedit_length] = 0;
-    }
+  if(push_length < 0) {
+    return false;
   }
 
-  if(eatFlag && EATFLG_Q){
-    //추가 구현
-  }
+  hjic->preedit_length += push_length;
 
   return true;
 }
@@ -86,6 +78,15 @@ bool hanjp_ic_backspace(HanjpInputContext *hjic)
       hjic->preedit_string[hjic->preedit_length - 1] = 0;
     }
   }
+}
+
+const ucschar* hanjp_ic_get_preedit_string(HanjpInputContext* hjic)
+{
+  if(!hjic){
+    return NULL;
+  }
+
+  return hjic->preedit_string;
 }
 
 const ucschar* hanjp_ic_get_commit_string(HanjpInputContext* hjic)
