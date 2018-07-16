@@ -119,17 +119,17 @@ static const void hangul_to_kana(ucschar pprev, ucschar prev, ucschar* hangul, u
 
     switch(hangul[1]){
         case HANGUL_JUNGSEONG_FILLER: j=2; is_jungseong_void=1; break;
-        case HANJP_JUNGSEONG_A: i=is_choseong_void?0:i; j=0; break; //ㅏ
-        case HANJP_JUNGSEONG_I: i=is_choseong_void?0:i; j=1; break; // ㅣ
+        case HANJP_JUNGSEONG_A: j=0; break; //ㅏ
+        case HANJP_JUNGSEONG_I: j=1; break; // ㅣ
         case HANJP_JUNGSEONG_EU: // ㅡ
-        case HANJP_JUNGSEONG_U: i=is_choseong_void?0:i; j=2; break; // ㅜ
+        case HANJP_JUNGSEONG_U: j=2; break; // ㅜ
         case HANJP_JUNGSEONG_AE: // ㅐ
-        case HANJP_JUNGSEONG_E: i=is_choseong_void?0:i; j=3; break; // ㅔ
-        case HANJP_JUNGSEONG_O: i=is_choseong_void?0:i; j=4; break; // ㅗ
-        case HANJP_JUNGSEONG_YA: i=(i==0 || is_choseong_void)?7:i; j=0; break; // 야
-        case HANJP_JUNGSEONG_YU: i=(i==0 || is_choseong_void)?7:i; j=2; break; // 유
-        case HANJP_JUNGSEONG_YO: i=(i==0 || is_choseong_void)?7:i; j=4; break; // 요
-        case HANJP_JUNGSEONG_WA: i=(i==0 || is_choseong_void)?9:i; j=0; break; // 와
+        case HANJP_JUNGSEONG_E: j=3; break; // ㅔ
+        case HANJP_JUNGSEONG_O: j=4; break; // ㅗ
+        case HANJP_JUNGSEONG_YA: i=(i==0)?7:i; j=0; break; // 야
+        case HANJP_JUNGSEONG_YU: i=(i==0)?7:i; j=2; break; // 유
+        case HANJP_JUNGSEONG_YO: i=(i==0)?7:i; j=4; break; // 요
+        case HANJP_JUNGSEONG_WA: i=(i==0)?9:i; j=0; break; // 와
         default: j=-1; break;
     }
 
