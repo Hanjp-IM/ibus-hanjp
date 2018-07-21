@@ -91,6 +91,7 @@ static const void hangul_to_kana(ucschar pprev, ucschar prev, ucschar* hangul, u
     // src[0] - 초성, src[1] - 중성
 
     int i=-1, j=-1, is_choseong_void=0, is_jungseong_void=0, adjust=0;
+    int has_contracted_sound=0;
 
     switch(hangul[0]){
         case HANGUL_CHOSEONG_FILLER: i=0; is_choseong_void=1; break;
@@ -126,15 +127,29 @@ static const void hangul_to_kana(ucschar pprev, ucschar prev, ucschar* hangul, u
         case HANJP_JUNGSEONG_AE: // ㅐ
         case HANJP_JUNGSEONG_E: j=3; break; // ㅔ
         case HANJP_JUNGSEONG_O: j=4; break; // ㅗ
-        case HANJP_JUNGSEONG_YA: i=(i==0)?7:i; j=0; break; // 야
-        case HANJP_JUNGSEONG_YU: i=(i==0)?7:i; j=2; break; // 유
-        case HANJP_JUNGSEONG_YO: i=(i==0)?7:i; j=4; break; // 요
-        case HANJP_JUNGSEONG_WA: i=(i==0)?9:i; j=0; break; // 와
+         case HANJP_JUNGSEONG_YA: 
+            i=(i==0 || is_choseong_void)?7:i; j=0;  // 야
+            has_contracted_sound=1; break;
+        case HANJP_JUNGSEONG_YU: 
+            i=(i==0 || is_choseong_void)?7:i; j=2;  // 유
+            has_contracted_sound=1; break;
+        case HANJP_JUNGSEONG_YO: 
+            i=(i==0 || is_choseong_void)?7:i; j=4;  // 요
+            has_contracted_sound=1; break;
+        case HANJP_JUNGSEONG_WA: i=(i==0 || is_choseong_void)?9:i; j=0; break; // 와
         default: j=-1; break;
     }
 
     adjust = is_choseong_void? -1 : 0;
     dest[0] = kana_table[i][j] + adjust;
+
+    if(has_contracted_sound){
+        dest[0] = kana_table[i][1];
+        dest[1] = kana_table[12][j]-1;
+        return 2;
+    }else{
+        return 1;
+    }
 }
 
 void eater_flush(HanjpEater* eater)
