@@ -129,16 +129,18 @@ static const void hangul_to_kana(ucschar* dest, int state, ucschar* hangul, ucsc
         case HANJP_JUNGSEONG_O: j=4; break; // ㅗ
          case HANJP_JUNGSEONG_YA: 
             i=(i==0 || is_choseong_void)?7:i; j=0;  // 야
-            has_contracted_sound=1; break;
+            has_contracted_sound = i>0? 1 : 0; break;
         case HANJP_JUNGSEONG_YU: 
             i=(i==0 || is_choseong_void)?7:i; j=2;  // 유
-            has_contracted_sound=1; break;
+            has_contracted_sound = i>0? 1 : 0; break;
         case HANJP_JUNGSEONG_YO: 
             i=(i==0 || is_choseong_void)?7:i; j=4;  // 요
-            has_contracted_sound=1; break;
+            has_contracted_sound = i>0? 1 : 0; break;
         case HANJP_JUNGSEONG_WA: i=(i==0 || is_choseong_void)?9:i; j=0; break; // 와
         default: j=-1; break;
     }
+
+    if(is_choseong_void && is_jungseong_void) return -1;
 
     adjust = is_choseong_void? -1 : 0;
     dest[0] = kana_table[i][j] + adjust;
