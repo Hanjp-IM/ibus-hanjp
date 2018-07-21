@@ -5,9 +5,9 @@
 /*오타마타 조작 함수*/
 static void hic_on_translate(HangulInputContext*, int, ucschar*, void*);
 static bool hic_on_transition(HangulInputContext*, ucschar, const ucschar*, void*);
-static const ucschar hangul_to_kana(ucschar* dest, int state, ucschar* hangul, ucschar next);
+static const int hangul_to_kana(ucschar* dest, int state, ucschar* hangul, ucschar next);
 
-const ucschar kana_table[][] = {
+const ucschar kana_table[][5] = {
     // {*A, *I, *U, *E, *O}
     {0x3042, 0x3044, 0x3046, 0x3048, 0x304A}, // O
     {0x304B, 0x304D, 0x304F, 0x3051, 0x3053}, // K
@@ -24,7 +24,7 @@ const ucschar kana_table[][] = {
     {0x3084, 0, 0x3086, 0, 0x3088}, // Y
     {0x3089, 0x308A, 0x308B, 0x308C, 0x308D}, // R
     {0x308F, 0, 0, 0, 0x3092}, // W
-    {0x3093} // NN
+    {0x3093, 0, 0, 0, 0} // NN
 };
 struct _HanjpEater{
     ucschar q[4];
@@ -84,7 +84,7 @@ static bool hic_on_transition(HangulInputContext* hic, ucschar ch, const ucschar
     return true;
 }
 
-static const void hangul_to_kana(ucschar* dest, int state, ucschar* hangul, ucschar next)
+static const int hangul_to_kana(ucschar* dest, int state, ucschar* hangul, ucschar next)
 {
     //구현할 부분
     //ucschar key 2개로 kana 문자 맵핑
