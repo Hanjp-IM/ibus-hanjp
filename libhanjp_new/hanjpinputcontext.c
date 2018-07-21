@@ -11,6 +11,7 @@
 
 struct _HanjpInputContext {
   HanjpEater* eater;
+  int output_type;
   ucschar preedit_string[STR_MAX];
   int preedit_length; 
   ucschar commit_string[STR_MAX];
@@ -22,7 +23,8 @@ HanjpInputContext* hanjp_ic_new(const char* keyboard)
 {
   HanjpInputContext* hjic;
   hjic = malloc(sizeof(HanjpInputContext));
-
+  
+  hjic->output_type = 0;
   hjic->eater = eater_new(keyboard);
   hjic->preedit_string[0] = 0;
   hjic->preedit_length = 0;
@@ -47,7 +49,7 @@ bool hanjp_ic_process(HanjpInputContext* hjic, int ascii)
     return false;
   }
 
-  push_length = eater_push(hjic->eater, ascii, hjic->preedit_string, hjic->preedit_length); //push to eater
+  push_length = eater_push(hjic->eater, ascii, hjic->preedit_string, hjic->preedit_length, hjic->output_type); //push to eater
 
   if(push_length < 0) {
     return false;

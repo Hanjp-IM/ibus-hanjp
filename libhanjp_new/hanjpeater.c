@@ -125,7 +125,7 @@ bool eater_backspace(HanjpEater* eater)
         break;
         case STATE_JUNGSEONG:
         if(hangul_ic_has_jungseong(eater->hic)){
-            eater->state = STATE_JUNSEONG;
+            eater->state = STATE_JUNGSEONG;
         }
         else{
             eater->state = STATE_CHOSEONG;
