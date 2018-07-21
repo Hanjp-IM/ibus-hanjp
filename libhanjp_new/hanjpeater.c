@@ -5,7 +5,7 @@
 /*오타마타 조작 함수*/
 static void hic_on_translate(HangulInputContext*, int, ucschar*, void*);
 static bool hic_on_transition(HangulInputContext*, ucschar, const ucschar*, void*);
-static const ucschar hangul_to_kana(ucschar pprev, ucschar prev, ucschar* hangul, ucschar next);
+static const ucschar hangul_to_kana(ucschar* dest, int state, ucschar* hangul, ucschar next);
 
 const ucschar kana_table[][] = {
     // {*A, *I, *U, *E, *O}
@@ -137,7 +137,7 @@ static const void hangul_to_kana(ucschar* dest, int state, ucschar* hangul, ucsc
             i=(i==0 || is_choseong_void)?12:i; j=4;  // 요
             has_contracted_sound = i>0? 1 : 0; break;
         case HANJP_JUNGSEONG_WA: i=(i==0 || is_choseong_void)?9:i; j=0; break; // 와
-        default: return -1;
+        default: return -1;마
     }
 
     if(is_choseong_void && is_jungseong_void) return -1;
