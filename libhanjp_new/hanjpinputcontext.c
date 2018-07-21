@@ -72,10 +72,9 @@ bool hanjp_ic_backspace(HanjpInputContext *hjic)
     return false;
   }
 
-  if(eater_is_empty(hjic->eater)){ //eater가 한글 조합중이 아니면
+  if(eater_is_empty(hjic->eater)) {//eater가 한글 조합중이 아니면
     if(hjic->preedit_length > 0) {
-      hjic->preedit_length--;
-      hjic->preedit_string[hjic->preedit_length - 1] = 0;
+      hjic->preedit_string[--hjic->preedit_length] = 0;
     }
   }
 }
@@ -102,10 +101,10 @@ const ucschar* hanjp_ic_get_commit_string(HanjpInputContext* hjic)
 static void hanjp_ic_flush_internal(HanjpInputContext* hjic){
   int i;
 
-  for(i=0; i<hjic->preedit_length; i++){
+  for(i=0; i<=hjic->preedit_length; i++){
     hjic->commit_string[i] = hjic->preedit_string[i];
   }
-  hjic->commit_string[i] = 0;
+  
   hjic->preedit_string[0] = 0;
   hjic->preedit_length = 0;
 }

@@ -2,17 +2,21 @@
 #include "hanjpeater.h"
 #include <stdlib.h>
 
-#define RSRV_MAX 4 //reserved string MAX
-
 /*오타마타 조작 함수*/
 static void hic_on_translate(HangulInputContext*, int, ucschar*, void*);
 static bool hic_on_transition(HangulInputContext*, ucschar, const ucschar*, void*);
-static void hangul_to_kana(ucschar* dest, ucschar* rsrv, ucschar* hangul, ucschar next, HanjpOutputType type);
+static int hangul_to_kana(ucschar* dest, int state, ucschar* hangul, ucschar next, HanjpOutputType type);
+
+enum {
+    STATE_VOID,
+    STATE_CHOSEONG,
+    STATE_JUNGSEONG,
+    STATE_JONGSEONG
+};
 
 struct _HanjpEater{
-    ucschar rsrv[RSRV_MAX]; //reserved string
-    int rsrv_length;
     HangulInputContext* hic;
+    int state;
 };
 
 HanjpEater* eater_new(const char* keyboard)
@@ -23,11 +27,6 @@ HanjpEater* eater_new(const char* keyboard)
         keyboard = "2hj";
 
     eater = malloc(sizeof(HanjpEater));
-    eater->rsrv[0] = 0;
-    eater->rsrv[1] = 0;
-    eater->rsrv[2] = 0;
-    eater->rsrv[3] = 0;
-    eater->rsrv_length = 0;
     eater->hic = hangul_ic_new(keyboard);
     /*오토마타 조작*/
     hangul_ic_connect_callback(eater->hic, "translaste", hic_on_translate, NULL);
@@ -37,10 +36,6 @@ HanjpEater* eater_new(const char* keyboard)
 
 void eater_delete(HanjpEater* eater)
 {
-    if(!eater){
-        return;
-    }
-
     hangul_ic_delete(eater->hic);
     free(eater);
 }
@@ -49,6 +44,7 @@ static void hic_on_translate(HangulInputContext* hic, int ascii, ucschar* ch, vo
 {
     //구현할 부분
     //전달할 문자를 변환 시킬 수 있다.
+    
 }
 
 static bool hic_on_transition(HangulInputContext* hic, ucschar ch, const ucschar* buf, void* data)
@@ -56,6 +52,7 @@ static bool hic_on_transition(HangulInputContext* hic, ucschar ch, const ucschar
     //hangul buffer에 뭐가 들어있는지 볼 수 있다.
     //초성이 'ㅇ'이 아닌 경우,
     //받침이 입력된 경우 false
+
     if(hangul_ic_has_choseong(hic) && hangul_ic_has_jungseong(hic)){
         if(hangul_is_jungseong(ch)){
             if(ch != 0x110B){ //'ㅇ'이 아니면
@@ -71,7 +68,7 @@ static bool hic_on_transition(HangulInputContext* hic, ucschar ch, const ucschar
     return true;
 }
 
-static bool hangul_to_kana(ucschar* dest, ucschar* rsrv, ucschar* hangul, ucschar next, HanjpOutputType type)
+static int hangul_to_kana(ucschar* dest, int state, ucschar* hangul, ucschar next, HanjpOutputType type)
 {
     //구현할 부분
     //ucschar key 2개로 kana 문자 맵핑
@@ -79,24 +76,17 @@ static bool hangul_to_kana(ucschar* dest, ucschar* rsrv, ucschar* hangul, ucscha
 
 void eater_flush(HanjpEater* eater)
 {
-    eater->rsrv[0] = 0;
-    eater->rsrv[1] = 0;
-    eater->rsrv[2] = 0;
-    eater->rsrv[3] = 0;
+    eater->state = STATE_VOID;
     hangul_ic_flush(eater->hic);
 }
 
 int eater_push(HanjpEater* eater, int ascii, ucschar* outer, int outer_length, HanjpOutputType type)
 {
     bool res;
-    int commit_len = 0;
     const ucschar* hic_commit = NULL;
     const ucschar* hic_preedit = NULL;
-    int i;
-    int temp;
-    ucschar* rsrv;
 
-    if(!eater){
+    if(!eater || !outer){
         return -1;
     }
 
@@ -109,33 +99,7 @@ int eater_push(HanjpEater* eater, int ascii, ucschar* outer, int outer_length, H
     hic_commit = hangul_ic_get_commit_string(eater->hic);
     hic_preedit = hangul_ic_get_preedit_string(eater->hic);
 
-    for(i=0; hic_commit[i] != 0; i++){ //count hic commit length
-        commit_len++;
-    }
-
-    if(/*Kana preedit is done*/){
-        return -2;
-    }
-
-    if(eater->rsrv_length + commit_len > RSRV_MAX){
-        temp = eater->rsrv_length + commit_len - RSRV_MAX;
-        for(i=0; i < RSRV_MAX - temp; i++){
-            eater->rsrv[i] = eater->rsrv[i+temp];
-        }
-        eater->rsrv_length -= temp;
-    }
-
-    for(i = 0; i < commit_len; i++){
-        eater->rsrv[eater->rsrv_length + i] = hic_commit[i];
-    }
-
-    eater->rsrv_legnth += commit_len;
-
-    if(commit_len != 0) {
-        hangul_to_kana(outer+outer_length, eater->rsrv, hic_commit, hic_preedit[0]);
-    }
-
-    return commit_len;
+    return hangul_to_kana(outer + outer_length, eater->state, hic_commit, hic_preedit[0], type);
 }
 
 bool eater_backspace(HanjpEater* eater)
@@ -152,7 +116,27 @@ bool eater_backspace(HanjpEater* eater)
         return false;
     }
 
-    eater->rsrv[--eater->rsrv_length] = 0;
+    //Switch hangul state
+    switch(eater->state){
+        case STATE_VOID:
+        break;
+        case STATE_CHOSEONG:
+        eater->state = STATE_VOID;
+        break;
+        case STATE_JUNGSEONG:
+        if(hangul_ic_has_jungseong(eater->hic)){
+            eater->state = STATE_JUNSEONG;
+        }
+        else{
+            eater->state = STATE_CHOSEONG;
+        }
+        break;
+        case STATE_JONGSEONG:
+        eater->state = STATE_JUNGSEONG;
+        break;
+        default:
+        return false;
+    }
 
     return true;
 }
