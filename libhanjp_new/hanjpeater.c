@@ -5,7 +5,14 @@
 /*오타마타 조작 함수*/
 static void hic_on_translate(HangulInputContext*, int, ucschar*, void*);
 static bool hic_on_transition(HangulInputContext*, ucschar, const ucschar*, void*);
-static const ucschar hangul_to_kana(ucschar pprev, ucschar prev, ucschar* hangul, ucschar next);
+static int hangul_to_kana(ucschar* dest, int state, ucschar* hangul, ucschar next, HanjpOutputType type);
+
+enum {
+    STATE_VOID,
+    STATE_CHOSEONG,
+    STATE_JUNGSEONG,
+    STATE_JONGSEONG
+};
 
 const ucschar kana_table[][] = {
     // {*A, *I, *U, *E, *O}
@@ -27,8 +34,8 @@ const ucschar kana_table[][] = {
     {0x3093} // NN
 };
 struct _HanjpEater{
-    ucschar q[4];
     HangulInputContext* hic;
+    int state;
 };
 
 HanjpEater* eater_new(const char* keyboard)
@@ -39,8 +46,6 @@ HanjpEater* eater_new(const char* keyboard)
         keyboard = "2hj";
 
     eater = malloc(sizeof(HanjpEater));
-    eater->q[0] = 0;
-    eater->q[1] = 0;
     eater->hic = hangul_ic_new(keyboard);
     /*오토마타 조작*/
     hangul_ic_connect_callback(eater->hic, "translaste", hic_on_translate, NULL);
@@ -50,10 +55,6 @@ HanjpEater* eater_new(const char* keyboard)
 
 void eater_delete(HanjpEater* eater)
 {
-    if(!eater){
-        return;
-    }
-
     hangul_ic_delete(eater->hic);
     free(eater);
 }
@@ -62,6 +63,7 @@ static void hic_on_translate(HangulInputContext* hic, int ascii, ucschar* ch, vo
 {
     //구현할 부분
     //전달할 문자를 변환 시킬 수 있다.
+    
 }
 
 static bool hic_on_transition(HangulInputContext* hic, ucschar ch, const ucschar* buf, void* data)
@@ -69,6 +71,7 @@ static bool hic_on_transition(HangulInputContext* hic, ucschar ch, const ucschar
     //hangul buffer에 뭐가 들어있는지 볼 수 있다.
     //초성이 'ㅇ'이 아닌 경우,
     //받침이 입력된 경우 false
+
     if(hangul_ic_has_choseong(hic) && hangul_ic_has_jungseong(hic)){
         if(hangul_is_jungseong(ch)){
             if(ch != 0x110B){ //'ㅇ'이 아니면
@@ -82,9 +85,9 @@ static bool hic_on_transition(HangulInputContext* hic, ucschar ch, const ucschar
     }
 
     return true;
-}
 
-static const void hangul_to_kana(ucschar pprev, ucschar prev, ucschar* hangul, ucschar next, ucschar* dest)
+static int hangul_to_kana(ucschar* dest, int state, ucschar* hangul, ucschar next, HanjpOutputType type)
+
 {
     //구현할 부분
     //ucschar key 2개로 kana 문자 맵핑
@@ -139,67 +142,36 @@ static const void hangul_to_kana(ucschar pprev, ucschar prev, ucschar* hangul, u
 
 void eater_flush(HanjpEater* eater)
 {
-    eater->q[0] = 0;
-    eater->q[1] = 0;
-    eater->q[2] = 0;
-    eater->q[3] = 0;
+    eater->state = STATE_VOID;
     hangul_ic_flush(eater->hic);
 }
 
-int eater_push(HanjpEater* eater, ucschar ch, ucschar* outer, int outer_length)
+int eater_push(HanjpEater* eater, int ascii, ucschar* outer, int outer_length, HanjpOutputType type)
 {
-    int res;
-    int flag = 0;
-    const ucschar* hic_commit;
-    const ucschar* hic_preedit;
-    const ucschar* hic_flushed;
-    ucschar* q = eater->q;
+    bool res;
+    const ucschar* hic_commit = NULL;
+    const ucschar* hic_preedit = NULL;
 
-    if(0 <= ch || ch >= 127){ //ascii
-        res = hangul_ic_process(eater->hic, ch); //hic에 자소 푸쉬
-
-        if(!res){ //처리가 안됐으면 다시 넣음
-            hangul_ic_process(eater->hic, ch);
-        }
-
-        hic_commit = hangul_ic_get_commit_string(eater->hic);
-        hic_preedit = hangul_ic_get_preedit_string(eater->hic);
-        q[3] = hic_preedit[0];
-        
-        if(hic_commit[0] != 0){ //hic commit이 일어남
-            outer[outer_length] = q[0];
-            q[0] = q[1];
-            q[1] = q[2];
-            //hic commit string은 다음 ic_process까지만 유지됨//
-            q[2] = hangul_to_kana(q[0], q[1], hic_commit, q[3]); 
-            flag = flag || EATFLG_P;
-            if(q[2] == 0x302f) //방점이면
-                flag = flag || EATFLG_Q;
-        }
-    }
-    else { //non ascii
-        if(q[3] != 0){
-            hic_flushed = hangul_ic_flush(eater->hic);
-
-            outer[outer_length] = q[0];
-            q[0] = q[1];
-            q[1] = q[2];
-            q[2] = hangul_to_kana(q[0], q[1], hic_flushed, q[3]); 
-            flag = flag || EATFLG_P;
-            if(q[2] == 0x302f) //방점이면
-                flag = flag || EATFLG_Q;
-        }
+    if(!eater || !outer){
+        return -1;
     }
 
-    return flag;
+    res = hangul_ic_process(eater->hic, ascii); //hic에 자소 푸쉬
+
+    if(!res){ //처리가 안됐으면 다시 넣음
+        hangul_ic_process(eater->hic, ascii);
+    }
+
+    hic_commit = hangul_ic_get_commit_string(eater->hic);
+    hic_preedit = hangul_ic_get_preedit_string(eater->hic);
+
+    return hangul_to_kana(outer + outer_length, eater->state, hic_commit, hic_preedit[0], type);
 }
 
 bool eater_backspace(HanjpEater* eater)
 {
     int ret;
-    const ucschar* preedit;
 
-    //오류시 false
     if(!eater) {
         return false;
     }
@@ -210,13 +182,26 @@ bool eater_backspace(HanjpEater* eater)
         return false;
     }
 
-    preedit = hangul_ic_get_preedit_string(eater->hic);
-    eater->q[3] = preedit[0];
-
-    if(hangul_ic_is_empty(eater->hic)) { //한 칸씩 밈
-       eater->q[2] = eater->q[1];
-       eater->q[1] = eater->q[0];
-       eater->q[0] = 0;
+    //Switch hangul state
+    switch(eater->state){
+        case STATE_VOID:
+        break;
+        case STATE_CHOSEONG:
+        eater->state = STATE_VOID;
+        break;
+        case STATE_JUNGSEONG:
+        if(hangul_ic_has_jungseong(eater->hic)){
+            eater->state = STATE_JUNSEONG;
+        }
+        else{
+            eater->state = STATE_CHOSEONG;
+        }
+        break;
+        case STATE_JONGSEONG:
+        eater->state = STATE_JUNGSEONG;
+        break;
+        default:
+        return false;
     }
 
     return true;
@@ -232,9 +217,5 @@ const ucschar* eater_get_preedit(HanjpEater* eater){
 
 bool eater_is_empty(HanjpEater* eater)
 {
-    if(!eater){
-        return NULL;
-    }
-
     return hangul_ic_is_empty(eater->hic);
 }
