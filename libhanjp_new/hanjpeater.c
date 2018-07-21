@@ -84,7 +84,7 @@ static bool hic_on_transition(HangulInputContext* hic, ucschar ch, const ucschar
     return true;
 }
 
-static const void hangul_to_kana(ucschar pprev, ucschar prev, ucschar* hangul, ucschar next, ucschar* dest)
+static const void hangul_to_kana(ucschar* dest, int state, ucschar* hangul, ucschar next)
 {
     //구현할 부분
     //ucschar key 2개로 kana 문자 맵핑
