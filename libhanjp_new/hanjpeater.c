@@ -128,13 +128,13 @@ static const void hangul_to_kana(ucschar* dest, int state, ucschar* hangul, ucsc
         case HANJP_JUNGSEONG_E: j=3; break; // ㅔ
         case HANJP_JUNGSEONG_O: j=4; break; // ㅗ
          case HANJP_JUNGSEONG_YA: 
-            i=(i==0 || is_choseong_void)?7:i; j=0;  // 야
+            i=(i==0 || is_choseong_void)?12:i; j=0;  // 야
             has_contracted_sound = i>0? 1 : 0; break;
         case HANJP_JUNGSEONG_YU: 
-            i=(i==0 || is_choseong_void)?7:i; j=2;  // 유
+            i=(i==0 || is_choseong_void)?12:i; j=2;  // 유
             has_contracted_sound = i>0? 1 : 0; break;
         case HANJP_JUNGSEONG_YO: 
-            i=(i==0 || is_choseong_void)?7:i; j=4;  // 요
+            i=(i==0 || is_choseong_void)?12:i; j=4;  // 요
             has_contracted_sound = i>0? 1 : 0; break;
         case HANJP_JUNGSEONG_WA: i=(i==0 || is_choseong_void)?9:i; j=0; break; // 와
         default: j=-1; break;
