@@ -115,7 +115,7 @@ static const void hangul_to_kana(ucschar* dest, int state, ucschar* hangul, ucsc
         case HANJP_CHOSEONG_OLD_IEUNG: // OLD ㅇ
             i = (hangul[1]==HANJP_JUNGSEONG_O)? 12 : 0;
             break; 
-        default: i=-1; break
+        default: return -1;
     }
 
     switch(hangul[1]){
@@ -137,7 +137,7 @@ static const void hangul_to_kana(ucschar* dest, int state, ucschar* hangul, ucsc
             i=(i==0 || is_choseong_void)?12:i; j=4;  // 요
             has_contracted_sound = i>0? 1 : 0; break;
         case HANJP_JUNGSEONG_WA: i=(i==0 || is_choseong_void)?9:i; j=0; break; // 와
-        default: j=-1; break;
+        default: return -1;
     }
 
     if(is_choseong_void && is_jungseong_void) return -1;
