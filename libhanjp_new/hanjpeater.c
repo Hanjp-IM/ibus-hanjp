@@ -97,11 +97,11 @@ static const int hangul_to_kana(ucschar* dest, int state, ucschar* hangul, ucsch
         case HANGUL_CHOSEONG_FILLER: i=0; is_choseong_void=1; break;
         case HANJP_CHOSEONG_IEUNG: i=0; break; // ㅇ
         case HANJP_CHOSEONG_KHIEUKH: i=1; break; // ㅋ
-        case HANJP_CHOSEONG_KIEYEOK: i=2; break // ㄱ // ㅋ -> ㄱ 탁음
+        case HANJP_CHOSEONG_KIEYEOK: i=2; break; // ㄱ // ㅋ -> ㄱ 탁음
         case HANJP_CHOSEONG_SIOS: i=3; break; // ㅅ
         case HANJP_CHOSEONG_CIEUC: i=4; break; // ㅈ // ㅅ -> ㅈ 탁음
         case HANJP_CHOSEONG_THIEUTH: i=5; break; // ㅌ
-        case HANJP_CHOSEONG_TIKEUT: i=6; break // ㄷ // ㅌ -> ㄷ 탁음
+        case HANJP_CHOSEONG_TIKEUT: i=6; break; // ㄷ // ㅌ -> ㄷ 탁음
         case HANJP_CHOSEONG_PANSIOS:
             i = (hangul[1]==HANJP_JUNGSEONG_I || 
                 hangul[1]==HANJP_JUNGSEONG_EU ||
@@ -137,7 +137,7 @@ static const int hangul_to_kana(ucschar* dest, int state, ucschar* hangul, ucsch
             i=(i==0 || is_choseong_void)?12:i; j=4;  // 요
             has_contracted_sound = i>0? 1 : 0; break;
         case HANJP_JUNGSEONG_WA: i=(i==0 || is_choseong_void)?9:i; j=0; break; // 와
-        default: return -1;마
+        default: return -1;
     }
 
     if(is_choseong_void && is_jungseong_void) return -1;
