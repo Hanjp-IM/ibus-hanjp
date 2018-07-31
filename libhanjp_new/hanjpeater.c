@@ -161,6 +161,7 @@ void eater_flush(HanjpEater* eater)
 int eater_push(HanjpEater* eater, int ascii, ucschar* outer, int outer_length, HanjpOutputType type)
 {
     bool res;
+    int push_length;
     int i;
     const ucschar* hic_commit = NULL;
     const ucschar* hic_preedit = NULL;
@@ -178,12 +179,14 @@ int eater_push(HanjpEater* eater, int ascii, ucschar* outer, int outer_length, H
     hic_commit = hangul_ic_get_commit_string(eater->hic);
     hic_preedit = hangul_ic_get_preedit_string(eater->hic);
 
+    push_length = hangul_to_kana(outer + outer_length, eater->prev, hic_commit, hic_preedit[0], type);
+
     if(hic_commit[0] != 0){ //assign prev with last commited character
         for(i=0; hic_commit[i+1]; i++);
         eater->prev = hic_commit[i];
     }
 
-    return hangul_to_kana(outer + outer_length, eater->prev, hic_commit, hic_preedit[0], type);
+    return push_length;
 }
 
 bool eater_backspace(HanjpEater* eater)
