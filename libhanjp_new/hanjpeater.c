@@ -5,9 +5,10 @@
 /*오타마타 조작 함수*/
 static void hic_on_translate(HangulInputContext*, int, ucschar*, void*);
 static bool hic_on_transition(HangulInputContext*, ucschar, const ucschar*, void*);
+
 static int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar next, HanjpOutputType type);
 
-static const ucschar kana_table[][] = {
+static const ucschar kana_table[][5] =
     // {*A, *I, *U, *E, *O}
     {0x3042, 0x3044, 0x3046, 0x3048, 0x304A}, // O
     {0x304B, 0x304D, 0x304F, 0x3051, 0x3053}, // K
@@ -24,7 +25,7 @@ static const ucschar kana_table[][] = {
     {0x3084, 0, 0x3086, 0, 0x3088}, // Y
     {0x3089, 0x308A, 0x308B, 0x308C, 0x308D}, // R
     {0x308F, 0, 0, 0, 0x3092}, // W
-    {0x3093} // NN
+    {0x3093, 0, 0, 0, 0} // NN
 };
 
 struct _HanjpEater{
@@ -88,16 +89,17 @@ static int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar 
     // src[0] - 초성, src[1] - 중성
 
     int i=-1, j=-1, is_choseong_void=0, is_jungseong_void=0, adjust=0;
+    int has_contracted_sound=0;
 
     switch(hangul[0]){
         case HANGUL_CHOSEONG_FILLER: i=0; is_choseong_void=1; break;
         case HANJP_CHOSEONG_IEUNG: i=0; break; // ㅇ
         case HANJP_CHOSEONG_KHIEUKH: i=1; break; // ㅋ
-        case HANJP_CHOSEONG_KIEYEOK: i=2; break // ㄱ // ㅋ -> ㄱ 탁음
+        case HANJP_CHOSEONG_KIEYEOK: i=2; break; // ㄱ // ㅋ -> ㄱ 탁음
         case HANJP_CHOSEONG_SIOS: i=3; break; // ㅅ
         case HANJP_CHOSEONG_CIEUC: i=4; break; // ㅈ // ㅅ -> ㅈ 탁음
         case HANJP_CHOSEONG_THIEUTH: i=5; break; // ㅌ
-        case HANJP_CHOSEONG_TIKEUT: i=6; break // ㄷ // ㅌ -> ㄷ 탁음
+        case HANJP_CHOSEONG_TIKEUT: i=6; break; // ㄷ // ㅌ -> ㄷ 탁음
         case HANJP_CHOSEONG_PANSIOS:
             i = (hangul[1]==HANJP_JUNGSEONG_I || 
                 hangul[1]==HANJP_JUNGSEONG_EU ||
@@ -111,27 +113,43 @@ static int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar 
         case HANJP_CHOSEONG_OLD_IEUNG: // OLD ㅇ
             i = (hangul[1]==HANJP_JUNGSEONG_O)? 12 : 0;
             break; 
-        default: i=-1; break
+        default: return -1;
     }
 
     switch(hangul[1]){
         case HANGUL_JUNGSEONG_FILLER: j=2; is_jungseong_void=1; break;
-        case HANJP_JUNGSEONG_A: i=is_choseong_void?0:i; j=0; break; //ㅏ
-        case HANJP_JUNGSEONG_I: i=is_choseong_void?0:i; j=1; break; // ㅣ
+        case HANJP_JUNGSEONG_A: j=0; break; //ㅏ
+        case HANJP_JUNGSEONG_I: j=1; break; // ㅣ
         case HANJP_JUNGSEONG_EU: // ㅡ
-        case HANJP_JUNGSEONG_U: i=is_choseong_void?0:i; j=2; break; // ㅜ
+        case HANJP_JUNGSEONG_U: j=2; break; // ㅜ
         case HANJP_JUNGSEONG_AE: // ㅐ
-        case HANJP_JUNGSEONG_E: i=is_choseong_void?0:i; j=3; break; // ㅔ
-        case HANJP_JUNGSEONG_O: i=is_choseong_void?0:i; j=4; break; // ㅗ
-        case HANJP_JUNGSEONG_YA: i=(i==0 || is_choseong_void)?7:i; j=0; break; // 야
-        case HANJP_JUNGSEONG_YU: i=(i==0 || is_choseong_void)?7:i; j=2; break; // 유
-        case HANJP_JUNGSEONG_YO: i=(i==0 || is_choseong_void)?7:i; j=4; break; // 요
+        case HANJP_JUNGSEONG_E: j=3; break; // ㅔ
+        case HANJP_JUNGSEONG_O: j=4; break; // ㅗ
+         case HANJP_JUNGSEONG_YA: 
+            i=(i==0 || is_choseong_void)?12:i; j=0;  // 야
+            has_contracted_sound = i>0? 1 : 0; break;
+        case HANJP_JUNGSEONG_YU: 
+            i=(i==0 || is_choseong_void)?12:i; j=2;  // 유
+            has_contracted_sound = i>0? 1 : 0; break;
+        case HANJP_JUNGSEONG_YO: 
+            i=(i==0 || is_choseong_void)?12:i; j=4;  // 요
+            has_contracted_sound = i>0? 1 : 0; break;
         case HANJP_JUNGSEONG_WA: i=(i==0 || is_choseong_void)?9:i; j=0; break; // 와
-        default: j=-1; break;
+        default: return -1;
     }
+
+    if(is_choseong_void && is_jungseong_void) return -1;
 
     adjust = is_choseong_void? -1 : 0;
     dest[0] = kana_table[i][j] + adjust;
+
+    if(has_contracted_sound){
+        dest[0] = kana_table[i][1];
+        dest[1] = kana_table[12][j]-1;
+        return 2;
+    }else{
+        return 1;
+    }
 }
 
 void eater_flush(HanjpEater* eater)
