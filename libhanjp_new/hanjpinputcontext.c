@@ -17,7 +17,8 @@ struct _HanjpInputContext {
   ucschar commit_string[STR_MAX];
 };
 
-static void hanjp_ic_flush_internal(HanjpInputContext* hjic);
+static bool hanjp_ic_flush_internal(HanjpInputContext* hjic);
+static int hanjp_ic_push(HanjpInputContext* hjic, int ascii);
 
 HanjpInputContext* hanjp_ic_new(const char* keyboard)
 {
@@ -49,7 +50,7 @@ bool hanjp_ic_process(HanjpInputContext* hjic, int ascii)
     return false;
   }
 
-  push_length = eater_push(hjic->eater, ascii, hjic->preedit_string, hjic->preedit_length, hjic->output_type); //push to eater
+  push_length = hanjp_ic_push(hjic, ascii); //push to eater
 
   if(push_length < 0) {
     return false;
@@ -100,8 +101,12 @@ const ucschar* hanjp_ic_get_commit_string(HanjpInputContext* hjic)
 }
 
 //commit string으로 옮김
-static void hanjp_ic_flush_internal(HanjpInputContext* hjic){
+static bool hanjp_ic_flush_internal(HanjpInputContext* hjic){
   int i;
+
+  if(!hjic){
+    return false;
+  }
 
   for(i=0; i<=hjic->preedit_length; i++){
     hjic->commit_string[i] = hjic->preedit_string[i];
@@ -109,6 +114,9 @@ static void hanjp_ic_flush_internal(HanjpInputContext* hjic){
   
   hjic->preedit_string[0] = 0;
   hjic->preedit_length = 0;
+  eater_flush(hjic->eater);
+  
+  return true;
 }
 
 bool hanjp_ic_flush(HanjpInputContext* hjic){
@@ -117,6 +125,7 @@ bool hanjp_ic_flush(HanjpInputContext* hjic){
   }
 
   hjic->preedit_string[0] = 0;
+  hjic->preedit_length = 0;
   hjic->commit_string[0] = 0;
   eater_flush(hjic->eater);
 
@@ -131,4 +140,17 @@ int hanjp_init()
 int hanjp_fini()
 {
   return hangul_fini();
+}
+
+static int hanjp_ic_push(HanjpInputContext* hjic, int ascii)
+{
+  if(!hjic){
+    return -1;
+  }
+
+  if(!hjic->eater){
+    return -1;
+  }
+
+  return eater_push(hjic->eater, ascii, hjic->preedit, hjic->preedit_length, hjic->output_type);
 }

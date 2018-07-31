@@ -5,16 +5,9 @@
 /*오타마타 조작 함수*/
 static void hic_on_translate(HangulInputContext*, int, ucschar*, void*);
 static bool hic_on_transition(HangulInputContext*, ucschar, const ucschar*, void*);
-static int hangul_to_kana(ucschar* dest, int state, ucschar* hangul, ucschar next, HanjpOutputType type);
+static int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar next, HanjpOutputType type);
 
-enum {
-    STATE_VOID,
-    STATE_CHOSEONG,
-    STATE_JUNGSEONG,
-    STATE_JONGSEONG
-};
-
-const ucschar kana_table[][] = {
+static const ucschar kana_table[][] = {
     // {*A, *I, *U, *E, *O}
     {0x3042, 0x3044, 0x3046, 0x3048, 0x304A}, // O
     {0x304B, 0x304D, 0x304F, 0x3051, 0x3053}, // K
@@ -33,9 +26,10 @@ const ucschar kana_table[][] = {
     {0x308F, 0, 0, 0, 0x3092}, // W
     {0x3093} // NN
 };
+
 struct _HanjpEater{
     HangulInputContext* hic;
-    int state;
+    ucschar prev;
 };
 
 HanjpEater* eater_new(const char* keyboard)
@@ -85,9 +79,9 @@ static bool hic_on_transition(HangulInputContext* hic, ucschar ch, const ucschar
     }
 
     return true;
+}
 
-static int hangul_to_kana(ucschar* dest, int state, ucschar* hangul, ucschar next, HanjpOutputType type)
-
+static int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar next, HanjpOutputType type)
 {
     //구현할 부분
     //ucschar key 2개로 kana 문자 맵핑
@@ -142,13 +136,14 @@ static int hangul_to_kana(ucschar* dest, int state, ucschar* hangul, ucschar nex
 
 void eater_flush(HanjpEater* eater)
 {
-    eater->state = STATE_VOID;
+    eater->prev = 0;
     hangul_ic_flush(eater->hic);
 }
 
 int eater_push(HanjpEater* eater, int ascii, ucschar* outer, int outer_length, HanjpOutputType type)
 {
     bool res;
+    int i;
     const ucschar* hic_commit = NULL;
     const ucschar* hic_preedit = NULL;
 
@@ -165,7 +160,12 @@ int eater_push(HanjpEater* eater, int ascii, ucschar* outer, int outer_length, H
     hic_commit = hangul_ic_get_commit_string(eater->hic);
     hic_preedit = hangul_ic_get_preedit_string(eater->hic);
 
-    return hangul_to_kana(outer + outer_length, eater->state, hic_commit, hic_preedit[0], type);
+    if(hic_commit[0] != 0){ //assign prev with last commited character
+        for(i=0; hic_commit[i+1]; i++);
+        eater->prev = hic_commit[i];
+    }
+
+    return hangul_to_kana(outer + outer_length, eater->prev, hic_commit, hic_preedit[0], type);
 }
 
 bool eater_backspace(HanjpEater* eater)
@@ -182,26 +182,8 @@ bool eater_backspace(HanjpEater* eater)
         return false;
     }
 
-    //Switch hangul state
-    switch(eater->state){
-        case STATE_VOID:
-        break;
-        case STATE_CHOSEONG:
-        eater->state = STATE_VOID;
-        break;
-        case STATE_JUNGSEONG:
-        if(hangul_ic_has_jungseong(eater->hic)){
-            eater->state = STATE_JUNGSEONG;
-        }
-        else{
-            eater->state = STATE_CHOSEONG;
-        }
-        break;
-        case STATE_JONGSEONG:
-        eater->state = STATE_JUNGSEONG;
-        break;
-        default:
-        return false;
+    if(hangul_ic_is_empty(eater->hic)){
+        eater->prev = 0;
     }
 
     return true;
