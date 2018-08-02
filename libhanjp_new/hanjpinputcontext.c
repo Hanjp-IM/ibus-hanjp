@@ -80,6 +80,8 @@ bool hanjp_ic_backspace(HanjpInputContext *hjic)
       hjic->preedit_string[--hjic->preedit_length] = 0;
     }
   }
+
+  return true;
 }
 
 const ucschar* hanjp_ic_get_preedit_string(HanjpInputContext* hjic)
@@ -152,5 +154,5 @@ static int hanjp_ic_push(HanjpInputContext* hjic, int ascii)
     return -1;
   }
 
-  return eater_push(hjic->eater, ascii, hjic->preedit, hjic->preedit_length, hjic->output_type);
+  return eater_push(hjic->eater, ascii, hjic->preedit_string, hjic->preedit_length, hjic->output_type);
 }

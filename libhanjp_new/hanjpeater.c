@@ -8,7 +8,7 @@ static bool hic_on_transition(HangulInputContext*, ucschar, const ucschar*, void
 static bool hangul_is_batchim_comport(ucschar ch, ucschar next);
 static int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar next, HanjpOutputType type);
 
-static const ucschar kana_table[][5] =
+static const ucschar kana_table[][5] = {
     // {*A, *I, *U, *E, *O}
     {0x3042, 0x3044, 0x3046, 0x3048, 0x304A}, // O
     {0x304B, 0x304D, 0x304F, 0x3051, 0x3053}, // K
@@ -97,7 +97,7 @@ static int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar 
         case HANJP_CHOSEONG_KHIEUKH: // ㅋ
         case HANJP_CHOSEONG_SSANGKIYEOK: //ㄲ
             i=1; break;
-        case HANJP_CHOSEONG_KIEYEOK: i=2; break; // ㄱ // ㅋ -> ㄱ 탁음
+        case HANJP_CHOSEONG_KIYEOK: i=2; break; // ㄱ // ㅋ -> ㄱ 탁음
         case HANJP_CHOSEONG_SIOS: // ㅅ
         case HANJP_CHOSEONG_SSANGSIOS: //ㅆ
             i=3; break; 
@@ -171,8 +171,8 @@ int eater_push(HanjpEater* eater, int ascii, ucschar* outer, int outer_length, H
     bool res;
     int push_length;
     int i;
-    const ucschar* hic_commit = NULL;
-    const ucschar* hic_preedit = NULL;
+    ucschar* hic_commit = NULL;
+    ucschar* hic_preedit = NULL;
 
     if(!eater || !outer){
         return -1;
@@ -240,15 +240,15 @@ static bool hangul_is_batchim_comport(ucschar ch, ucschar next)
         switch(next){
             case HANJP_CHOSEONG_KHIEUKH:
             case HANJP_CHOSEONG_SSANGKIYEOK:
-            case HANJP_CHOSEONG_KIEYEOK:
+            case HANJP_CHOSEONG_KIYEOK:
             res = true;
             default:
             res = false;
         } break;
-        case HANJP_CHOSEONG_KIEYEOK:
+        case HANJP_CHOSEONG_KIYEOK:
         switch(next){
             case HANJP_CHOSEONG_KHIEUKH:
-            case HANJP_CHOSEONG_SSANGKIEYEOK:
+            case HANJP_CHOSEONG_SSANGKIYEOK:
             res = true; break;
             default:
             res = false;
@@ -292,8 +292,8 @@ static bool hangul_is_batchim_comport(ucschar ch, ucschar next)
             default:
             res = false;
         } break;
-        case HANJP_JONGSEONG_SSANGSIOS: 
-        case HANJP_JONGSEONG_SSANGNIEUN:
+        case HANJP_CHOSEONG_SSANGSIOS: 
+        case HANJP_CHOSEONG_SSANGNIEUN:
         res = true; break;
         default: res = false;
     }
