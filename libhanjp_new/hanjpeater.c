@@ -5,7 +5,7 @@
 /*오타마타 조작 함수*/
 static void hic_on_translate(HangulInputContext*, int, ucschar*, void*);
 static bool hic_on_transition(HangulInputContext*, ucschar, const ucschar*, void*);
-
+static bool hangul_is_batchim_comport(ucschar ch, ucschar next);
 static int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar next, HanjpOutputType type);
 
 static const ucschar kana_table[][5] =
@@ -94,25 +94,33 @@ static int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar 
     switch(hangul[0]){
         case HANGUL_CHOSEONG_FILLER: i=0; is_choseong_void=1; break;
         case HANJP_CHOSEONG_IEUNG: i=0; break; // ㅇ
-        case HANJP_CHOSEONG_KHIEUKH: i=1; break; // ㅋ
+        case HANJP_CHOSEONG_KHIEUKH: // ㅋ
+        case HANJP_CHOSEONG_SSANGKIYEOK: //ㄲ
+            i=1; break;
         case HANJP_CHOSEONG_KIEYEOK: i=2; break; // ㄱ // ㅋ -> ㄱ 탁음
-        case HANJP_CHOSEONG_SIOS: i=3; break; // ㅅ
+        case HANJP_CHOSEONG_SIOS: // ㅅ
+        case HANJP_CHOSEONG_SSANGSIOS: //ㅆ
+            i=3; break; 
         case HANJP_CHOSEONG_CIEUC: i=4; break; // ㅈ // ㅅ -> ㅈ 탁음
-        case HANJP_CHOSEONG_THIEUTH: i=5; break; // ㅌ
+        case HANJP_CHOSEONG_THIEUTH: // ㅌ
+        case HANJP_CHOSEONG_SSANGTIKEUT: //ㄸ
+            i=5; break; 
         case HANJP_CHOSEONG_TIKEUT: i=6; break; // ㄷ // ㅌ -> ㄷ 탁음
-        case HANJP_CHOSEONG_PANSIOS:
+        case HANJP_CHOSEONG_PANSIOS: //ㅿ
             i = (hangul[1]==HANJP_JUNGSEONG_I || 
                 hangul[1]==HANJP_JUNGSEONG_EU ||
                 hangul[1]==HANJP_JUNGSEONG_U)? 6 : 4;
         case HANJP_CHOSEONG_NIEUN: i=7; break; // ㄴ
         case HANJP_CHOSEONG_HIEUH: i=8; break; // ㅎ
         case HANJP_CHOSEONG_PIEUP: i=9; break; // ㅂ // ㅎ -> ㅂ 탁음
-        case HANJP_CHOSEONG_PHIEUPH: i=10; break; // ㅍ // ㅎ -> ㅍ 반탁음
+        case HANJP_CHOSEONG_PHIEUPH: // ㅍ // ㅎ -> ㅍ 반탁음
+        case HANJP_CHOSEONG_SSANGPIEUP:
+            i=10; break; 
         case HANJP_CHOSEONG_MIEUM: i=11; break; // ㅁ
         case HANJP_CHOSEONG_RIEUL: i=13; break; // ㄹ
         case HANJP_CHOSEONG_OLD_IEUNG: // OLD ㅇ
             i = (hangul[1]==HANJP_JUNGSEONG_O)? 12 : 0;
-            break; 
+            break;
         default: return -1;
     }
 
@@ -126,15 +134,15 @@ static int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar 
         case HANJP_JUNGSEONG_E: j=3; break; // ㅔ
         case HANJP_JUNGSEONG_O: j=4; break; // ㅗ
          case HANJP_JUNGSEONG_YA: 
-            i=(i==0 || is_choseong_void)?12:i; j=0;  // 야
-            has_contracted_sound = i>0? 1 : 0; break;
+            i= (i==0 || is_choseong_void)? 12:i; j=0;  // 야
+            has_contracted_sound = i>0; break;
         case HANJP_JUNGSEONG_YU: 
-            i=(i==0 || is_choseong_void)?12:i; j=2;  // 유
-            has_contracted_sound = i>0? 1 : 0; break;
+            i= (i==0 || is_choseong_void)? 12:i; j=2;  // 유
+            has_contracted_sound = i>0; break;
         case HANJP_JUNGSEONG_YO: 
-            i=(i==0 || is_choseong_void)?12:i; j=4;  // 요
-            has_contracted_sound = i>0? 1 : 0; break;
-        case HANJP_JUNGSEONG_WA: i=(i==0 || is_choseong_void)?9:i; j=0; break; // 와
+            i= (i==0 || is_choseong_void)? 12:i; j=4;  // 요
+            has_contracted_sound = i>0; break;
+        case HANJP_JUNGSEONG_WA: i= (i==0 || is_choseong_void)? 15:i; j=0; break; // 와
         default: return -1;
     }
 
@@ -221,4 +229,74 @@ const ucschar* eater_get_preedit(HanjpEater* eater){
 bool eater_is_empty(HanjpEater* eater)
 {
     return hangul_ic_is_empty(eater->hic);
+}
+
+static bool hangul_is_batchim_comport(ucschar ch, ucschar next)
+{
+    bool res;
+
+    switch(ch){
+        case HANJP_CHOSEONG_IEUNG:
+        switch(next){
+            case HANJP_CHOSEONG_KHIEUKH:
+            case HANJP_CHOSEONG_SSANGKIYEOK:
+            case HANJP_CHOSEONG_KIEYEOK:
+            res = true;
+            default:
+            res = false;
+        } break;
+        case HANJP_CHOSEONG_KIEYEOK:
+        switch(next){
+            case HANJP_CHOSEONG_KHIEUKH:
+            case HANJP_CHOSEONG_SSANGKIEYEOK:
+            res = true; break;
+            default:
+            res = false;
+        } break;
+        case HANJP_CHOSEONG_SIOS:
+        switch(next){
+            case HANJP_CHOSEONG_SIOS:
+            case HANJP_CHOSEONG_SSANGSIOS:
+            res = true; break;
+            default:
+            res = false;
+        } break;
+        case HANJP_CHOSEONG_NIEUN:
+        switch(next){
+            case HANJP_CHOSEONG_SIOS:
+            case HANJP_CHOSEONG_SSANGSIOS:
+            case HANJP_CHOSEONG_THIEUTH:
+            case HANJP_CHOSEONG_SSANGTIKEUT:
+            case HANJP_CHOSEONG_TIKEUT:
+            case HANJP_CHOSEONG_NIEUN:
+            case HANJP_CHOSEONG_RIEUL:
+            res = true; break;
+            default:
+            res = false;
+        } break;
+        case HANJP_CHOSEONG_PIEUP:
+        switch(next){
+            case HANJP_CHOSEONG_PHIEUPH:
+            case HANJP_CHOSEONG_SSANGPIEUP:
+            res = true; break;
+            default:
+            res = false;
+        } break;
+        case HANJP_CHOSEONG_MIEUM:
+        switch(next){
+            case HANJP_CHOSEONG_MIEUM:
+            case HANJP_CHOSEONG_PIEUP:
+            case HANJP_CHOSEONG_PHIEUPH:
+            case HANJP_CHOSEONG_SSANGPIEUP:
+            res = true; break;
+            default:
+            res = false;
+        } break;
+        case HANJP_JONGSEONG_SSANGSIOS: 
+        case HANJP_JONGSEONG_SSANGNIEUN:
+        res = true; break;
+        default: res = false;
+    }
+
+    return res;
 }
