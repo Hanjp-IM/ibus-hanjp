@@ -9,28 +9,24 @@
  ucs string은 끝에 0이 들어있는 것으로 문자열 끝을 구분합니다. 
 */
 
-enum {
-  STATE_AT,
-  STATE_DT
-};
-
 struct _HanjpInputContext {
   HanjpEater* eater;
-  int state;
+  int output_type;
   ucschar preedit_string[STR_MAX];
   int preedit_length; 
   ucschar commit_string[STR_MAX];
 };
 
-static void hanjp_ic_flush_internal(HanjpInputContext* hjic);
+static bool hanjp_ic_flush_internal(HanjpInputContext* hjic);
+static int hanjp_ic_push(HanjpInputContext* hjic, int ascii);
 
 HanjpInputContext* hanjp_ic_new(const char* keyboard)
 {
   HanjpInputContext* hjic;
   hjic = malloc(sizeof(HanjpInputContext));
-
+  
+  hjic->output_type = 0;
   hjic->eater = eater_new(keyboard);
-  hjic->state = STATE_DT;
   hjic->preedit_string[0] = 0;
   hjic->preedit_length = 0;
   hjic->commit_string[0] = 0;
@@ -48,41 +44,19 @@ void hanjp_ic_delete(HanjpInputContext *hjic)
 
 bool hanjp_ic_process(HanjpInputContext* hjic, int ascii)
 {
-  int eatFlag;
+  int push_length;
 
   if(!hjic) {
     return false;
   }
 
-  eatFlag = eater_push(hjic->eater, ascii, hjic->preedit_string, hjic->preedit_length); //eater에 푸시
+  push_length = hanjp_ic_push(hjic, ascii); //push to eater
 
-  if(eatFlag && EATFLG_P){ //푸시 됐을 경우
-    hjic->preedit_length++; //preedit string length 1증가
-    if(hjic->preedit_length == STR_MAX){
-      hanjp_ic_flush_internal(hjic);
-    }
-    else{
-      hjic->preedit_string[hjic->preedit_length] = 0;
-    }
+  if(push_length < 0) {
+    return false;
   }
 
-  if(eatFlag && EATFLG_ATDT){ //ATDT인 경우
-    switch(hjic->state){
-      case STATE_AT:
-      hjic->state = STATE_DT;
-      hanjp_ic_flush_internal(hjic); //commit string으로 옮김
-      break;
-      case STATE_DT:
-      hjic->state = STATE_AT;
-      break;
-      default:
-      return false;
-    }
-  }
-
-  if(eatFlag && EATFLG_Q){
-    //추가 구현
-  }
+  hjic->preedit_length += push_length;
 
   return true;
 }
@@ -101,13 +75,22 @@ bool hanjp_ic_backspace(HanjpInputContext *hjic)
     return false;
   }
 
-  if(eater_is_empty(hjic->eater)){ //eater가 한글 조합중이 아니면
-    hjic->state = STATE_DT;
+  if(eater_is_empty(hjic->eater)) {//eater가 한글 조합중이 아니면
     if(hjic->preedit_length > 0) {
-      hjic->preedit_length--;
-      hjic->preedit_string[hjic->preedit_length - 1] = 0;
+      hjic->preedit_string[--hjic->preedit_length] = 0;
     }
   }
+
+  return true;
+}
+
+const ucschar* hanjp_ic_get_preedit_string(HanjpInputContext* hjic)
+{
+  if(!hjic){
+    return NULL;
+  }
+
+  return hjic->preedit_string;
 }
 
 const ucschar* hanjp_ic_get_commit_string(HanjpInputContext* hjic)
@@ -120,15 +103,22 @@ const ucschar* hanjp_ic_get_commit_string(HanjpInputContext* hjic)
 }
 
 //commit string으로 옮김
-static void hanjp_ic_flush_internal(HanjpInputContext* hjic){
+static bool hanjp_ic_flush_internal(HanjpInputContext* hjic){
   int i;
 
-  for(i=0; i<hjic->preedit_length; i++){
+  if(!hjic){
+    return false;
+  }
+
+  for(i=0; i<=hjic->preedit_length; i++){
     hjic->commit_string[i] = hjic->preedit_string[i];
   }
-  hjic->commit_string[i] = 0;
+  
   hjic->preedit_string[0] = 0;
   hjic->preedit_length = 0;
+  eater_flush(hjic->eater);
+  
+  return true;
 }
 
 bool hanjp_ic_flush(HanjpInputContext* hjic){
@@ -137,8 +127,8 @@ bool hanjp_ic_flush(HanjpInputContext* hjic){
   }
 
   hjic->preedit_string[0] = 0;
+  hjic->preedit_length = 0;
   hjic->commit_string[0] = 0;
-  hjic->state = STATE_DT;
   eater_flush(hjic->eater);
 
   return true;
@@ -152,4 +142,17 @@ int hanjp_init()
 int hanjp_fini()
 {
   return hangul_fini();
+}
+
+static int hanjp_ic_push(HanjpInputContext* hjic, int ascii)
+{
+  if(!hjic){
+    return -1;
+  }
+
+  if(!hjic->eater){
+    return -1;
+  }
+
+  return eater_push(hjic->eater, ascii, hjic->preedit_string, hjic->preedit_length, hjic->output_type);
 }
