@@ -1,7 +1,6 @@
 #include "hanjp.h"
 #include "hanjpeater.h"
 #include <stdio.h>
-#include <glib.h>
 
 int TestEater();
 int TestInputContext();
