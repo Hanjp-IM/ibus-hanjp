@@ -6,7 +6,6 @@
 static void hic_on_translate(HangulInputContext*, int, ucschar*, void*);
 static bool hic_on_transition(HangulInputContext*, ucschar, const ucschar*, void*);
 static bool hangul_is_batchim_comport(ucschar ch, ucschar next);
-static int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar next, HanjpOutputType type);
 
 static const ucschar kana_table[][5] = {
     // {*A, *I, *U, *E, *O}
@@ -36,9 +35,6 @@ struct _HanjpEater{
 HanjpEater* eater_new(const char* keyboard)
 {
     HanjpEater* eater;
-
-    if(!keyboard) //키보드 기본 값을 2hj로 설정
-        keyboard = "2hj";
 
     eater = malloc(sizeof(HanjpEater));
     eater->hic = hangul_ic_new(keyboard);
@@ -82,14 +78,15 @@ static bool hic_on_transition(HangulInputContext* hic, ucschar ch, const ucschar
     return true;
 }
 
-static int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar next, HanjpOutputType type)
+int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar next, HanjpOutputType type)
 {
     //구현할 부분
     //ucschar key 2개로 kana 문자 맵핑
-    // src[0] - 초성, src[1] - 중성
-    // 기본음 + 보조음 + 보조음
+    // hangul[0] - 초성, hangul[1] - 중성
+    // 기본음 + 보조음
 
-    int i=0, j=0, is_choseong_void=0, is_jungseong_void=0, adjust=0;
+    int i=0, j=0; // 초성, 중성 인덱스
+    int is_choseong_void=0, is_jungseong_void=0, adjust=0;
     int has_contracted_sound=0;
     ucschar support = 0; 
     int dest_len = 1;

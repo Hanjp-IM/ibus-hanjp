@@ -10,6 +10,8 @@ bool eater_backspace(HanjpEater* eater);
 void eater_flush(HanjpEater* eater);
 bool eater_is_empty(HanjpEater* eater);
 
+int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar next, HanjpOutputType type);
+
 typedef enum {
     HANJP_CHOSEONG_IEUNG = 0x110B,
     HANJP_CHOSEONG_KHIEUKH = 0x110F,
