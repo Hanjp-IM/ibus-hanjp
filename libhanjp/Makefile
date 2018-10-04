@@ -1,7 +1,7 @@
 CC = gcc
 AR = ar
 TARGET = libhanjp.a
-SRC = *.c
+SRC = hanjp*.c
 OBJS = *.o
 MAKEOPTION = rscv
 
