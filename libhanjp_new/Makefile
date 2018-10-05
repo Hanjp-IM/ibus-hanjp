@@ -17,4 +17,4 @@ clean:
 	rm -f *.o *.a a.out
 
 test: *.c
-	$(CC) -g *.c `pkg-config --cflags --libs libhangul`
+	$(CC) -g *.c `pkg-config --cflags --libs libhangul` `pkg-config --cflags --libs glib-2.0`

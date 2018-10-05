@@ -1,7 +1,12 @@
 #include "hanjp.h"
 #include "hanjpeater.h"
 #include <stdio.h>
+#include <glib.h>
+#include <stdlib.h>
 
+#define ENABLE_EXTERNAL_KEYBOARDS
+
+void TestHangul();
 int TestEater();
 int TestInputContext();
 
@@ -9,10 +14,8 @@ int main()
 {
     int err_eater;
     int err_ic;
-    int init_code, fini_code;
 
-    init_code = hanjp_init();
-    printf("init code: %d\n", init_code);
+    TestHangul();
 
     err_eater = TestEater();
     printf("Eater Test Result: %d\n", err_eater);
@@ -28,10 +31,32 @@ int main()
         return -1;
     }
 
-    fini_code = hanjp_fini();
-    printf("fini code: %d\n", fini_code);
-
     return 0;
+}
+
+void TestHangul(){
+    HangulInputContext* hic;
+	int ascii;
+	int i;
+	char test[] = "qwertyuiop[]asdfghjkl;'zxcvbnm,./QWERTYUIOP{}ASDFGHJKL:ZXCVBNM<>?";
+	char *utf8;
+	const ucschar *preedit;
+
+	hangul_init();
+	printf("Keyboard Count: %d\n", hangul_keyboard_list_get_count());
+	
+	hic = hangul_ic_new("2hj");
+	preedit = hangul_ic_get_preedit_string(hic);
+
+	for(i=0; test[i]; i++){
+		ascii = test[i];
+		hangul_ic_process(hic, ascii);
+		utf8 = g_ucs4_to_utf8(preedit, 64, NULL, NULL, NULL);
+		printf("%s\n", utf8);
+	}
+
+	hangul_ic_delete(hic);
+	hangul_fini();
 }
 
 int TestEater(){
@@ -42,10 +67,11 @@ int TestEater(){
     HanjpEater* eater;
 
     ucschar ucs_string[20];
-    ucschar dest[20];
+    ucschar *dest;
     char* ascii = "zifk";
 
     eater = eater_new("2hj");
+    dest = malloc(sizeof(ucschar) * 64);
 
     if(!eater){
         return -1;
@@ -63,7 +89,7 @@ int TestEater(){
     //Step 2
     len = 0;
     for(i=0; ascii[i]; i++){
-        err = eater_push(eater, ascii[i], ucs_string, len, HANJP_OUTPUT_JP_HIRAGANA);
+        err = eater_push(eater, ascii[i], dest, len, HANJP_OUTPUT_JP_HIRAGANA);
         if(err > 0){
             len += err;
         }
