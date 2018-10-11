@@ -40,18 +40,18 @@ void TestHangul(){
 	int i;
 	char test[] = "qwertyuiop[]asdfghjkl;'zxcvbnm,./QWERTYUIOP{}ASDFGHJKL:ZXCVBNM<>?";
 	char *utf8;
-	const ucschar *preedit;
+	const ucschar *commit;
 
 	hangul_init();
 	printf("Keyboard Count: %d\n", hangul_keyboard_list_get_count());
 	
 	hic = hangul_ic_new("2hj");
-	preedit = hangul_ic_get_preedit_string(hic);
+    commit = hangul_ic_get_commit_string(hic);
 
 	for(i=0; test[i]; i++){
 		ascii = test[i];
 		hangul_ic_process(hic, ascii);
-		utf8 = g_ucs4_to_utf8(preedit, 64, NULL, NULL, NULL);
+		utf8 = g_ucs4_to_utf8(commit, 64, NULL, NULL, NULL);
 		printf("%s\n", utf8);
 	}
 
@@ -65,10 +65,10 @@ int TestEater(){
     int err;
     int pass_case = 0;
     HanjpEater* eater;
-
+    char *utf8;
     ucschar ucs_string[20];
     ucschar *dest;
-    char* ascii = "zifk";
+    char* ascii = "dkssudgktpdy.";
 
     eater = eater_new("2hj");
     dest = malloc(sizeof(ucschar) * 64);
@@ -82,8 +82,9 @@ int TestEater(){
     ucs_string[1] = HANJP_JUNGSEONG_A;
     ucs_string[2] = 0;
 
-    hangul_to_kana(dest, 0, ucs_string, ucs_string[3], HANJP_OUTPUT_JP_HIRAGANA);
-    printf("%x %x\n", dest[0], dest[1]);
+    hangul_to_kana(dest, 0, ucs_string, 0, HANJP_OUTPUT_JP_HIRAGANA);
+    utf8 = g_ucs4_to_utf8(dest, 64, NULL, NULL, NULL);
+    printf("converted ucs: %s\n", utf8);
     pass_case++;
 
     //Step 2
@@ -95,11 +96,8 @@ int TestEater(){
         }
     }
 
-    printf("converted ucs: ");
-    for(i=0; i<len; i++){
-        printf("%x ", ucs_string[i]);
-    }
-    printf("\n");
+    utf8 = g_ucs4_to_utf8(dest, 64, NULL, NULL, NULL);
+    printf("converted ucs: %s\n", utf8);
 
     eater_delete(eater);
 
