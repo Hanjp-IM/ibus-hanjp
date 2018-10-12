@@ -70,6 +70,8 @@ int TestEater(){
     ucschar *dest;
     char* ascii = "dkssudgktpdy.";
 
+    hangul_init();
+
     eater = eater_new("2hj");
     dest = malloc(sizeof(ucschar) * 64);
 
@@ -100,6 +102,7 @@ int TestEater(){
     printf("converted ucs: %s\n", utf8);
 
     eater_delete(eater);
+    hangul_fini();
 
     return pass_case;
 }

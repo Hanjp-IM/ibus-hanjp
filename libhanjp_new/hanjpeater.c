@@ -38,6 +38,7 @@ HanjpEater* eater_new(const char* keyboard)
 
     eater = malloc(sizeof(HanjpEater));
     eater->hic = hangul_ic_new(keyboard);
+    eater->prev = 0;
     /*오토마타 조작*/
     hangul_ic_connect_callback(eater->hic, "translaste", hic_on_translate, NULL);
     hangul_ic_connect_callback(eater->hic, "transition", hic_on_transition, NULL);
@@ -192,6 +193,7 @@ int eater_push(HanjpEater* eater, int ascii, ucschar* outer, int outer_length, H
     int i;
     ucschar* hic_commit = NULL;
     ucschar* hic_preedit = NULL;
+    ucschar hangul[12];
 
     if(!eater || !outer){
         return -1;
@@ -207,9 +209,17 @@ int eater_push(HanjpEater* eater, int ascii, ucschar* outer, int outer_length, H
     hic_preedit = hangul_ic_get_preedit_string(eater->hic);
 
     if(hic_commit[0] != 0){ //assign prev with last commited character
-        push_length = hangul_to_kana(outer + outer_length, eater->prev, hic_commit, hic_preedit[0], type);
-        for(i=0; hic_commit[i+1]; i++);
-        eater->prev = hic_commit[i];
+        for(i=0; hangul_is_jamo(hic_commit[i]); i++){
+            hangul[i] = hic_commit[i];
+        }
+        hangul[i] = 0;
+        push_length = hangul_to_kana(outer + outer_length, eater->prev, hangul, hic_preedit[0], type); //한글 카나 변환
+        for(;hic_commit[i]; i++){ //한글 commit string 덧붙이기
+            outer[outer_length + push_length++] = hic_commit[i];
+        }
+        outer[outer_length + push_length] = 0;
+        eater->prev = hic_commit[i-1];
+
     }
     else{
         push_length = 0;
