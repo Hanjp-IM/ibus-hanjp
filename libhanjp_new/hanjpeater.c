@@ -5,10 +5,11 @@
 /*오타마타 조작 함수*/
 static void hic_on_translate(HangulInputContext*, int, ucschar*, void*);
 static bool hic_on_transition(HangulInputContext*, ucschar, const ucschar*, void*);
+
 static bool hangul_is_batchim_comport(ucschar ch, ucschar next);
 static bool hangul_is_choseong_voiced(ucschar ch);
-static bool hangul_is_choseong_p(ucscahr ch);
-static bool hangul_is_vowel_contracted(ucscahr ch);
+static bool hangul_is_choseong_p(ucschar ch);
+static bool hangul_is_vowel_contracted(ucschar ch);
 
 static const ucschar kana_table[][5] = {
     // {*A, *I, *U, *E, *O}
@@ -93,20 +94,13 @@ int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar next, H
     int dest_len = 1;
 
     has_voiced_sound = hangul_is_choseong_voiced(hangul[0]);
-    has_p_sound = hangul_is_chosoeng_p(hangul[0]);
+    has_p_sound = hangul_is_choseong_p(hangul[0]);
     has_contracted_sound = hangul_is_vowel_contracted(hangul[1]);
 
     switch(hangul[0]){
         case HANGUL_CHOSEONG_FILLER: i=0; is_choseong_void=1; break;
-        case HANJP_CHOSEONG_IEUNG: // ㅇ 
-            if(hangul[1]==HANJP_JUNGSEONG_WA){
-                i=9;
-            }
-            else{
-                i=0;
-                support = kana_table[0][0] - 1;
-            }
-            break;
+        case HANJP_CHOSEONG_IEUNG: // ㅇ
+            i=0; break;
         case HANJP_CHOSEONG_KHIEUKH: // ㅋ
         case HANJP_CHOSEONG_SSANGKIYEOK: //ㄲ
         case HANJP_CHOSEONG_KIYEOK: // ㄱ // ㅋ -> ㄱ 탁음
@@ -148,7 +142,6 @@ int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar next, H
         case HANGUL_JUNGSEONG_FILLER: j=2; is_jungseong_void=1; break;
         case HANJP_JUNGSEONG_A: //ㅏ
         case HANJP_JUNGSEONG_YA: // 야
-        case HANJP_JUNGSEONG_WA: // 와  
             j=0; break; 
         case HANJP_JUNGSEONG_I: // ㅣ
             j=1; break; 
@@ -165,7 +158,16 @@ int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar next, H
             j=4; break;
         case HANJP_JUNGSEONG_YE:
         case HANJP_JUNGSEONG_YAE:
-            j=1; support=kana_table[0][3]; break; 
+            j=1; support=kana_table[0][3]; break;
+        case HANJP_JUNGSEONG_WA: // 와
+            if(hangul[1] == HANJP_CHOSEONG_IEUNG){
+                j=0;
+                support = 0;
+            }
+            else{
+                j=4;
+                support = kana_table[0][0] - 1;
+            }
         default: return -1;
     }
 
@@ -387,17 +389,17 @@ static bool hangul_is_choseong_voiced(ucschar ch)
     }
 }
 
-static bool hangul_is_choseong_p(ucscahr ch){
+static bool hangul_is_choseong_p(ucschar ch){
     switch(ch){
         case HANJP_CHOSEONG_PHIEUPH:
-        case HANJP_CHOSEONG_SSANGPIEUP;
+        case HANJP_CHOSEONG_SSANGPIEUP:
         return true;
         default:
         return false;
     }
 }
 
-static bool hangul_is_vowel_contracted(ucscahr ch){
+static bool hangul_is_vowel_contracted(ucschar ch){
     switch(ch){
         case HANJP_JUNGSEONG_YA:
         case HANJP_JUNGSEONG_YU:
