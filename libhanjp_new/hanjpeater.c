@@ -176,6 +176,24 @@ int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar next, H
         return 0;
     }
 
+    if(!is_choseong_void && is_jungseong_void && hangul_is_jungseong(prev)){
+        if(hangul_is_batchim_comport(hangul[0], next)){
+            switch(hangul[0]){
+                case HANJP_CHOSEONG_SSANGNIEUN:
+                case HANJP_CHOSEONG_NIEUN:
+                case HANJP_CHOSEONG_MIEUM:
+                dest[0] = kana_table[10][0];
+                return 1;
+                case HANJP_CHOSEONG_KIYEOK:
+                case HANJP_CHOSEONG_SIOS:
+                case HANJP_CHOSEONG_SSANGSIOS:
+                case HANJP_CHOSEONG_PIEUP:
+                dest[0] = kana_table[2][3] - 1;
+                return 1;
+            }
+        }
+    }
+
     if(has_voiced_sound){
         adjust = 1;
     }
