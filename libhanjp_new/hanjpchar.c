@@ -1,15 +1,4 @@
-#include "hanjp.h"
-#include "hanjpeater.h"
-#include <stdlib.h>
-
-/*오타마타 조작 함수*/
-static void hic_on_translate(HangulInputContext*, int, ucschar*, void*);
-static bool hic_on_transition(HangulInputContext*, ucschar, const ucschar*, void*);
-
-static bool hangul_is_batchim_comport(ucschar ch, ucschar next);
-static bool hangul_is_choseong_voiced(ucschar ch);
-static bool hangul_is_choseong_p(ucschar ch);
-static bool hangul_is_vowel_contracted(ucschar ch);
+#include <hanjpchar.h>
 
 static const ucschar kana_table[][5] = {
     // {*A, *I, *U, *E, *O}
@@ -26,59 +15,10 @@ static const ucschar kana_table[][5] = {
     {0x3093, 0, 0, 0, 0} // NN(10)
 };
 
-struct _HanjpEater{
-    HangulInputContext* hic;
-    ucschar prev;
-};
-
-HanjpEater* eater_new(const char* keyboard)
-{
-    HanjpEater* eater;
-
-    eater = malloc(sizeof(HanjpEater));
-    eater->hic = hangul_ic_new(keyboard);
-    eater->prev = 0;
-    /*오토마타 조작*/
-    hangul_ic_connect_callback(eater->hic, "translaste", hic_on_translate, NULL);
-    hangul_ic_connect_callback(eater->hic, "transition", hic_on_transition, NULL);
-    hangul_ic_set_output_mode(eater->hic, HANGUL_OUTPUT_JAMO);
-
-    return eater;
-}
-
-void eater_delete(HanjpEater* eater)
-{
-    hangul_ic_delete(eater->hic);
-    free(eater);
-}
-
-static void hic_on_translate(HangulInputContext* hic, int ascii, ucschar* ch, void* data)
-{
-    //구현할 부분
-    //전달할 문자를 변환 시킬 수 있다.
-    
-}
-
-static bool hic_on_transition(HangulInputContext* hic, ucschar ch, const ucschar* buf, void* data)
-{
-    //hangul buffer에 뭐가 들어있는지 볼 수 있다.
-    //초성이 'ㅇ'이 아닌 경우,
-    //받침이 입력된 경우 false
-
-    if(hangul_ic_has_choseong(hic) && hangul_ic_has_jungseong(hic)){
-        if(hangul_is_jungseong(ch)){
-            if(ch != 0x110B){ //'ㅇ'이 아니면
-                return false;
-            }
-        }
-    }
-
-    if(hangul_is_jongseong(ch)){
-        return false;
-    }
-
-    return true;
-}
+static bool hangul_is_batchim_comport(ucschar ch, ucschar next);
+static bool hangul_is_choseong_voiced(ucschar ch);
+static bool hangul_is_choseong_p(ucschar ch);
+static bool hangul_is_vowel_contracted(ucschar ch);
 
 int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar next, HanjpOutputType type)
 {
@@ -240,87 +180,6 @@ int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar next, H
     dest[dest_len] = 0;
 
     return dest_len;
-}
-
-void eater_flush(HanjpEater* eater)
-{
-    eater->prev = 0;
-    hangul_ic_flush(eater->hic);
-}
-
-int eater_push(HanjpEater* eater, int ascii, ucschar* outer, int outer_length, HanjpOutputType type)
-{
-    bool res;
-    int push_length;
-    int i;
-    ucschar* hic_commit = NULL;
-    ucschar* hic_preedit = NULL;
-    ucschar hangul[12];
-
-    if(!eater || !outer){
-        return -1;
-    }
-
-    res = hangul_ic_process(eater->hic, ascii); //hic에 자소 푸쉬
-
-    if(!res){ //처리가 안됐으면 다시 넣음
-        hangul_ic_process(eater->hic, ascii);
-    }
-
-    hic_commit = hangul_ic_get_commit_string(eater->hic);
-    hic_preedit = hangul_ic_get_preedit_string(eater->hic);
-
-    if(hic_commit[0] != 0){ //assign prev with last commited character
-        for(i=0; hangul_is_jamo(hic_commit[i]); i++){
-            hangul[i] = hic_commit[i];
-        }
-        hangul[i] = 0;
-        push_length = hangul_to_kana(outer + outer_length, eater->prev, hangul, hic_preedit[0], type); //한글 카나 변환
-        for(;hic_commit[i]; i++){ //한글 commit string 덧붙이기
-            outer[outer_length + push_length++] = hic_commit[i];
-        }
-        outer[outer_length + push_length] = 0;
-        eater->prev = hic_commit[i-1];
-    }
-    else{
-        push_length = 0;
-    }
-
-    return push_length;
-}
-
-bool eater_backspace(HanjpEater* eater)
-{
-    int ret;
-
-    if(!eater) {
-        return false;
-    }
-
-    ret = hangul_ic_backspace(eater->hic); //hic bakcspace
-
-    if(!ret) {
-        return false;
-    }
-
-    if(hangul_ic_is_empty(eater->hic)){
-        eater->prev = 0;
-    }
-
-    return true;
-}
-
-const ucschar* eater_get_preedit(HanjpEater* eater){
-    if(!eater){
-        return NULL;
-    }
-
-    return hangul_ic_get_preedit_string(eater->hic);
-}
-
-bool eater_is_empty(HanjpEater* eater)
-{
-    return hangul_ic_is_empty(eater->hic);
 }
 
 static bool hangul_is_batchim_comport(ucschar ch, ucschar next)
