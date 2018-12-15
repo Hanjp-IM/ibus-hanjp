@@ -1,4 +1,6 @@
-#include <hanjpchar.h>
+#include "hanjpchar.h"
+#include <stdbool.h>
+#include "hanjp.h"
 
 static const ucschar kana_table[][5] = {
     // {*A, *I, *U, *E, *O}
@@ -20,7 +22,7 @@ static bool hangul_is_choseong_voiced(ucschar ch);
 static bool hangul_is_choseong_p(ucschar ch);
 static bool hangul_is_vowel_contracted(ucschar ch);
 
-int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar next, HanjpOutputType type)
+int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar next, int type)
 {
     //구현할 부분
     //ucschar key 2개로 kana 문자 맵핑
@@ -116,7 +118,7 @@ int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar next, H
         return 0;
     }
 
-    if(!is_choseong_void && is_jungseong_void && hangul_is_jungseong(prev)){
+    if(!is_choseong_void && is_jungseong_void && hangul_is_jungseong(prev)){ //받침일 경우
         if(hangul_is_batchim_comport(hangul[0], next)){
             switch(hangul[0]){
                 case HANJP_CHOSEONG_SSANGNIEUN:

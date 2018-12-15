@@ -1,5 +1,7 @@
 #define N_ELEMENTS(array) (sizeof (array) / sizeof ((array)[0]))
 
+typedef unsigned int ucschar;
+
 typedef enum {
     HANJP_CHOSEONG_IEUNG = 0x110B,
     HANJP_CHOSEONG_KHIEUKH = 0x110F,
@@ -42,4 +44,4 @@ typedef enum {
     HANJP_JUNGSEONG_WA = 0x116A // ㅘ
 } HanjpJungseongId;
 
-int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar next, HanjpOutputType type);
+int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar next, int type);

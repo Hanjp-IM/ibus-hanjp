@@ -5,15 +5,16 @@
 static void hic_on_translate(HangulInputContext*, int, ucschar*, void*);
 static bool hic_on_transition(HangulInputContext*, ucschar, const ucschar*, void*);
 static bool hanjp_ic_flush_internal(HanjpInputContext* hjic);
+static void hanjp_ic_save_hangul_preedit_string(HanjpInputContext* hjic);
 
 static const ucschar hangul_double_dot_tone_mark = 0x302f;
 
 struct _HanjpInputContext {
   HangulInputContext *hic;
   int output_type;
-  ucschar preedit_string[STR_MAX];
+  ucschar preedit_string[64];
   int kana_length; 
-  ucschar commit_string[STR_MAX];
+  ucschar commit_string[64];
 };
 
 static void hic_on_translate(HangulInputContext* hic, int ascii, ucschar* ch, void* data)
@@ -57,12 +58,12 @@ HanjpInputContext* hanjp_ic_new(const char* keyboard)
 {
   HanjpInputContext* hjic;
 
-  hjic = (hanjpInputContext*)malloc(sizeof(HanjpInputContext));
+  hjic = (HanjpInputContext*)malloc(sizeof(HanjpInputContext));
 
   hjic->hic = hangul_ic_new(keyboard);
-  hangul_ic_connect_callback(eater->hic, "translaste", hic_on_translate, NULL);
-  hangul_ic_connect_callback(eater->hic, "transition", hic_on_transition, NULL);
-  hangul_ic_set_output_mode(eater->hic, HANGUL_OUTPUT_JAMO);
+  hangul_ic_connect_callback(hjic->hic, "translaste", hic_on_translate, NULL);
+  hangul_ic_connect_callback(hjic->hic, "transition", hic_on_transition, NULL);
+  hangul_ic_set_output_mode(hjic->hic, HANGUL_OUTPUT_JAMO);
   hjic->output_type = HANJP_OUTPUT_JP_HIRAGANA;
   hjic->preedit_string[0] = 0;
   hjic->kana_length = 0;
@@ -83,21 +84,21 @@ bool hanjp_ic_process(HanjpInputContext* hjic, int ascii)
   int i, j;
   ucschar* hic_commit = NULL;
   ucschar* hic_preedit = NULL;
-  ucschar hangul[12];
-  ucschar non_hangul[12];
-  ucschar converted_string[12];
+  ucschar hangul[12] = {0};
+  ucschar non_hangul[12] = {0};
+  ucschar converted_string[12] = {0};
   ucschar prev = 0;
 
   if(!hjic){
     return false;
   }
 
-  if(!hangul_ic_process(hjic->hic ascii)){ //자소 푸시
+  if(!hangul_ic_process(hjic->hic, ascii)){ //자소 푸시
     hangul_ic_process(hjic->hic, ascii); //처리가 안됐으면 다시 넣음
   }
 
   if(hjic->kana_length > 0){
-    prev = hjic->preedit_string[kana_length - 1];
+    prev = hjic->preedit_string[hjic->kana_length - 1];
   }
   else{
     prev = 0;
@@ -106,7 +107,7 @@ bool hanjp_ic_process(HanjpInputContext* hjic, int ascii)
   hic_commit = hangul_ic_get_commit_string(hjic->hic);
   hic_preedit = hangul_ic_get_preedit_string(hjic->hic);
 
-  if(hic_commit[0] != 0){
+  if(hic_commit[0] != 0){ //hic 커밋이 일어나면
     for(i=0; hangul_is_jamo(hic_commit[i]); i++){ //commit string에서 한글 부분 복사
       hangul[i] = hic_commit[i];
     }
@@ -121,17 +122,16 @@ bool hanjp_ic_process(HanjpInputContext* hjic, int ascii)
     for(i=0; converted_string[i]; i++){ //변환된 문자 이어 붙이기
       hjic->preedit_string[hjic->kana_length++] = converted_string[i];
     }
-    for(i=0; non_hangul[i]; i++){ //나머지 이어 붙이기
-      hjic->preedit_string[hjic->kana_length++] = non_hangul[i];
+    if(non_hangul[0] != 0){ //한글 자소가 아닌 문자가 오면 커밋하기
+      for(i=0; non_hangul[i]; i++){ //나머지 이어 붙이기
+        hjic->preedit_string[hjic->kana_length++] = non_hangul[i];
+      }
+      hjic->preedit_string[hjic->kana_length] = 0;
+      hanjp_ic_flush_internal(hjic);
     }
-    hjic->preedit_string[hjic->kana_length] = 0;
   }
   
-  for(i=0; hic_preedit[i]; i++){ //한글 preedit 이어 붙이기
-      hjic->preedit_string[hjic->kana_length + i] = hic_preedit[i];
-    
-  }
-
+  hanjp_ic_save_hangul_preedit_string(hjic);
   return true;
 }
 
@@ -140,19 +140,91 @@ bool hanjp_ic_backspace(HanjpInputContext *hjic)
   int i;
   int hangul_len = 0;
 
+  if(!hjic){
+    return false;
+  }
+
   if(hjic->preedit_string[0] == 0){
     return false;
   }
 
-  for(i = hjic->preedit_string; hjic->preedit_string[i]; i++){
-    hangul_len++;
+  if(hangul_ic_is_empty(hjic->hic)){ //가나 문자만 있으면 kana_length 줄이기
+    hjic->kana_length--;
   }
-
-  hjic->preedit_string[i-1] = 0;
-
-  if(hangul_len == 0){ //가나 문자만 있으면 kana_length 줄이기
-    kana_length--;
+  else{
+    if(!hangul_ic_backspace(hjic->hic)){
+      return false;
+    }
   }
+  hanjp_ic_save_hangul_preedit_string(hjic);
 
   return true;
+}
+
+const ucschar* hanjp_ic_get_preedit_string(HanjpInputContext* hjic)
+{
+  if(!hjic){
+    return NULL;
+  }
+
+  return hjic->preedit_string;
+}
+
+const ucschar* hanjp_ic_get_commit_string(HanjpInputContext* hjic)
+{
+  if(!hjic){
+    return NULL;
+  }
+
+  return hjic->commit_string;
+}
+
+bool hanjp_ic_flush(HanjpInputContext *hjic)
+{
+  if(!hjic){
+    return false;
+  }
+
+  hjic->preedit_string[0] = 0;
+  hjic->kana_length = 0;
+  hjic->commit_string[0] = 0;
+
+  hangul_ic_flush(hjic->hic);
+
+  return true;
+}
+
+static bool hanjp_ic_flush_internal(HanjpInputContext* hjic)
+{
+  int i;
+
+  if(!hjic){
+    return false;
+  }
+
+  for(i=0; hjic->preedit_string[i]; i++){
+    hjic->commit_string[i] = hjic->preedit_string[i];
+  }
+  hjic->commit_string[i] = 0;
+
+  hjic->preedit_string[0] = 0;
+  hjic->kana_length = 0;
+
+  hangul_ic_flush(hjic->hic);
+
+  return false;
+}
+
+static void hanjp_ic_save_hangul_preedit_string(HanjpInputContext* hjic)
+{
+  int i;
+  const ucschar *hic_preedit;
+
+  hic_preedit = hangul_ic_get_preedit_string(hjic->hic);
+
+  for(i=0; hic_preedit[i]; i++)
+  {
+    hjic->preedit_string[hjic->kana_length + i] = hic_preedit[i]; 
+  }
+  hjic->preedit_string[hjic->kana_length + i] = 0;
 }

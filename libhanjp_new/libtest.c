@@ -1,5 +1,4 @@
 #include "hanjp.h"
-#include "hanjpeater.h"
 #include <stdio.h>
 #include <glib.h>
 #include <stdlib.h>
@@ -7,29 +6,12 @@
 #define ENABLE_EXTERNAL_KEYBOARDS
 
 void TestHangul();
-int TestEater();
-int TestInputContext();
+void TestInputContext();
 
 int main()
 {
-    int err_eater;
-    int err_ic;
-
     TestHangul();
-
-    err_eater = TestEater();
-    printf("Eater Test Result: %d\n", err_eater);
-
-    if(err_eater < 0){
-        return -1;
-    }
-
-    err_ic = TestInputContext();
-    printf("Input Context Test Result: %d\n", err_ic);
-
-    if(err_ic < 0){
-        return -1;
-    }
+    TestInputContext();
 
     return 0;
 }
@@ -59,54 +41,25 @@ void TestHangul(){
 	hangul_fini();
 }
 
-int TestEater(){
+void TestInputContext(){
     int i;
-    int len;
-    int err;
-    int pass_case = 0;
-    HanjpEater* eater;
+    HanjpInputContext* hjic;
     char *utf8;
-    ucschar ucs_string[20];
-    ucschar *dest;
     char* ascii = "dkssudgktpdy.";
+    const ucschar *commit_string;
 
     hangul_init();
 
-    eater = eater_new("2hj");
-    dest = malloc(sizeof(ucschar) * 64);
-
-    if(!eater){
-        return -1;
-    }
-
-    //Step 1
-    ucs_string[0] = HANJP_CHOSEONG_PIEUP;
-    ucs_string[1] = HANJP_JUNGSEONG_A;
-    ucs_string[2] = 0;
-
-    hangul_to_kana(dest, 0, ucs_string, 0, HANJP_OUTPUT_JP_HIRAGANA);
-    utf8 = g_ucs4_to_utf8(dest, 64, NULL, NULL, NULL);
-    printf("converted ucs: %s\n", utf8);
-    pass_case++;
-
-    //Step 2
-    len = 0;
+    hjic = hanjp_ic_new("2hj");
+    
     for(i=0; ascii[i]; i++){
-        err = eater_push(eater, ascii[i], dest, len, HANJP_OUTPUT_JP_HIRAGANA);
-        if(err > 0){
-            len += err;
-        }
+        if(!hanjp_ic_process(hjic, ascii[i]))
+            break;
     }
-
-    utf8 = g_ucs4_to_utf8(dest, 64, NULL, NULL, NULL);
+    commit_string = hanjp_ic_get_commit_string(hjic);
+    utf8 = g_ucs4_to_utf8(commit_string, 64, NULL, NULL, NULL);
     printf("converted ucs: %s\n", utf8);
 
-    eater_delete(eater);
+    hanjp_ic_delete(hjic);
     hangul_fini();
-
-    return pass_case;
-}
-
-int TestInputContext(){
-    return 0;
 }
