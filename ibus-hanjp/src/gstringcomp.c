@@ -1,4 +1,4 @@
-#include <gstringcomp.h>
+#include "gstringcomp.h"
 
 GString* g_string_append_ucs4(GString* str, const ucschar* s, gint len)
 {
