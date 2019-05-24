@@ -11,7 +11,10 @@ all: $(TARGET)
 $(TARGET): $(OBJS)
 
 $(OBJS): $(SRC)
-	$(CC) -c -Wall $(SRC) `pkg-config --cflags --libs libhangul`
+	$(CC) -c $(SRC) `pkg-config --cflags --libs libhangul`
 
 clean:
-	rm -f *.o *.a
+	rm -f *.o *.a a.out
+
+test: *.c
+	$(CC) -g *.c `pkg-config --cflags --libs libhangul` `pkg-config --cflags --libs glib-2.0`

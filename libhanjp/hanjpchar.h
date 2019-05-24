@@ -1,16 +1,6 @@
-#include <hangul.h>
+#define N_ELEMENTS(array) (sizeof (array) / sizeof ((array)[0]))
 
-typedef struct _HanjpEater HanjpEater;
-
-HanjpEater* eater_new(const char* keyboard);
-void eater_delete(HanjpEater* eater);
-int eater_push(HanjpEater* eater, int ascii, ucschar* outer, int outer_length, HanjpOutputType type);
-const ucschar* eater_get_preedit(HanjpEater* eater);
-bool eater_backspace(HanjpEater* eater);
-void eater_flush(HanjpEater* eater);
-bool eater_is_empty(HanjpEater* eater);
-
-int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar next, HanjpOutputType type);
+typedef unsigned int ucschar;
 
 typedef enum {
     HANJP_CHOSEONG_IEUNG = 0x110B,
@@ -53,3 +43,5 @@ typedef enum {
     HANJP_JUNGSEONG_YE = 0x1168,
     HANJP_JUNGSEONG_WA = 0x116A // ㅘ
 } HanjpJungseongId;
+
+int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar next, int type);

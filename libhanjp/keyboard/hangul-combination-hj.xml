@@ -2,11 +2,4 @@
 
 <combination id="0">
     <item first="0x1169" second="0x1161" result="0x116a"/>  <!-- ᅩ   + ᅡ   → ᅪ  -->
-    <item first="0x1169" second="0x1162" result="0x116b"/>  <!-- ᅩ   + ᅢ   → ᅫ  -->
-    <item first="0x1169" second="0x1175" result="0x116c"/>  <!-- ᅩ   + ᅵ   → ᅬ  -->
-    <item first="0x116e" second="0x1161" result="0x1189"/>  <!-- ㅜ   + ㅏ   → ᆉ  -->
-    <item first="0x116e" second="0x1165" result="0x116f"/>  <!-- ᅮ   + ᅥ   → ᅯ  -->
-    <item first="0x116e" second="0x1166" result="0x1170"/>  <!-- ᅮ   + ᅦ   → ᅰ  -->
-    <item first="0x116e" second="0x1175" result="0x1171"/>  <!-- ᅮ   + ᅵ   → ᅱ  -->
-    <item first="0x1173" second="0x1175" result="0x1174"/>  <!-- ᅳ   + ᅵ   → ᅴ  -->
 </combination>

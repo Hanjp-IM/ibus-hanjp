@@ -99,7 +99,7 @@
         <item key="0x7d" value="0x007d"/>  <!-- } → }  -->
         <item key="0x7e" value="0x007e"/>  <!-- ~ → ~  -->
     </map>
-
+    
     <map id="1">    <!-- 전각 영수 매핑 -->
         <item key="0x21" value="0xff01"/>  <!-- ! → ！  -->
         <item key="0x22" value="0xff02"/>  <!-- " → ＂  -->
