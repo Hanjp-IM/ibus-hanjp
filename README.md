@@ -1,6 +1,9 @@
 # hanjp-im
 
 ## 시작하기
+```
+git clone https://github.com/ubuntu-kr/hanjp-im.git hanjp-im
+```
 - [git 간편 설명서](https://rogerdudler.github.io/git-guide/index.ko.html)
 
 ## About Hanjp IM
@@ -14,14 +17,12 @@ Hanjp IM은 일본어를 한글 자소로 입력하는 방법을 제공하는 �
 
 ## Test libhanjp
 ```
-git clone https://github.com/ubuntu-kr/hanjp-im.git hanjp-im
 cd libhanjp
 cp -r ./keyboard/* ~/.local/share/libhangul/keyboard
 make test
 ./a.out
 make clean
 ```
-- [git 간편 설명서](https://rogerdudler.github.io/git-guide/index.ko.html)
 
 ## About Hanjp IM
 The hanjp input method is input method for Japenese kana characters that use hangul for type kana string.
