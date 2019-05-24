@@ -17,11 +17,14 @@ Hanjp IM은 일본어를 한글 자소로 입력하는 방법을 제공하는 �
 ## 바깥 고리
 - [Hanjp IM Document @ Ubuntu KR Wiki(Korean)](https://wiki.ubuntu-kr.org/index.php/HanJP_IM)
 
-## Getting Started
+## Test libhanjp
 ```
 git clone https://github.com/ubuntu-kr/hanjp-im.git hanjp-im
-cd hanjp_new
-make
+cd libhanjp
+cp -r ./keyboard/* ~/.local/share/libhangul/keyboard
+make test
+./a.out
+make clean
 ```
 - [git 간편 설명서](https://rogerdudler.github.io/git-guide/index.ko.html)
 
