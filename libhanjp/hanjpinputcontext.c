@@ -113,7 +113,7 @@ void hanjp_ic_delete(HanjpInputContext *hjic)
 
 bool hanjp_ic_process(HanjpInputContext* hjic, int ascii)
 {
-  int push_length;
+  int ret;
   int i, j;
   ucschar* hic_commit = NULL;
   ucschar* hic_preedit = NULL;
@@ -151,9 +151,13 @@ bool hanjp_ic_process(HanjpInputContext* hjic, int ascii)
     non_hangul[j] = 0;
 
     if(hjic->use_full)
-      hangul_to_kana_full(converted_string, hangul, hic_preedit[0], hjic->output_type);
+      ret = hangul_to_kana_full(converted_string, hangul, hic_preedit[0], hjic->output_type);
     else
-      hangul_to_kana(converted_string, prev, hangul, hic_preedit[0], hjic->output_type);
+      ret = hangul_to_kana(converted_string, prev, hangul, hic_preedit[0], hjic->output_type);
+
+    if(ret == -1){
+      return false;
+    }
 
     for(i=0; converted_string[i]; i++){ //변환된 문자 이어 붙이기
       hjic->preedit_string[hjic->kana_idx++] = converted_string[i];
