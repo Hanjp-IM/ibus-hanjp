@@ -45,3 +45,4 @@ typedef enum {
 } HanjpJungseongId;
 
 int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar next, int type);
+int hangul_to_kana_full(ucschar* dest, ucschar* hangul, ucschar next, int type);
