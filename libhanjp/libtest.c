@@ -34,8 +34,9 @@ void TestHangul(){
 		ascii = test[i];
 		hangul_ic_process(hic, ascii);
 		utf8 = g_ucs4_to_utf8(commit, 64, NULL, NULL, NULL);
-		printf("%s\n", utf8);
+		printf("%s", utf8);
 	}
+    printf("\n");
 
 	hangul_ic_delete(hic);
 	hangul_fini();
