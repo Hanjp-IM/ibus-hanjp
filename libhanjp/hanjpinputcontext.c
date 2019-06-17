@@ -25,8 +25,7 @@ struct _HanjpInputContext {
 
 static void hic_on_translate(HangulInputContext* hic, int ascii, ucschar* ch, void* data)
 {
-    //구현할 부분
-    //전달할 문자를 변환 시킬 수 있다.
+    
 }
 
 static bool hic_on_transition(HangulInputContext* hic, ucschar ch, const ucschar* buf, void* data)
@@ -55,7 +54,7 @@ static bool hic_on_transition(HangulInputContext* hic, ucschar ch, const ucschar
 
 static void hic_on_translate_full(HangulInputContext* hic, int ascii, ucschar* ch, void* data)
 {
-  ucschar c;
+  ucschar c = *ch;
 
   switch(c)
   {
@@ -153,17 +152,13 @@ bool hanjp_ic_process(HanjpInputContext* hjic, int ascii)
     hangul_ic_process(hjic->hic, ascii); //처리가 안됐으면 다시 넣음
   }
 
-  if(hjic->kana_idx > 0){
-    prev = hjic->preedit_string[hjic->kana_idx - 1];
-  }
-  else{
-    prev = 0;
-  }
-
   hic_commit = hangul_ic_get_commit_string(hjic->hic);
   hic_preedit = hangul_ic_get_preedit_string(hjic->hic);
 
   hjic->commit_string[0] = 0;
+
+  for(i=0; i<64 && hic_preedit[i]; i++)
+    prev = hic_preedit[i];
 
   if(hic_commit[0] != 0){ //hic 커밋이 일어나면
     for(i=0; hangul_is_jamo(hic_commit[i]); i++){ //commit string에서 한글 부분 복사

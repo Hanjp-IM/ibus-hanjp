@@ -221,7 +221,6 @@ int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar next, i
         dest[return_len++] = hangul[i];
     }
 
-
     return return_len;
 }
 
