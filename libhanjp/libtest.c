@@ -34,8 +34,9 @@ void TestHangul(){
 		ascii = test[i];
 		hangul_ic_process(hic, ascii);
 		utf8 = g_ucs4_to_utf8(commit, 64, NULL, NULL, NULL);
-		printf("%s\n", utf8);
+		printf("%s", utf8);
 	}
+    printf("\n");
 
 	hangul_ic_delete(hic);
 	hangul_fini();
@@ -45,20 +46,24 @@ void TestInputContext(){
     int i;
     HanjpInputContext* hjic;
     char *utf8;
-    char* ascii = "dkssudgktpdy.";
+    char* ascii = "dkssudgktpdy. qksrkqtmqslek.";
     const ucschar *commit_string;
 
     hangul_init();
 
     hjic = hanjp_ic_new("2hj");
+    commit_string = hanjp_ic_get_commit_string(hjic);
     
     for(i=0; ascii[i]; i++){
         if(!hanjp_ic_process(hjic, ascii[i]))
             break;
+
+        if(commit_string[0])
+        {
+            utf8 = g_ucs4_to_utf8(commit_string, 64, NULL, NULL, NULL);
+            printf("converted ucs: %s\n", utf8);
+        }
     }
-    commit_string = hanjp_ic_get_commit_string(hjic);
-    utf8 = g_ucs4_to_utf8(commit_string, 64, NULL, NULL, NULL);
-    printf("converted ucs: %s\n", utf8);
 
     hanjp_ic_delete(hjic);
     hangul_fini();
