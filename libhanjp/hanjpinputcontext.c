@@ -1,5 +1,6 @@
 #include "hanjp.h"
 #include "hanjpchar.h"
+#include "hangulinternals.h"
 #include <stdlib.h>
 
 static void hic_on_translate(HangulInputContext*, int, ucschar*, void*);
@@ -8,6 +9,7 @@ static void hic_on_translate_full(HangulInputContext*, int, ucschar*, void*);
 static bool hic_on_transition_full(HangulInputContext*, ucschar, const ucschar*, void*);
 static bool hanjp_ic_flush_internal(HanjpInputContext* hjic);
 static void hanjp_ic_save_hangul_preedit_string(HanjpInputContext* hjic);
+static ucschar hangul_resolve_bangjeom(ucschar prev);
 
 static const ucschar hangul_double_dot_tone_mark = 0x302f;
 
@@ -29,35 +31,56 @@ static void hic_on_translate(HangulInputContext* hic, int ascii, ucschar* ch, vo
 
 static bool hic_on_transition(HangulInputContext* hic, ucschar ch, const ucschar* buf, void* data)
 {
-    //hangul buffer에 뭐가 들어있는지 볼 수 있다.
-    //초성이 'ㅇ'이 아닌 경우,
-    //받침이 입력된 경우 false
+  //hangul buffer에 뭐가 들어있는지 볼 수 있다.
+  //초성이 'ㅇ'이 아닌 경우,
+  //받침이 입력된 경우 false
 
-    if(hangul_ic_has_choseong(hic) && hangul_ic_has_jungseong(hic)){
-        if(hangul_is_jungseong(ch)){
-            if(ch != 0x110B){ //'ㅇ'이 아니면
-                return false;
-            }
-        }
-    }
-
-    if(hangul_is_jongseong(ch)){
+  if(hangul_ic_has_choseong(hic) && hangul_ic_has_jungseong(hic)) //'ㅇ'이 아니면 이중 모음을 허락하지 않음
+  {
+    if(hangul_is_jungseong(ch)){
+      if(buf[0] != HANJP_CHOSEONG_IEUNG)
         return false;
     }
+  }
 
-    return true;
-}
+  if(buf[0] == HANJP_CHOSEONG_SSANGNIEUN)
+    return false;
 
-static void hic_on_translate_full(HangulInputContext* hic, int ascii, ucschar* ch, void* data){
-
-}
-
-static bool hic_on_transition_full(HangulInputContext* hic, ucschar ch, const ucschar* buf, void* data){
   if(hangul_is_jongseong(ch)){
-    //TODO
-    //받침으로 쓰일수 없는 문자가 오면
     return false;
   }
+
+  return true;
+}
+
+static void hic_on_translate_full(HangulInputContext* hic, int ascii, ucschar* ch, void* data)
+{
+  ucschar c;
+
+  switch(c)
+  {
+    case HANJP_CHOSEONG_SSANGNIEUN:
+    *ch = HANJP_CHOSEONG_NIEUN; break;
+    case HANJP_CHOSEONG_SSANGSIOS:
+    *ch = HANJP_CHOSEONG_SIOS;
+  }
+}
+
+static bool hic_on_transition_full(HangulInputContext* hic, ucschar ch, const ucschar* buf, void* data)
+{
+  if(hangul_is_jongseong(ch))
+  {
+    if(hangul_ic_has_jongseong(hic))
+      return false;
+
+    if(!hangul_is_kana_batchim(hangul_jongseong_to_choseong(ch)))
+      return false;
+  }
+
+  if(buf[0] == HANJP_CHOSEONG_SSANGNIEUN)
+    return false;
+
+  return true;
 }
 
 void hanjp_ic_set_use_full(HanjpInputContext *hjic, bool set){
@@ -115,8 +138,8 @@ bool hanjp_ic_process(HanjpInputContext* hjic, int ascii)
 {
   int ret;
   int i, j;
-  ucschar* hic_commit = NULL;
-  ucschar* hic_preedit = NULL;
+  const ucschar* hic_commit = NULL;
+  const ucschar* hic_preedit = NULL;
   ucschar hangul[12] = {0};
   ucschar non_hangul[12] = {0};
   ucschar converted_string[12] = {0};
@@ -140,6 +163,8 @@ bool hanjp_ic_process(HanjpInputContext* hjic, int ascii)
   hic_commit = hangul_ic_get_commit_string(hjic->hic);
   hic_preedit = hangul_ic_get_preedit_string(hjic->hic);
 
+  hjic->commit_string[0] = 0;
+
   if(hic_commit[0] != 0){ //hic 커밋이 일어나면
     for(i=0; hangul_is_jamo(hic_commit[i]); i++){ //commit string에서 한글 부분 복사
       hangul[i] = hic_commit[i];
@@ -162,12 +187,31 @@ bool hanjp_ic_process(HanjpInputContext* hjic, int ascii)
     for(i=0; converted_string[i]; i++){ //변환된 문자 이어 붙이기
       hjic->preedit_string[hjic->kana_idx++] = converted_string[i];
     }
-    if(non_hangul[0] != 0){ //한글 자소가 아닌 문자가 오면 커밋하기
-      for(i=0; non_hangul[i]; i++){ //나머지 이어 붙이기
-        hjic->preedit_string[hjic->kana_idx++] = non_hangul[i];
+    if(non_hangul[0] != 0)
+    { 
+      if(hangul_double_dot_tone_mark == non_hangul[0])
+      {
+        ucschar ch;
+        ch = hangul_resolve_bangjeom(prev);
+        if(ch)
+        {
+          hjic->preedit_string[hjic->kana_idx++] = ch;
+          i=1;
+        }
+        else
+          i=0;
       }
-      hjic->preedit_string[hjic->kana_idx] = 0;
-      hanjp_ic_flush_internal(hjic);
+      else
+        i=0;
+
+      if(non_hangul[i] != 0) //한글 자소가 아닌 문자가 오면 커밋하기
+      {
+        for(; i<64 && non_hangul[i]; i++){ //나머지 이어 붙이기
+          hjic->preedit_string[hjic->kana_idx++] = non_hangul[i];
+        }
+        hjic->preedit_string[hjic->kana_idx] = 0;
+        hanjp_ic_flush_internal(hjic);
+      }
     }
   }
   
@@ -267,4 +311,9 @@ static void hanjp_ic_save_hangul_preedit_string(HanjpInputContext* hjic)
     hjic->preedit_string[hjic->kana_idx + i] = hic_preedit[i]; 
   }
   hjic->preedit_string[hjic->kana_idx + i] = 0;
+}
+
+static ucschar hangul_resolve_bangjeom(ucschar prev)
+{
+  return 0;
 }

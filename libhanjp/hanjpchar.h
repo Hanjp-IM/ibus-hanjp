@@ -1,6 +1,6 @@
-#define N_ELEMENTS(array) (sizeof (array) / sizeof ((array)[0]))
+#include <hangul.h>
 
-typedef unsigned int ucschar;
+#define N_ELEMENTS(array) (sizeof (array) / sizeof ((array)[0]))
 
 typedef enum {
     HANJP_CHOSEONG_IEUNG = 0x110B,
@@ -46,3 +46,4 @@ typedef enum {
 
 int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar next, int type);
 int hangul_to_kana_full(ucschar* dest, ucschar* hangul, ucschar next, int type);
+bool hangul_is_kana_batchim(ucschar cho);
