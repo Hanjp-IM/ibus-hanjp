@@ -191,6 +191,7 @@ bool hanjp_ic_process(HanjpInputContext* hjic, int ascii)
         if(ch)
         {
           hjic->preedit_string[hjic->kana_idx++] = ch;
+          hjic->preedit_string[hjic->kana_idx] = 0;
           i=1;
         }
         else
