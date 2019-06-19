@@ -412,3 +412,8 @@ bool hangul_is_kana_batchim(ucschar cho)
             return true;
     }
 }
+
+ucschar hangul_resolve_bangjeom(ucschar prev)
+{
+  return 0;
+}

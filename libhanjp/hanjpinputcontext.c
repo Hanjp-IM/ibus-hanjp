@@ -9,7 +9,6 @@ static void hic_on_translate_full(HangulInputContext*, int, ucschar*, void*);
 static bool hic_on_transition_full(HangulInputContext*, ucschar, const ucschar*, void*);
 static bool hanjp_ic_flush_internal(HanjpInputContext* hjic);
 static void hanjp_ic_save_hangul_preedit_string(HanjpInputContext* hjic);
-static ucschar hangul_resolve_bangjeom(ucschar prev);
 
 static const ucschar hangul_double_dot_tone_mark = 0x302f;
 
@@ -309,7 +308,15 @@ static void hanjp_ic_save_hangul_preedit_string(HanjpInputContext* hjic)
   hjic->preedit_string[hjic->kana_idx + i] = 0;
 }
 
-static ucschar hangul_resolve_bangjeom(ucschar prev)
+int hanjp_ic_get_output_type(HanjpInputContext* hjic)
 {
-  return 0;
+  return hjic->output_type;
+}
+
+void hanjp_ic_set_output_type(HanjpInputContext* hjic, int type)
+{
+  if((type >= HANJP_OUTPUT_JP_HIRAGANA) && (type < HANJP_OUTPUT_EN_FULL)) //아직 EN_FULL을 지원하지 않음
+    hjic->output_type = type;
+  else
+    hjic->output_type = HANJP_OUTPUT_JP_HIRAGANA;
 }
