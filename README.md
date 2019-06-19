@@ -18,7 +18,8 @@ Hanjp IM은 일본어를 한글 자소로 입력하는 방법을 제공하는 �
 ## Test libhanjp
 ```
 cd libhanjp
-cp -r ./keyboard/* ~/.local/share/libhangul/keyboard
+mkdir -p ~/.local/share/libhangul/keyboard
+cp ./keyboard/* ~/.local/share/libhangul/keyboard
 make test
 ./a.out
 make clean

@@ -47,3 +47,4 @@ typedef enum {
 int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar next, int type);
 int hangul_to_kana_full(ucschar* dest, ucschar* hangul, ucschar next, int type);
 bool hangul_is_kana_batchim(ucschar cho);
+ucschar hangul_resolve_bangjeom(ucschar prev);

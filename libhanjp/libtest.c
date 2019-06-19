@@ -53,8 +53,11 @@ void TestInputContext(){
 
     hjic = hanjp_ic_new("2hj");
     commit_string = hanjp_ic_get_commit_string(hjic);
-    
-    for(i=0; ascii[i]; i++){
+
+    hanjp_ic_set_output_type(hjic, HANJP_OUTPUT_JP_HIRAGANA);
+    printf("Hiragana test:\n");
+    for(i=0; ascii[i]; i++)
+    {
         if(!hanjp_ic_process(hjic, ascii[i]))
             break;
 
@@ -64,6 +67,52 @@ void TestInputContext(){
             printf("converted ucs: %s\n", utf8);
         }
     }
+    hanjp_ic_flush(hjic);
+
+    hanjp_ic_set_output_type(hjic, HANJP_OUTPUT_JP_KATAKANA);
+    printf("Katakana test:\n");
+    for(i=0; ascii[i]; i++)
+    {
+        if(!hanjp_ic_process(hjic, ascii[i]))
+            break;
+
+        if(commit_string[0])
+        {
+            utf8 = g_ucs4_to_utf8(commit_string, 64, NULL, NULL, NULL);
+            printf("converted ucs: %s\n", utf8);
+        }
+    }
+    hanjp_ic_flush(hjic);
+
+    hanjp_ic_set_output_type(hjic, HANJP_OUTPUT_JP_HALF_KATAKANA);
+    printf("Half Katakana test:\n");
+    for(i=0; ascii[i]; i++)
+    {
+        if(!hanjp_ic_process(hjic, ascii[i]))
+            break;
+
+        if(commit_string[0])
+        {
+            utf8 = g_ucs4_to_utf8(commit_string, 64, NULL, NULL, NULL);
+            printf("converted ucs: %s\n", utf8);
+        }
+    }
+    hanjp_ic_flush(hjic);
+
+    hanjp_ic_set_output_type(hjic, HANJP_OUTPUT_EN_FULL);
+    printf("En full test:\n");
+    for(i=0; ascii[i]; i++)
+    {
+        if(!hanjp_ic_process(hjic, ascii[i]))
+            break;
+
+        if(commit_string[0])
+        {
+            utf8 = g_ucs4_to_utf8(commit_string, 64, NULL, NULL, NULL);
+            printf("converted ucs: %s\n", utf8);
+        }
+    }
+    hanjp_ic_flush(hjic);
 
     hanjp_ic_delete(hjic);
     hangul_fini();
