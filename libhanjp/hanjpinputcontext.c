@@ -141,14 +141,10 @@ bool hanjp_ic_process(HanjpInputContext* hjic, int ascii)
   ucschar hangul[12] = {0};
   ucschar non_hangul[12] = {0};
   ucschar converted_string[12] = {0};
-  ucschar prev = 0;
+  static ucschar prev = 0;
 
   if(!hjic){
     return false;
-  }
-
-  if(!hangul_ic_process(hjic->hic, ascii)){ //자소 푸시
-    hangul_ic_process(hjic->hic, ascii); //처리가 안됐으면 다시 넣음
   }
 
   hic_commit = hangul_ic_get_commit_string(hjic->hic);
@@ -156,8 +152,9 @@ bool hanjp_ic_process(HanjpInputContext* hjic, int ascii)
 
   hjic->commit_string[0] = 0;
 
-  for(i=0; i<64 && hic_preedit[i]; i++)
-    prev = hic_preedit[i];
+  if(!hangul_ic_process(hjic->hic, ascii)){ //자소 푸시
+    hangul_ic_process(hjic->hic, ascii); //처리가 안됐으면 다시 넣음
+  }
 
   if(hic_commit[0] != 0){ //hic 커밋이 일어나면
     for(i=0; hangul_is_jamo(hic_commit[i]); i++){ //commit string에서 한글 부분 복사
@@ -175,40 +172,33 @@ bool hanjp_ic_process(HanjpInputContext* hjic, int ascii)
       ret = hangul_to_kana(converted_string, prev, hangul, hic_preedit[0], hjic->output_type);
 
     if(ret == -1){
+      hanjp_ic_flush_internal(hjic);
       return false;
     }
 
     for(i=0; converted_string[i]; i++){ //변환된 문자 이어 붙이기
       hjic->preedit_string[hjic->kana_idx++] = converted_string[i];
     }
+
+    if(hangul[0]) //prev 저장
+      prev = (hangul[1] == HANGUL_JUNGSEONG_FILLER) ? hangul[0] : hangul[1];
+    else
+      prev = 0;
+
     if(non_hangul[0] != 0)
     { 
-      if(hangul_double_dot_tone_mark == non_hangul[0])
-      {
-        ucschar ch;
-        ch = hangul_resolve_bangjeom(prev);
-        if(ch)
-        {
-          hjic->preedit_string[hjic->kana_idx++] = ch;
-          hjic->preedit_string[hjic->kana_idx] = 0;
-          i=1;
-        }
-        else
-          i=0;
+      for(i=0; i<64 && non_hangul[i]; i++){ //나머지 이어 붙이기
+        hjic->preedit_string[hjic->kana_idx++] = non_hangul[i];
       }
-      else
-        i=0;
-
-      if(non_hangul[i] != 0) //한글 자소가 아닌 문자가 오면 커밋하기
-      {
-        for(; i<64 && non_hangul[i]; i++){ //나머지 이어 붙이기
-          hjic->preedit_string[hjic->kana_idx++] = non_hangul[i];
-        }
-        hjic->preedit_string[hjic->kana_idx] = 0;
-        hanjp_ic_flush_internal(hjic);
-      }
+      hjic->preedit_string[hjic->kana_idx] = 0;
+      prev = 0;
+      if(!hanjp_ic_flush_internal(hjic))
+        return false;
     }
   }
+
+  
+  
   
   hanjp_ic_save_hangul_preedit_string(hjic);
   return true;
@@ -291,7 +281,7 @@ static bool hanjp_ic_flush_internal(HanjpInputContext* hjic)
 
   hangul_ic_flush(hjic->hic);
 
-  return false;
+  return true;
 }
 
 static void hanjp_ic_save_hangul_preedit_string(HanjpInputContext* hjic)

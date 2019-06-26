@@ -166,7 +166,7 @@ int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar next, i
     is_choseong_void = (hangul[0] == HANGUL_CHOSEONG_FILLER);
     is_jungseong_void = (hangul[1] == HANGUL_JUNGSEONG_FILLER);
  
-    if(hangul_is_jungseong(prev) && !is_choseong_void && is_jungseong_void) //받침 구현
+    if(hangul_is_jungseong(prev) && !is_choseong_void && is_jungseong_void && hangul_is_kana_batchim(hangul[0])) //받침 구현
     {
         dest[0] = hangul_batchim_to_kana(hangul[0], next, type);
         return 1;
@@ -309,6 +309,7 @@ static ucschar hangul_batchim_to_kana(ucschar cho, ucschar next, int type)
             case HANJP_CHOSEONG_SSANGNIEUN:
             case HANJP_CHOSEONG_NIEUN:
             case HANJP_CHOSEONG_MIEUM:
+            case HANJP_CHOSEONG_IEUNG:
             ret = kana_table[10][0][type];
             break;
             case HANJP_CHOSEONG_KIYEOK:
