@@ -48,6 +48,8 @@ static ucschar hangul_to_kana_base(ucschar cho, ucschar jung, int type) // 처�
     }
 
     switch(cho){
+        case HANJP_CHOSEONG_FILLER: 
+            i=0; is_choseong_void=1; break;
         case HANJP_CHOSEONG_IEUNG: // ㅇ
             switch(jung)
             {
@@ -92,10 +94,12 @@ static ucschar hangul_to_kana_base(ucschar cho, ucschar jung, int type) // 처�
         case HANJP_CHOSEONG_SSANGNIEUN:
             return kana_table[10][0][type];
         default: 
-            i=0; is_choseong_void=1;
+            return 0;
     }
 
     switch(jung){
+        case HANJP_JUNGSEONG_FILLER:
+            is_jungseong_void=1;
         case HANJP_JUNGSEONG_A: //ㅏ
         case HANJP_JUNGSEONG_YA: // ㅑ
             j=0; break; 
@@ -118,7 +122,7 @@ static ucschar hangul_to_kana_base(ucschar cho, ucschar jung, int type) // 처�
         case HANJP_JUNGSEONG_WA: // 와
             j = (cho == HANJP_CHOSEONG_IEUNG) ? 0 : 4;
         default:
-            j=2; is_jungseong_void=1;
+            return 0;
     }
 
     if(is_choseong_void && is_jungseong_void){
@@ -322,6 +326,8 @@ static ucschar hangul_batchim_to_kana(ucschar cho, ucschar next, int type)
             case HANJP_CHOSEONG_PIEUP:
             ret = kana_table[2][3][type] - 1;
             break;
+            default:
+            return 0;
         }
     }
     else{
