@@ -39,6 +39,14 @@ static ucschar hangul_to_kana_base(ucschar cho, ucschar jung, int type) // 처�
     int has_voiced_sound = 0, has_p_sound = 0, has_contracted_sound;
     ucschar ret;
 
+    switch(jung)
+    {
+        case HANJP_JUNGSEONG_YEO:
+            jung = HANJP_JUNGSEONG_YO; break;
+        case HANJP_JUNGSEONG_EO:
+            jung = HANJP_JUNGSEONG_O; break;
+    }
+
     switch(cho){
         case HANJP_CHOSEONG_IEUNG: // ㅇ
             switch(jung)
@@ -47,6 +55,8 @@ static ucschar hangul_to_kana_base(ucschar cho, ucschar jung, int type) // 처�
                 case HANJP_JUNGSEONG_YU:
                 case HANJP_JUNGSEONG_YO:
                     i=7; break;
+                case HANJP_JUNGSEONG_WA:
+                    i=9; break;
                 default:
                     i=0;
             }
@@ -60,8 +70,10 @@ static ucschar hangul_to_kana_base(ucschar cho, ucschar jung, int type) // 처�
         case HANJP_CHOSEONG_CIEUC: // ㅈ // ㅅ -> ㅈ 탁음
             i=2; break;
         case HANJP_CHOSEONG_THIEUTH: // ㅌ
+        case HANJP_CHOSEONG_CHIEUCH: // ㅊ
         case HANJP_CHOSEONG_SSANGTIKEUT: //ㄸ
         case HANJP_CHOSEONG_TIKEUT: // ㄷ // ㅌ -> ㄷ 탁음
+        case HANJP_CHOSEONG_PANSIOS: // ㅿ // ㅊ -> ㅿ 탁음
             i=3; break;
         case HANJP_CHOSEONG_NIEUN: // ㄴ 
             i=4; break; 
@@ -74,14 +86,6 @@ static ucschar hangul_to_kana_base(ucschar cho, ucschar jung, int type) // 처�
             i=6; break;
         case HANJP_CHOSEONG_RIEUL: // ㄹ
             i=8; break;
-        case HANJP_CHOSEONG_PANSIOS: // ㅿ // ㅊ -> ㅿ 탁음
-            switch(jung){
-                case HANJP_JUNGSEONG_I:
-                case HANJP_JUNGSEONG_U:
-                i=3; break;
-                default:
-                i=2; 
-            } break;
         case HANJP_CHOSEONG_OLD_IEUNG: // OLD ㅇ
             i = (jung==HANJP_JUNGSEONG_O)? 9 : 0; //(W or A)
             break;
@@ -93,20 +97,20 @@ static ucschar hangul_to_kana_base(ucschar cho, ucschar jung, int type) // 처�
 
     switch(jung){
         case HANJP_JUNGSEONG_A: //ㅏ
-        case HANJP_JUNGSEONG_YA: // 야
+        case HANJP_JUNGSEONG_YA: // ㅑ
             j=0; break; 
         case HANJP_JUNGSEONG_I: // ㅣ
             j=1; break; 
         case HANJP_JUNGSEONG_EU: // ㅡ
         case HANJP_JUNGSEONG_U: // ㅜ
-        case HANJP_JUNGSEONG_YU: // 유
+        case HANJP_JUNGSEONG_YU: // ㅠ
             j=2; break; 
         case HANJP_JUNGSEONG_AE: // ㅐ
         case HANJP_JUNGSEONG_E: // ㅔ
             j=3; break; 
         case HANJP_JUNGSEONG_O: // ㅗ
-        case HANJP_JUNGSEONG_EO:
-        case HANJP_JUNGSEONG_YO: // 요
+        case HANJP_JUNGSEONG_EO: // ㅓ
+        case HANJP_JUNGSEONG_YO: // ㅛ
             j=4; break;
         case HANJP_JUNGSEONG_YE:
         case HANJP_JUNGSEONG_YAE:

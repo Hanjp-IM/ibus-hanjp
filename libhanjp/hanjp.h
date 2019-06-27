@@ -1,6 +1,6 @@
 #include <hangul.h>
 
-#define ENABLE_EXTERNAL_KEYBOARDS 1
+#define ENABLE_EXTERNAL_KEYBOARDS
 
 typedef enum {
   HANJP_OUTPUT_JP_HIRAGANA,
