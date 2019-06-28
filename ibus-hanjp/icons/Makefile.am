@@ -18,6 +18,12 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
+icons_DATA = \
+	ibus-hanjp.svg \
+	$(NULL)
+
+iconsdir = $(pkgdatadir)/icons
+
 EXTRA_DIST = \
-    as-version.m4 \
-    $(NULL)
+	ibus-enchant.svg \
+	$(NULL)

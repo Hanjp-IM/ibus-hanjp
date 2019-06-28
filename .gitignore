@@ -2,3 +2,46 @@
 *.o
 *.a
 a.out
+
+# http://www.gnu.org/software/automake
+
+Makefile.in
+/ibus-hanjp/ar-lib
+/ibus-hanjp/mdate-sh
+/ibus-hanjp/py-compile
+/ibus-hanjp/test-driver
+/ibus-hanjp/ylwrap
+
+# http://www.gnu.org/software/autoconf
+
+/ibus-hanjp/autom4te.cache
+/ibus-hanjp/autoscan.log
+/ibus-hanjp/autoscan-*.log
+/ibus-hanjp/aclocal.m4
+/ibus-hanjp/compile
+/ibus-hanjp/config.guess
+/ibus-hanjp/config.h.in
+/ibus-hanjp/config.sub
+/ibus-hanjp/configure
+/ibus-hanjp/configure.scan
+/ibus-hanjp/depcomp
+/ibus-hanjp/install-sh
+/ibus-hanjp/missing
+/ibus-hanjp/stamp-h1
+
+# https://www.gnu.org/software/libtool/
+
+/ibus-hanjp/ltmain.sh
+
+# http://www.gnu.org/software/texinfo
+
+/ibus-hanjp/texinfo.tex
+
+# http://www.gnu.org/software/m4/
+
+/ibus-hanjp/m4/libtool.m4
+/ibus-hanjp/m4/ltoptions.m4
+/ibus-hanjp/m4/ltsugar.m4
+/ibus-hanjp/m4/ltversion.m4
+/ibus-hanjp/m4/lt~obsolete.m4
+/ibus-hanjp/autom4te.cache

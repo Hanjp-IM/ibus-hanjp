@@ -1,0 +1,27 @@
+<?xml version=\"1.0\" encoding=\"utf-8\"?>
+<!-- filename: enchant.xml -->
+<component>
+	<name>org.ubuntu-kr.IBus.Hanjp</name>
+	<description>Hanjp Component</description>
+	<exec>${libexecdir}/ibus-engine-hanjp --ibus</exec>
+	<version>@VERSION@</version>
+	<author>Kwangyeon Kim &lt;ghemool123@gmail.com&gt;</author>
+	<license>LGPL</license>
+	<homepage>https://github.com/ubuntu-kr/hanjp-im</homepage>
+	<textdomain>ibus-hanjp</textdomain>
+
+	<engines>
+		<engine>
+			<name>hanjp</name>
+			<language>jp</language>
+			<license>LGPL</license>
+			<author>Kwangyeon Kim &lt;ghemool123@gmail.com&gt;</author>
+			<icon>${pkgdatadir}/icons/ibus-hanjp.svg</icon>
+			<layout>us</layout>
+			<longname>Hanjp</longname>
+			<description>Hanjp Input Method</description>
+			<rank>0</rank>
+		</engine>
+	</engines>
+
+</component>
