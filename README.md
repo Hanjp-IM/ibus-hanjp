@@ -3,6 +3,7 @@
 ## 시작하기
 ```
 git clone https://github.com/ubuntu-kr/hanjp-im.git hanjp-im
+cd hanjp-im
 ```
 - [git 간편 설명서](https://rogerdudler.github.io/git-guide/index.ko.html)
 
