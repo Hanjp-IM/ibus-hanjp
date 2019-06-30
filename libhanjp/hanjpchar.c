@@ -48,7 +48,7 @@ static ucschar hangul_to_kana_base(ucschar cho, ucschar jung, int type) // 처�
     }
 
     switch(cho){
-        case HANJP_CHOSEONG_FILLER: 
+        case HANGUL_CHOSEONG_FILLER: 
             i=0; is_choseong_void=1; break;
         case HANJP_CHOSEONG_IEUNG: // ㅇ
             switch(jung)
@@ -98,7 +98,7 @@ static ucschar hangul_to_kana_base(ucschar cho, ucschar jung, int type) // 처�
     }
 
     switch(jung){
-        case HANJP_JUNGSEONG_FILLER:
+        case HANGUL_JUNGSEONG_FILLER:
             is_jungseong_void=1;
         case HANJP_JUNGSEONG_A: //ㅏ
         case HANJP_JUNGSEONG_YA: // ㅑ
