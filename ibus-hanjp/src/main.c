@@ -11,6 +11,10 @@ static void start_component(void);
 static void ibus_disconnected_callback(IBusBus  *bus,
                                        gpointer  user_data);
 
+/* options */
+static gboolean ibus = FALSE;
+static gboolean verbose = FALSE;
+
 int main(gint    argc,
          gchar **argv)
 {
