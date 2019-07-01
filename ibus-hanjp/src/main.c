@@ -1,7 +1,11 @@
+#ifdef HAVE_CONFIG_H
+#include <config.h>
+#endif
+
 #include <ibus.h>
 #include <stdlib.h>
 #include <locale.h>
-#include <hangul.h>
+#include "i18n.h"
 #include "engine.h"
 
 static IBusBus *bus = NULL;
@@ -25,7 +29,7 @@ int main(gint    argc,
 	setlocale(LC_ALL, "");
 
 	bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
-    	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
+    bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
 	textdomain(GETTEXT_PACKAGE);
 
 	// Init Option contect
@@ -76,7 +80,7 @@ static void start_component(void)
 	ibus_hanjp_init(bus);
 
 	// IBus 컴포넌트 초기화
-	component = ibus_component_new("org.freedesktop.IBus.Hanjp",
+	component = ibus_component_new("org.ubuntu-kr.IBus.Hanjp",
 				       N_("HanJP Input Method"),
 				       "0.0.1",
 				       "GPL",
@@ -100,7 +104,7 @@ static void start_component(void)
     	ibus_factory_add_engine (factory, "hanjp", IBUS_TYPE_HANJP_ENGINE);
 
     	if (ibus) {
-        	ibus_bus_request_name (bus, "org.freedesktop.IBus.Hanjp", 0);
+        	ibus_bus_request_name (bus, "org.ubuntu-kr.IBus.Hanjp", 0);
     	}
     	else {
         	ibus_bus_register_component (bus, component);
