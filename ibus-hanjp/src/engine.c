@@ -32,7 +32,7 @@ struct _IBusHanjpEngineClass {
 static void	ibus_hanjp_engine_class_init	(IBusHanjpEngineClass	*klass);
 static void	ibus_hanjp_engine_init		(IBusHanjpEngine		*engine);
 static GObject*
-                ibus_hangul_engine_constructor
+                ibus_hanjp_engine_constructor
                                             (GType                   type,
                                              guint                   n_construct_params,
                                              GObjectConstructParam  *construct_params);
@@ -73,6 +73,9 @@ static void ibus_hanjp_engine_candidate_clicked(IBusEngine *engine,
                                                 guint       index,
                                                 guint       button,
                                                 guint       state);
+static void ibus_hanjp_engine_commit_string (IBusHanjpEngine *hanjp,
+                                                const gchar       *string);
+static void ibus_hanjp_engine_update (IBusHanjpEngine *hanjp);
 
 // Commits string to client
 static void ibus_hanjp_engine_flush        (IBusHanjpEngine       *hanjp);
@@ -92,28 +95,42 @@ static void ibus_hanjp_engine_set_input_mode
                                              int                     input_mode);
 static IBusText*
             ibus_hanjp_engine_get_input_mode_symbol
-                                            (IBusHanjpEngine       *hangul,
+                                            (IBusHanjpEngine       *hanjp,
                                              int                     input_mode);
+static IBusEngineClass *parent_class = NULL;
 
-static const GTypeInfo type_info = { // Class Type Info
-    sizeof(IBusHangulEngineClass),
 
-    (GBaseInitFunc) NULL,
-    (GBaseFinalizeFunc) NULL,
+void ibus_hanjp_init(IBusBus *bus)
+{
+    hanjp_init();
+}
 
-    (GClassInitFunc) ibus_hanjp_engine_class_init,
-    (GClassFinalizeFunc) NULL,
-    NULL,
-
-    sizeof(IBusHanjpEngine),
-    0,
-    (GInstanceInitFunc) ibus_hanjp_engine_init,
-
-    NULL
-};
+void ibus_hanjp_exit(void)
+{
+    hanjp_fini();
+}
 
 GType ibus_hanjp_engine_get_type(void)
 {
+    static GType type;
+    
+    static const GTypeInfo type_info = { // Class Type Info
+        sizeof(IBusHanjpEngineClass),
+
+        (GBaseInitFunc) NULL,
+        (GBaseFinalizeFunc) NULL,
+
+        (GClassInitFunc) ibus_hanjp_engine_class_init,
+        (GClassFinalizeFunc) NULL,
+        NULL,
+
+        sizeof(IBusHanjpEngine),
+        0,
+        (GInstanceInitFunc) ibus_hanjp_engine_init,
+
+        NULL
+    };
+
     type = g_type_register_static (IBUS_TYPE_ENGINE,
                                 "IBusHanjpEngine",
                                 &type_info,
@@ -128,6 +145,8 @@ ibus_hanjp_engine_class_init (IBusHanjpEngineClass *klass)
 {
 	IBusObjectClass *ibus_object_class = IBUS_OBJECT_CLASS (klass);
 	IBusEngineClass *engine_class = IBUS_ENGINE_CLASS (klass);
+
+    parent_class = (IBusEngineClass *) g_type_class_peek_parent (klass);
 
 	ibus_object_class->destroy = (IBusObjectDestroyFunc) ibus_hanjp_engine_destroy;
 
@@ -158,6 +177,8 @@ ibus_hanjp_engine_init (IBusHanjpEngine *hanjp)
         g_object_ref_sink (hanjp->table);
 }
 
+
+
 // Engine object destroy func
 static void
 ibus_hanjp_engine_destroy (IBusHanjpEngine *hanjp)
@@ -177,41 +198,7 @@ ibus_hanjp_engine_destroy (IBusHanjpEngine *hanjp)
             hanjp->context = NULL;
     }
 
-	((IBusObjectClass *) ibus_hanjp_engine_parent_class)->destroy ((IBusObject *)hanjp);
-}
-
-static void
-ibus_hanjp_engine_update_lookup_table (IBusHanjpEngine *hanjp)
-{
-    gchar ** sugs;
-    gint n_sug, i;
-    gboolean retval;
-
-    if (hanjp->preedit->len == 0) {
-        ibus_engine_hide_lookup_table ((IBusEngine *) hanjp);
-        return;
-    }
-
-    ibus_lookup_table_clear (hanjp->table);
-
-    sugs = hanjp_dict_suggest (dict,
-                                 hanjp->preedit->str,
-                                 hanjp->preedit->len,
-                                 &n_sug);
-
-    if (sugs == NULL || n_sug == 0) {
-        ibus_engine_hide_lookup_table ((IBusEngine *) hanjp);
-        return;
-    }
-
-    for (i = 0; i < n_sug; i++) {
-        ibus_lookup_table_append_candidate (hanjp->table, ibus_text_new_from_string (sugs[i]));
-    }
-
-    ibus_engine_update_lookup_table ((IBusEngine *) hanjp, hanjp->table, TRUE);
-
-    if (sugs)
-        hanjp_dict_free_suggestions (dict, sugs);
+	((IBusObjectClass *) parent_class)->destroy ((IBusObject *)hanjp);
 }
 
 static void
@@ -288,6 +275,11 @@ ibus_hanjp_engine_update (IBusHanjpEngine *hanjp)
     ibus_engine_hide_lookup_table ((IBusEngine *)hanjp);
 }
 
+static void ibus_hanjp_engine_update_lookup_table(IBusHanjpEngine *hanjp)
+{
+
+}
+
 // is_alphabet macro checks if keyval is alphabet(a~z or A~Z)
 #define is_alphabet(c) (((c) >= IBUS_a && (c) <= IBUS_z) || ((c) >= IBUS_A && (c) <= IBUS_Z))
 
@@ -348,7 +340,7 @@ ibus_hanjp_engine_process_key_event (IBusEngine *engine,
         if (hanjp->preedit->len == 0)
             return FALSE;
         if (hanjp->cursor_pos < hanjp->preedit->len) {
-            hnajp->cursor_pos ++;
+            hanjp->cursor_pos ++;
             ibus_hanjp_engine_update (hanjp);
         }
         return TRUE;
@@ -393,7 +385,7 @@ ibus_hanjp_engine_process_key_event (IBusEngine *engine,
         return TRUE;
     }
 
-    if (is_alpha (keyval)) {
+    if (is_alphabet (keyval)) {
         g_string_insert_c (hanjp->preedit,
                            hanjp->cursor_pos,
                            keyval);
