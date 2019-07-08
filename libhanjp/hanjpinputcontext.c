@@ -176,6 +176,7 @@ bool hanjp_ic_process(HanjpInputContext* hjic, int ascii)
     for(i=0; converted_string[i]; i++){ //변환된 문자 이어 붙이기
       hjic->preedit_string[hjic->kana_idx++] = converted_string[i];
     }
+    hjic->preedit_string[hjic->kana_idx] = 0;
 
     if(hangul[0]) //prev 저장
       prev = (hangul[1] == HANGUL_JUNGSEONG_FILLER) ? hangul[0] : hangul[1];
@@ -183,19 +184,31 @@ bool hanjp_ic_process(HanjpInputContext* hjic, int ascii)
       prev = 0;
 
     if(non_hangul[0] != 0)
-    { 
-      for(i=0; i<64 && non_hangul[i]; i++){ //나머지 이어 붙이기
-        hjic->preedit_string[hjic->kana_idx++] = non_hangul[i];
-      }
-      hjic->preedit_string[hjic->kana_idx] = 0;
+    {
+      ucschar ch;
+      ch = kana_resolve_bangjeom((hjic->kana_idx > 0) ? hjic->preedit_string[hjic->kana_idx-1] : 0);
       prev = 0;
-      if(!hanjp_ic_flush_internal(hjic))
-        return false;
+      if((non_hangul[0] == hangul_double_dot_tone_mark) && ch)
+      {
+        hjic->preedit_string[hjic->kana_idx++] = ch;
+        hjic->preedit_string[hjic->kana_idx] = 0;
+        i=1;
+      }
+      else{
+        i=0;
+      }
+
+      if(non_hangul[i])
+      {
+        for(; i<64 && non_hangul[i]; i++){ //나머지 이어 붙이기
+          hjic->preedit_string[hjic->kana_idx++] = non_hangul[i];
+        }
+        hjic->preedit_string[hjic->kana_idx] = 0;
+        if(!hanjp_ic_flush_internal(hjic))
+          return false;
+      }
     }
   }
-
-  
-  
   
   hanjp_ic_save_hangul_preedit_string(hjic);
   return true;
