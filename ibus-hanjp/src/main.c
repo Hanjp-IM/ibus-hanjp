@@ -19,6 +19,13 @@ static void ibus_disconnected_callback(IBusBus  *bus,
 static gboolean ibus = FALSE;
 static gboolean verbose = FALSE;
 
+static const GOptionEntry entries[] =
+{
+    { "ibus", 'i', 0, G_OPTION_ARG_NONE, &ibus, "component is executed by ibus", NULL },
+    { "verbose", 'v', 0, G_OPTION_ARG_NONE, &verbose, "verbose", NULL },
+    { NULL },
+};
+
 int main(gint    argc,
          gchar **argv)
 {
@@ -35,11 +42,14 @@ int main(gint    argc,
 	// Init Option contect
 	context = g_option_context_new("- ibus hanjp engine component");
 
+	g_option_context_add_main_entries(context, entries, "ibus-hanjp");
+
 	// 옵션 해석 실패시 종료.
-	if (!g_option_context_parse (context, &argc, &argv, &error)) {
-        	g_print ("Option parsing failed: %s\n", error->message);
-        	exit (-1);
-    	}
+	if (!g_option_context_parse (context, &argc, &argv, &error))
+	{
+		g_print ("Option parsing failed: %s\n", error->message);
+		exit (-1);
+    }
 
 	// 엔진 컴포넌트 시작.
     	start_component ();
@@ -90,33 +100,34 @@ static void start_component(void)
 				       "ibus-hanjp");
 
 	// 초기화한 컴포넌트에 엔진 추가
-	ibus_component_add_engine(component, ibus_engine_desc_new("hanjp",
+	ibus_component_add_engine(component, 
+								ibus_engine_desc_new("hanjp",
 								  N_("HanJP Input Method"),
 								  N_("Type Japanese with Korean Hangul"),
-								  "jp",
+								  "ja",
 								  "GPL",
 								  "Ubuntu Korea Community HanJP-IM Team",
-								  "", // 아이콘 파일 경로
+								  PKGDATADIR"/icon/ibus-hanjp.svg", // 아이콘 파일 경로
 								  "us"));
 
 	factory = ibus_factory_new (ibus_bus_get_connection (bus));
 
-    	ibus_factory_add_engine (factory, "hanjp", IBUS_TYPE_HANJP_ENGINE);
+    ibus_factory_add_engine (factory, "hanjp", IBUS_TYPE_HANJP_ENGINE);
 
-    	if (ibus) {
-        	ibus_bus_request_name (bus, "org.ubuntu-kr.IBus.Hanjp", 0);
-    	}
-    	else {
-        	ibus_bus_register_component (bus, component);
+    if (ibus) {
+    	ibus_bus_request_name (bus, "org.ubuntu-kr.IBus.Hanjp", 0);
+    }
+    else {
+        ibus_bus_register_component (bus, component);
    	}
 
-    	g_object_unref (component);
+    g_object_unref (component);
 
 	// Start Engine Loop
 	ibus_main ();
 
 	// Quit when engine loop end
-    	ibus_hanjp_exit ();
+    ibus_hanjp_exit ();
 }
 
 static void ibus_disconnected_callback(IBusBus  *bus,
