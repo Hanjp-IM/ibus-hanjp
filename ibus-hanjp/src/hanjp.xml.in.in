@@ -13,7 +13,7 @@
 	<engines>
 		<engine>
 			<name>hanjp</name>
-			<language>jp</language>
+			<language>ja</language>
 			<license>LGPL</license>
 			<author>Kwangyeon Kim &lt;ghemool123@gmail.com&gt;</author>
 			<icon>${pkgdatadir}/icons/ibus-hanjp.svg</icon>
