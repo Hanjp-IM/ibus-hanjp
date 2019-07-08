@@ -6,6 +6,7 @@ a.out
 # http://www.gnu.org/software/automake
 
 Makefile.in
+/ibus-hanjp/**/Makefile
 /ibus-hanjp/ar-lib
 /ibus-hanjp/mdate-sh
 /ibus-hanjp/py-compile
