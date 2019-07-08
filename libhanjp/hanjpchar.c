@@ -163,7 +163,7 @@ static ucschar hangul_to_kana_base(ucschar cho, ucschar jung, int type) // 처�
     return ret;
 }
 
-int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar next, int type){
+int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar next, int type, bool use_full){
     int is_choseong_void = 0, is_jungseong_void = 0;
     int return_len = 0;
     int has_voiced_sound, has_p_sound;
@@ -174,72 +174,15 @@ int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar next, i
     is_choseong_void = (hangul[0] == HANGUL_CHOSEONG_FILLER);
     is_jungseong_void = (hangul[1] == HANGUL_JUNGSEONG_FILLER);
  
-    if(hangul_is_jungseong(prev) && !is_choseong_void && is_jungseong_void && hangul_is_kana_batchim(hangul[0])) //받침 구현
+    if(!use_full && hangul_is_jungseong(prev) && is_jungseong_void && hangul_is_kana_batchim(hangul[0])) //받침 구현
     {
-        dest[0] = hangul_batchim_to_kana(hangul[0], next, type);
-        return 1;
+        ucschar ch;
+
+        if(ch = hangul_batchim_to_kana(hangul[0], next, type))
+            dest[return_len++] = ch;
+        dest[return_len] = 0;
+        return return_len;
     }
-
-    has_voiced_sound = hangul_is_choseong_voiced(hangul[0]);
-    has_p_sound = hangul_is_choseong_p(hangul[0]);
-
-    if(hangul_jungseong_split(hangul[0], hangul[1], &jungseong1, &jungseong2))
-    {
-        base = hangul_to_kana_base(hangul[0], jungseong1, type);
-        support = hangul_to_kana_base(HANGUL_CHOSEONG_FILLER, jungseong2, type);
-    }
-    else
-    {
-        base = hangul_to_kana_base(hangul[0], hangul[1], type);
-    }
-
-    if(base) //add
-    {
-        switch(type) //add base to dest
-        {
-            case HANJP_OUTPUT_JP_HIRAGANA:
-            case HANJP_OUTPUT_JP_KATAKANA:
-            if(has_voiced_sound){
-                dest[return_len++] = base + 1;
-            }
-            else if(has_p_sound){
-                dest[return_len++] = base + 2;
-            }
-            else{
-                dest[return_len++] = base;
-            }
-            break;
-            case HANJP_OUTPUT_JP_HALF_KATAKANA:
-            dest[return_len++] = base;
-            if(has_voiced_sound){
-                dest[return_len++] = HALF_KATAKANA_VOICED_MARK;
-            }
-            else if(has_p_sound){
-                dest[return_len++] = HALF_KATAKANA_SEMI_VOICED_MARK;
-            }
-            break;
-            default:
-            return -1;
-        }
-        if(support)
-            dest[return_len++] = support;
-    }
-
-    for(i=2; i<64 && hangul[i]; i++){
-        dest[return_len++] = hangul[i];
-    }
-
-    return return_len;
-}
-
-int hangul_to_kana_full(ucschar* dest, ucschar* hangul, ucschar next, int type)
-{
-    int is_choseong_void, is_jungseong_void;
-    int return_len = 0;
-    int has_voiced_sound, has_p_sound;
-    ucschar jungseong1, jungseong2;
-    ucschar base = 0, support = 0;
-    int i;
 
     has_voiced_sound = hangul_is_choseong_voiced(hangul[0]);
     has_p_sound = hangul_is_choseong_p(hangul[0]);
@@ -298,6 +241,7 @@ int hangul_to_kana_full(ucschar* dest, ucschar* hangul, ucschar next, int type)
     for(; i<64 && hangul[i]; i++){
         dest[return_len++] = hangul[i];
     }
+    dest[return_len] = 0;
 
     return return_len;
 }

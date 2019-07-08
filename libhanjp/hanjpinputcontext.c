@@ -166,10 +166,7 @@ bool hanjp_ic_process(HanjpInputContext* hjic, int ascii)
     }
     non_hangul[j] = 0;
 
-    if(hjic->use_full)
-      ret = hangul_to_kana_full(converted_string, hangul, hic_preedit[0], hjic->output_type);
-    else
-      ret = hangul_to_kana(converted_string, prev, hangul, hic_preedit[0], hjic->output_type);
+    ret = hangul_to_kana(converted_string, prev, hangul, hic_preedit[0], hjic->output_type, hjic->use_full);
 
     if(ret == -1){
       hanjp_ic_flush_internal(hjic);
