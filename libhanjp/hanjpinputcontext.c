@@ -134,6 +134,7 @@ void hanjp_ic_delete(HanjpInputContext *hjic)
 bool hanjp_ic_process(HanjpInputContext* hjic, int ascii)
 {
   int ret;
+  bool hangul_ret;
   int i, j;
   const ucschar* hic_commit = NULL;
   const ucschar* hic_preedit = NULL;
@@ -151,9 +152,8 @@ bool hanjp_ic_process(HanjpInputContext* hjic, int ascii)
 
   hjic->commit_string[0] = 0;
 
-  if(!hangul_ic_process(hjic->hic, ascii)){ //자소 푸시
-    hangul_ic_process(hjic->hic, ascii); //처리가 안됐으면 다시 넣음
-  }
+
+  hangul_ret = hangul_ic_process(hjic->hic, ascii);
 
   if(hic_commit[0] != 0){ //hic 커밋이 일어나면
     for(i=0; hangul_is_jamo(hic_commit[i]); i++){ //commit string에서 한글 부분 복사
@@ -207,6 +207,10 @@ bool hanjp_ic_process(HanjpInputContext* hjic, int ascii)
           return false;
       }
     }
+  }
+  
+  if(!hangul_ret){ //자소 푸시
+    hangul_ic_process(hjic->hic, ascii); //처리가 안됐으면 다시 넣음
   }
   
   hanjp_ic_save_hangul_preedit_string(hjic);
