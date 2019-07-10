@@ -250,9 +250,14 @@ ibus_hanjp_engine_process_key_event (IBusEngine     *engine,
 
     if (keyval == IBUS_Return){
         preedit = hanjp_ic_get_preedit_string(hanjp->context);
-        IBusText *text = ibus_text_new_from_ucs4 (preedit);
-        ibus_engine_commit_text (engine, text);
-        ibus_hanjp_engine_flush(hanjp);
+        if(preedit[0])
+        {
+            IBusText *text = ibus_text_new_from_ucs4 (preedit);
+            ibus_engine_commit_text (engine, text);
+            ibus_hanjp_engine_flush(hanjp);
+            ibus_hanjp_engine_update_preedit_text (hanjp);
+            return TRUE;
+        }
         return FALSE;
     }
 
@@ -276,6 +281,7 @@ ibus_hanjp_engine_process_key_event (IBusEngine     *engine,
     if (str && str[0] != 0) {
         IBusText *text = ibus_text_new_from_ucs4 (str);
         ibus_engine_commit_text (engine, text);
+        ibus_hanjp_engine_flush(hanjp);
     }
 
     ibus_hanjp_engine_update_preedit_text (hanjp);
