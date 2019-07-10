@@ -230,6 +230,8 @@ bool hanjp_ic_backspace(HanjpInputContext *hjic)
     return false;
   }
 
+  hjic->commit_string[0] = 0;
+
   if(hangul_ic_is_empty(hjic->hic)){ //가나 문자만 있으면 kana_idx 줄이기
     hjic->kana_idx--;
   }
