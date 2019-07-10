@@ -29,38 +29,36 @@ static void hic_on_translate(HangulInputContext* hic, int ascii, ucschar* ch, vo
 
 static bool hic_on_transition(HangulInputContext* hic, ucschar ch, const ucschar* buf, void* data)
 {
-  //hangul buffer에 뭐가 들어있는지 볼 수 있다.
-  //초성이 'ㅇ'이 아닌 경우,
-  //받침이 입력된 경우 false
-
-  if(hangul_ic_has_choseong(hic) && hangul_ic_has_jungseong(hic)) //'ㅇ'이 아니면 이중 모음을 허락하지 않음
+  if(hangul_ic_has_jungseong(hic) && hangul_is_jungseong(ch)) //'ㅇ'이 아니면 이중 모음을 허락하지 않음
   {
-    if(hangul_is_jungseong(ch)){
-      if(buf[0] != HANJP_CHOSEONG_IEUNG)
-        return false;
-    }
+    if((buf[0] == HANJP_CHOSEONG_IEUNG) && (ch == HANJP_JUNGSEONG_WA))
+      return true;
+
+    return false;
   }
 
   if(buf[0] == HANJP_CHOSEONG_SSANGNIEUN)
     return false;
 
-  if(hangul_is_jongseong(ch)){
+  if(hangul_is_jongseong(ch))
     return false;
-  }
 
   return true;
 }
 
 static void hic_on_translate_full(HangulInputContext* hic, int ascii, ucschar* ch, void* data)
 {
-  ucschar c = *ch;
-
-  switch(c)
+  if(hangul_ic_has_jungseong(hic))
   {
-    case HANJP_CHOSEONG_SSANGNIEUN:
-    *ch = HANJP_CHOSEONG_NIEUN; break;
-    case HANJP_CHOSEONG_SSANGSIOS:
-    *ch = HANJP_CHOSEONG_SIOS;
+    switch(*ch)
+    {
+      case HANJP_CHOSEONG_SSANGNIEUN:
+      *ch = HANJP_CHOSEONG_NIEUN; break;
+      case HANJP_CHOSEONG_SSANGSIOS:
+      *ch = HANJP_CHOSEONG_SIOS; break;
+      default:
+      break;
+    } 
   }
 }
 
@@ -94,7 +92,8 @@ void hanjp_ic_set_use_full(HanjpInputContext *hjic, bool set){
   }
 }
 
-void hanjp_ic_set_old_hangul_free(HanjpInputContext *hjic, bool set){
+void hanjp_ic_set_old_hangul_free(HanjpInputContext *hjic, bool set)
+{
   hjic->mode_old_hangul_free = set;
 }
 
@@ -319,4 +318,14 @@ void hanjp_ic_set_output_type(HanjpInputContext* hjic, int type)
     hjic->output_type = type;
   else
     hjic->output_type = HANJP_OUTPUT_JP_HIRAGANA;
+}
+
+void hanjp_ic_select_keyboard(HanjpInputContext *hjic, const char* id)
+{
+  hangul_ic_select_keyboard(hjic->hic, id);
+}
+
+bool hanjp_ic_is_transliteration(HanjpInputContext *hjic)
+{
+  return hangul_ic_is_transliteration(hjic->hic);
 }

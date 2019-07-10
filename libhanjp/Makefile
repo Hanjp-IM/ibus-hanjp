@@ -20,7 +20,7 @@ test: *.c
 	$(CC) -g *.c `pkg-config --cflags --libs libhangul` `pkg-config --cflags --libs glib-2.0`
 
 install:
-	cp libhanjp.pc /usr/lib/x86_64-linux-gnu/pkgconfig
-	cp libhanjp.a /usr/lib/x84_64-linux-gnu
-	cp hanjp.h /usr/include/hanjp-0.1
-	cp ./keyboard/* /usr/share/libhangul/keyboards
+	cp libhanjp.pc /usr/lib/x86_64-linux-gnu/pkgconfig/libhanjp.pc
+	cp libhanjp.a /usr/lib/x86_64-linux-gnu/libhanjp.a
+	cp hanjp.h /usr/include/hanjp-0.1/hanjp.h
+	cp ./keyboard/* /usr/share/libhangul/keyboards/

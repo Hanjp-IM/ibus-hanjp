@@ -7,4 +7,4 @@ Name: libhanjp
 Description: Hanjp library
 Version: 0.1.0
 Libs: -L${libdir} -lhanjp -lhangul
-Cflags: -I${includedir}
+Cflags: -I${includedir} -I${prefix}/include/hangul-1.0
