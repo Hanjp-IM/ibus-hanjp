@@ -226,9 +226,6 @@ ibus_hanjp_engine_commit_string (IBusHanjpEngine *hanjp,
     ibus_engine_commit_text ((IBusEngine *)hanjp, text);
 }
 
-// is_alphabet macro checks if keyval is alphabet(a~z or A~Z)
-#define is_alphabet(c) (((c) >= IBUS_a && (c) <= IBUS_z) || ((c) >= IBUS_A && (c) <= IBUS_Z))
-
 // function that processes key press event
 static gboolean
 ibus_hanjp_engine_process_key_event (IBusEngine     *engine,
@@ -240,6 +237,7 @@ ibus_hanjp_engine_process_key_event (IBusEngine     *engine,
 
     gboolean retval;
     const ucschar *str;
+    ucschar *preedit;
 
     if (modifiers & IBUS_RELEASE_MASK)
         return FALSE;
@@ -249,6 +247,14 @@ ibus_hanjp_engine_process_key_event (IBusEngine     *engine,
 
     if (modifiers & (IBUS_CONTROL_MASK | IBUS_MOD1_MASK))
         return FALSE;
+
+    if (keyval == IBUS_Return){
+        preedit = hanjp_ic_get_preedit_string(hanjp->context);
+        IBusText *text = ibus_text_new_from_ucs4 (preedit);
+        ibus_engine_commit_text (engine, text);
+        ibus_hanjp_engine_flush(hanjp);
+        return FALSE;
+    }
 
     if (keyval == IBUS_BackSpace) {
         retval = hanjp_ic_backspace (hanjp->context);
@@ -272,10 +278,10 @@ ibus_hanjp_engine_process_key_event (IBusEngine     *engine,
         ibus_engine_commit_text (engine, text);
     }
 
-    ibus_hanjp_engine_update_preedit_text (hangul);
+    ibus_hanjp_engine_update_preedit_text (hanjp);
 
     if (!retval)
-        ibus_hanjp_engine_flush (hangul);
+        ibus_hanjp_engine_flush (hanjp);
 
     return retval;
 }
