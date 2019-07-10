@@ -31,7 +31,7 @@ static bool hic_on_transition(HangulInputContext* hic, ucschar ch, const ucschar
 {
   if(hangul_ic_has_jungseong(hic) && hangul_is_jungseong(ch)) //'ㅇ'이 아니면 이중 모음을 허락하지 않음
   {
-    if(buf[0] == HANJP_CHOSEONG_IEUNG)
+    if((buf[0] == HANJP_CHOSEONG_IEUNG) && (ch == HANJP_JUNGSEONG_WA))
       return true;
 
     return false;

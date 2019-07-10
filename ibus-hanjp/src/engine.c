@@ -18,10 +18,6 @@ struct _IBusHanjpEngine {
 
     /* members */
     HanjpInputContext* context;
-    GString *preedit;
-    gint cursor_pos;
-
-    IBusLookupTable *table;
 };
 
 struct _IBusHanjpEngineClass {
@@ -83,9 +79,6 @@ static void ibus_hanjp_engine_clear_preedit_text
                                             (IBusHanjpEngine       *hanjp);
 static void ibus_hanjp_engine_update_preedit_text
                                             (IBusHanjpEngine       *hanjp);
-
-static void ibus_hanjp_engine_update_lookup_table
-                                            (IBusHanjpEngine       *hanjp);
 static gboolean ibus_hanjp_engine_has_preedit
                                             (IBusHanjpEngine       *hanjp);
 static void ibus_hanjp_engine_switch_input_mode
@@ -98,6 +91,15 @@ static IBusText*
                                             (IBusHanjpEngine       *hanjp,
                                              int                     input_mode);
 static IBusEngineClass *parent_class = NULL;
+
+static ucschar_len(ucschar *str)
+{
+    int i;
+
+    for(i=0; str[i] && i<64; i++);
+
+    return i;
+}
 
 
 void ibus_hanjp_init(IBusBus *bus)
@@ -169,12 +171,7 @@ ibus_hanjp_engine_class_init (IBusHanjpEngineClass *klass)
 static void
 ibus_hanjp_engine_init (IBusHanjpEngine *hanjp)
 {
-        hanjp->context = hanjp_ic_new("2hj");
-
-        hanjp->preedit = g_string_new ("");
-        hanjp->cursor_pos = 0;
-        hanjp->table = ibus_lookup_table_new (9, 0, TRUE, TRUE);
-        g_object_ref_sink (hanjp->table);
+    hanjp->context = hanjp_ic_new("2hj");
 }
 
 
@@ -183,16 +180,6 @@ ibus_hanjp_engine_init (IBusHanjpEngine *hanjp)
 static void
 ibus_hanjp_engine_destroy (IBusHanjpEngine *hanjp)
 {
-    if (hanjp->preedit) {
-            g_string_free (hanjp->preedit, TRUE);
-            hanjp->preedit = NULL;
-    }
-
-    if (hanjp->table) {
-            g_object_unref (hanjp->table);
-            hanjp->table = NULL;
-    }
-
     if(hanjp->context){
             hanjp_ic_delete(hanjp->context);
             hanjp->context = NULL;
@@ -202,62 +189,33 @@ ibus_hanjp_engine_destroy (IBusHanjpEngine *hanjp)
 }
 
 static void
-ibus_hanjp_engine_update_preedit (IBusHanjpEngine *hanjp)
+ibus_hanjp_engine_update_preedit_text (IBusHanjpEngine *hanjp)
 {
-    const ucschar *hic_preedit;
+    const ucschar *hjic_preedit;
     IBusText *text;
-    // gint retval;
+    int preedit_len;
 
-    // hic_preedit = hanjp_ic_get_preedit_string (hanjp->context);
-    // text->attrs = ibus_attr_list_new ();
+    hjic_preedit = hanjp_ic_get_preedit_string (hanjp->context);
+    preedit_len = ucschar_len(hjic_preedit);
 
-    if (hanjp->preedit->len > 0) {
-        // IBusPreeditFocusMode preedit_option = IBUS_ENGINE_PREEDIT_COMMIT;
-        // retval = hanjp_dict_check (dict, hanjp->preedit->str, hanjp->preedit->len);
-      
-        // if (retval != NULL)
-        //     preedit_option = IBUS_ENGINE_PREEDIT_CLEAR;
-        
-        // ibus_attr_list_append (text->attrs,
-        //                     ibus_attr_underline_new (IBUS_ATTR_UNDERLINE_SINGLE, 0, hanjp->preedit->len));
-        // ibus_attr_list_append (text->attrs,
-        //                     ibus_attr_foreground_new (0xff0000, 0, hanjp->preedit->len));
-        // ibus_attr_list_append (text->attrs,
-        //                     ibus_attr_background_new (0x000000, 0, hanjp->preedit->len));
-        text = ibus_text_new_from_static_string (hanjp->preedit->str);
-        ibus_engine_update_preedit_text (
-            (IBusEngine *)hanjp, 
-            text, 
-            // hanjp->cursor_pos, 
-            ibus_text_get_length (text),
-            TRUE);
+    if (hjic_preedit[0]) {
+        text = ibus_text_new_from_ucs4 ((gunichar*)hjic_preedit);
+        ibus_text_append_attribute (text, IBUS_ATTR_TYPE_UNDERLINE,
+                IBUS_ATTR_UNDERLINE_SINGLE, 0, preedit_len);
+        ibus_text_append_attribute (text, IBUS_ATTR_TYPE_FOREGROUND,
+                0x00ffffff, preedit_len, -1);
+        ibus_text_append_attribute (text, IBUS_ATTR_TYPE_BACKGROUND,
+                0x00000000, preedit_len, -1);
+        ibus_engine_update_preedit_text_with_mode ((IBusEngine *)hanjp,
+                                                   text,
+                                                   ibus_text_get_length (text),
+                                                   TRUE,
+                                                   IBUS_ENGINE_PREEDIT_COMMIT);
     } else {
         text = ibus_text_new_from_static_string ("");
-        ibus_engine_update_preedit_text (
-            (IBusEngine *)hanjp, 
-            text, 
-            0,
-            TRUE);
+        ibus_engine_update_preedit_text ((IBusEngine *)hanjp, text, 0, FALSE);
     }
-
 }
-
-/* commit preedit to client and update preedit */
-static gboolean
-ibus_hanjp_engine_commit_preedit (IBusHanjpEngine *hanjp)
-{
-    if (hanjp->preedit->len == 0)
-        return FALSE;
-
-    ibus_hanjp_engine_commit_string (hanjp, hanjp->preedit->str);
-    g_string_assign (hanjp->preedit, "");
-    hanjp->cursor_pos = 0;
-
-    ibus_hanjp_engine_update (hanjp);
-
-    return TRUE;
-}
-
 
 static void
 ibus_hanjp_engine_commit_string (IBusHanjpEngine *hanjp,
@@ -268,142 +226,61 @@ ibus_hanjp_engine_commit_string (IBusHanjpEngine *hanjp,
     ibus_engine_commit_text ((IBusEngine *)hanjp, text);
 }
 
-static void
-ibus_hanjp_engine_update (IBusHanjpEngine *hanjp)
-{
-    ibus_hanjp_engine_update_preedit (hanjp);
-    ibus_engine_hide_lookup_table ((IBusEngine *)hanjp);
-}
-
-static void ibus_hanjp_engine_update_lookup_table(IBusHanjpEngine *hanjp)
-{
-
-}
-
 // is_alphabet macro checks if keyval is alphabet(a~z or A~Z)
 #define is_alphabet(c) (((c) >= IBUS_a && (c) <= IBUS_z) || ((c) >= IBUS_A && (c) <= IBUS_Z))
 
 // function that processes key press event
-static gboolean 
-ibus_hanjp_engine_process_key_event (IBusEngine *engine,
-                                       guint       keyval,
-                                       guint       keycode,
-                                       guint       modifiers)
+static gboolean
+ibus_hanjp_engine_process_key_event (IBusEngine     *engine,
+                                      guint           keyval,
+                                      guint           keycode,
+                                      guint           modifiers)
 {
-    IBusText *text;
-    IBusHanjpEngine *hanjp = (IBusHanjpEngine *)engine;
+    IBusHanjpEngine *hanjp = (IBusHanjpEngine *) engine;
+
+    gboolean retval;
+    const ucschar *str;
 
     if (modifiers & IBUS_RELEASE_MASK)
         return FALSE;
 
-    modifiers &= (IBUS_CONTROL_MASK | IBUS_MOD1_MASK);
+    if (keyval == IBUS_Shift_L || keyval == IBUS_Shift_R)
+        return FALSE;
 
-    if (modifiers == IBUS_CONTROL_MASK && keyval == IBUS_s) {
-        ibus_hanjp_engine_update_lookup_table (hanjp);
-        return TRUE;
+    if (modifiers & (IBUS_CONTROL_MASK | IBUS_MOD1_MASK))
+        return FALSE;
+
+    if (keyval == IBUS_BackSpace) {
+        retval = hanjp_ic_backspace (hanjp->context);
+    } else {
+        // ignore capslock
+        if (modifiers & IBUS_LOCK_MASK) {
+            if (keyval >= 'A' && keyval <= 'z') {
+                if (isupper(keyval))
+                    keyval = tolower(keyval);
+                else
+                    keyval = toupper(keyval);
+            }
+        }
+        retval = hanjp_ic_process (hanjp->context, keyval);
     }
 
-    if (modifiers != 0) {
-        if (hanjp->preedit->len == 0)
-            return FALSE;
-        else
-            return TRUE;
-    }
-
-
-    switch (keyval) {
-    case IBUS_space:
-        g_string_append (hanjp->preedit, " ");
-        return ibus_hanjp_engine_commit_preedit (hanjp);
-    case IBUS_Return:
-        return ibus_hanjp_engine_commit_preedit (hanjp);
-
-    case IBUS_Escape:
-        if (hanjp->preedit->len == 0)
-            return FALSE;
-
-        g_string_assign (hanjp->preedit, "");
-        hanjp->cursor_pos = 0;
-        ibus_hanjp_engine_update (hanjp);
-        return TRUE;        
-
-    case IBUS_Left:
-        if (hanjp->preedit->len == 0)
-            return FALSE;
-        if (hanjp->cursor_pos > 0) {
-            hanjp->cursor_pos --;
-            ibus_hanjp_engine_update (hanjp);
-        }
-        return TRUE;
-
-    case IBUS_Right:
-        if (hanjp->preedit->len == 0)
-            return FALSE;
-        if (hanjp->cursor_pos < hanjp->preedit->len) {
-            hanjp->cursor_pos ++;
-            ibus_hanjp_engine_update (hanjp);
-        }
-        return TRUE;
+    str = hanjp_ic_get_commit_string (hanjp->context);
     
-    case IBUS_Up:
-        if (hanjp->preedit->len == 0)
-            return FALSE;
-        if (hanjp->cursor_pos != 0) {
-            hanjp->cursor_pos = 0;
-            ibus_hanjp_engine_update (hanjp);
-        }
-        return TRUE;
-
-    case IBUS_Down:
-        if (hanjp->preedit->len == 0)
-            return FALSE;
-        
-        if (hanjp->cursor_pos != hanjp->preedit->len) {
-            hanjp->cursor_pos = hanjp->preedit->len;
-            ibus_hanjp_engine_update (hanjp);
-        }
-        
-        return TRUE;
-    
-    case IBUS_BackSpace:
-        if (hanjp->preedit->len == 0)
-            return FALSE;
-        if (hanjp->cursor_pos > 0) {
-            hanjp->cursor_pos --;
-            g_string_erase (hanjp->preedit, hanjp->cursor_pos, 1);
-            ibus_hanjp_engine_update (hanjp);
-        }
-        return TRUE;
-    
-    case IBUS_Delete:
-        if (hanjp->preedit->len == 0)
-            return FALSE;
-        if (hanjp->cursor_pos < hanjp->preedit->len) {
-            g_string_erase (hanjp->preedit, hanjp->cursor_pos, 1);
-            ibus_hanjp_engine_update (hanjp);
-        }
-        return TRUE;
+    if (str && str[0] != 0) {
+        IBusText *text = ibus_text_new_from_ucs4 (str);
+        ibus_engine_commit_text (engine, text);
     }
 
-    if (is_alphabet (keyval)) {
-        g_string_insert_c (hanjp->preedit,
-                           hanjp->cursor_pos,
-                           keyval);
+    ibus_hanjp_engine_update_preedit_text (hangul);
 
-        hanjp->cursor_pos ++;
-        ibus_hanjp_engine_update (hanjp);
-        
-        return TRUE;
-    }
+    if (!retval)
+        ibus_hanjp_engine_flush (hangul);
 
-    return FALSE;
+    return retval;
 }
 
-// Process candidate click event
-static void ibus_hanjp_engine_candidate_clicked(IBusEngine *engine,
-                                                guint       index,
-                                                guint       button,
-                                                guint       state)
+static void ibus_hanjp_engine_flush(IBusHanjpEngine *hanjp)
 {
-
+    hanjp_ic_flush(hanjp->context);
 }
