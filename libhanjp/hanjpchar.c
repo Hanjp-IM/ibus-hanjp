@@ -246,9 +246,90 @@ int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar next, i
     return return_len;
 }
 
-static bool hangul_jungseong_split(ucschar cho, ucschar ch, ucschar *p_dest1, ucschar *p_dest2)
+static bool hangul_jungseong_split(ucschar cho, ucschar jung, ucschar *p_dest1, ucschar *p_dest2)
 {
-    //to do
+    // to do    
+    // double_jungseong
+    switch(cho)
+    {
+        case HANJP_JUNGSEONG_WE:
+            *p_dest1 = HANJP_JUNGSEONG_U;
+            *p_dest2 = HANJP_JUNGSEONG_E;
+            return true;
+
+        case HANJP_JUNGSEONG_WI:
+            *p_dest1 = HANJP_JUNGSEONG_U;
+            *p_dest2 = HANJP_JUNGSEONG_I;
+            return true;
+
+        case HANJP_JUNGSEONG_YI:
+            *p_dest1 = HANJP_JUNGSEONG_EU;
+            *p_dest2 = HANJP_JUNGSEONG_I;
+            return true;
+
+        case HANJP_JUNGSEONG_WEO:
+            *p_dest1 = HANJP_JUNGSEONG_U;
+            *p_dest2 = HANJP_JUNGSEONG_EO;   
+            return true; 
+
+        case HANJP_JUNGSEONG_YE:
+        case HANJP_JUNGSEONG_YAE:
+            *p_dest1 = HANJP_JUNGSEONG_I;
+            *p_dest2 = HANJP_JUNGSEONG_AE;   
+            return true; 
+            
+        default:
+        break;    
+    }
+        
+    // ta-hang
+    switch(cho)
+    {
+        case HANJP_CHOSEONG_CHIEUCH:
+        switch(jung){
+            case HANJP_JUNGSEONG_A:
+            case HANJP_JUNGSEONG_E:
+            case HANJP_JUNGSEONG_AE:
+            case HANJP_JUNGSEONG_O:
+            *p_dest1 = HANJP_JUNGSEONG_I;
+            *p_dest2 = jung;
+            return true;
+            default:
+            break;
+        }break;
+        case HANJP_CHOSEONG_THIEUTH:
+        switch(jung){
+            case HANJP_JUNGSEONG_I:
+            case HANJP_JUNGSEONG_U:
+            case HANJP_JUNGSEONG_EU:
+            *p_dest1 = HANJP_JUNGSEONG_E;
+            *p_dest2 = jung;
+            return true;
+            default:
+            break;
+        }break;
+    }
+
+    // YO-EM
+    if(cho != HANJP_CHOSEONG_IEUNG)
+    {
+        switch(jung)
+        {
+            case HANJP_JUNGSEONG_YA:
+            case HANJP_JUNGSEONG_YU:
+            case HANJP_JUNGSEONG_YO:
+            *p_dest1 = HANJP_JUNGSEONG_I;
+            *p_dest2 = jung;
+            return true;
+            case HANJP_JUNGSEONG_WA:
+            *p_dest1 = HANJP_JUNGSEONG_O;
+            *p_dest2 = HANJP_JUNGSEONG_A;
+            return true;
+            default:
+            break;
+        }
+    }
+
     return false;
 }
 
