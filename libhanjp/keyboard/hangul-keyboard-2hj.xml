@@ -88,7 +88,7 @@
         <item key="0x72" value="0x1100"/>  <!-- r → ᄀᅠ -->
         <item key="0x73" value="0x1102"/>  <!-- s → ᄂᅠ -->
         <item key="0x74" value="0x1109"/>  <!-- t → ᄉᅠ -->
-        <item key="0x75" value="0x302f"/>  <!-- u → 〯 -->
+        <item key="0x75" value="0x1167"/>  <!-- u → ㅕ -->
         <item key="0x76" value="0x1111"/>  <!-- v → ᄑᅠ -->
         <item key="0x77" value="0x110c"/>  <!-- w → ᄌᅠ -->
         <item key="0x78" value="0x1110"/>  <!-- x → ᄐᅠ -->
