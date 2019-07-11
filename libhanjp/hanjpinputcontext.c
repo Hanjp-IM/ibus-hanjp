@@ -29,12 +29,18 @@ static void hic_on_translate(HangulInputContext* hic, int ascii, ucschar* ch, vo
 
 static bool hic_on_transition(HangulInputContext* hic, ucschar ch, const ucschar* buf, void* data)
 {
-  if(hangul_ic_has_jungseong(hic) && hangul_is_jungseong(ch)) //'ㅇ'이 아니면 이중 모음을 허락하지 않음
+  if(hangul_is_jungseong(ch)) //'ㅇ'이 아니면 이중 모음을 허락하지 않음
   {
-    if((buf[0] == HANJP_CHOSEONG_IEUNG) && (ch == HANJP_JUNGSEONG_WA))
+    switch(ch)
+    {
+      case HANJP_JUNGSEONG_WE:
+      case HANJP_JUNGSEONG_WI:
+      case HANJP_JUNGSEONG_YI:
+      case HANJP_JUNGSEONG_WEO:
+      return false; 
+      case HANJP_JUNGSEONG_WA:
       return true;
-
-    return false;
+    }
   }
 
   if(buf[0] == HANJP_CHOSEONG_SSANGNIEUN)

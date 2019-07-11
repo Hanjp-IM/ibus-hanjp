@@ -46,7 +46,7 @@ void TestInputContext(){
     int i;
     HanjpInputContext* hjic;
     char *utf8;
-    char* ascii = "dkssudgktpdy. qksrkqtmqslek.rixlckxncpch.";
+    char* ascii = "dkssudgktpdy. qksrkqtmqslek.rixlckxncpch.dhkhkrk.";
     const ucschar *commit_string;
 
     hangul_init();

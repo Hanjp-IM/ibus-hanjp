@@ -47,10 +47,6 @@ typedef enum {
     HANJP_JUNGSEONG_WI = 0x1171, // ㅟ
     HANJP_JUNGSEONG_YI = 0x1174, // ㅢ
     HANJP_JUNGSEONG_WEO = 0x116F, // 
-    HANJP_JUNGSEONG_YAE = 0x1164, // 
-    HANJP_JUNGSEONG_YE = 0x1168, // 
-
-
 } HanjpJungseongId;
 
 int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar next, int type, bool use_full);

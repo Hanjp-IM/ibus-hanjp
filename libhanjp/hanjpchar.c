@@ -120,7 +120,7 @@ static ucschar hangul_to_kana_base(ucschar cho, ucschar jung, int type) // 처�
         case HANJP_JUNGSEONG_YAE:
             j=1; break;
         case HANJP_JUNGSEONG_WA: // 와
-            j = (cho == HANJP_CHOSEONG_IEUNG) ? 0 : 4;
+            j = (cho == HANJP_CHOSEONG_IEUNG) ? 0 : 4; break;
         default:
             return 0;
     }
