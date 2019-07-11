@@ -306,7 +306,6 @@ static bool hangul_jungseong_split(ucschar cho, ucschar jung, ucschar *p_dest1, 
 {
     // to do    
     // double_jungseong
-    
     switch(cho)
     {
         case HANJP_JUNGSEONG_WE:
@@ -324,15 +323,21 @@ static bool hangul_jungseong_split(ucschar cho, ucschar jung, ucschar *p_dest1, 
             *p_dest2 = HANJP_JUNGSEONG_I;
             return true;
 
-        case HANJP_JUNGSEONG_WO:
+        case HANJP_JUNGSEONG_WEO:
             *p_dest1 = HANJP_JUNGSEONG_U;
             *p_dest2 = HANJP_JUNGSEONG_EO;   
             return true; 
+
+        case HANJP_JUNGSEONG_YE:
+        case HANJP_JUNGSEONG_YAE:
+            *p_dest1 = HANJP_JUNGSEONG_I;
+            *p_dest2 = HANJP_JUNGSEONG_AE;   
+            return true; 
+            
         default:
         break;    
     }
         
-
     // ta-hang
     switch(cho)
     {
