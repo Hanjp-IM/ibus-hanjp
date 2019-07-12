@@ -349,7 +349,7 @@ static ucschar hangul_batchim_to_kana(ucschar cho, ucschar next, int type)
             case HANJP_CHOSEONG_SIOS:
             case HANJP_CHOSEONG_SSANGSIOS:
             case HANJP_CHOSEONG_PIEUP:
-            ret = kana_table[2][3][type] - 1;
+            ret = kana_table[3][2][type] - 1;
             break;
             default:
             return 0;
