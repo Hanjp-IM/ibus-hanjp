@@ -159,7 +159,7 @@ ibus_hanjp_engine_class_init (IBusHanjpEngineClass *klass)
     //engine_class->disable = ibus_hanjp_engine_disable;
 
     //engine_class->focus_in = ibus_hanjp_engine_focus_in;
-    engien_class->focus_out = ibus_hanjp_engine_focus_out;
+    engine_class->focus_out = ibus_hanjp_engine_focus_out;
 
     //engine_class->cursor_up = ibus_hanjp_engine_cursor_up;
     //engien_class->cursor_down = ibus_hanjp_engine_cursor_down;
