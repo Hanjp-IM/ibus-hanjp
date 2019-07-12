@@ -30,8 +30,12 @@ cd ibus-hanjp
 make
 sudo make install
 ```
-ibus-setup에서 Hanjp추가
+Run a module
+```
+ibus restart
+ibus-setup (Hanjp추가)
 ibus engine hanjp
+```
 
 ## Test libhanjp
 ```
