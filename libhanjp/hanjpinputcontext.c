@@ -121,6 +121,7 @@ HanjpInputContext* hanjp_ic_new(const char* keyboard)
 
   hjic->hic = hangul_ic_new(keyboard);
   hangul_ic_set_output_mode(hjic->hic, HANGUL_OUTPUT_JAMO);
+  hangul_ic_set_option(hjic->hic, HANGUL_IC_OPTION_COMBI_ON_DOBULE_STROKE, false);
   hjic->output_type = HANJP_OUTPUT_JP_HIRAGANA;
   hjic->preedit_string[0] = 0;
   hjic->kana_idx = 0;
