@@ -16,6 +16,23 @@ Hanjp IM은 일본어를 한글 자소로 입력하는 방법을 제공하는 �
 ## 바깥 고리
 - [Hanjp IM Document @ Ubuntu KR Wiki(Korean)](https://wiki.ubuntu-kr.org/index.php/HanJP_IM)
 
+## Build ibus-hanjp
+Install libhanjp
+```
+cd libhanjp
+make
+sudo make install
+```
+Install ibus-hanjp
+```
+cd ibus-hanjp
+./autogen.sh --prefix=/usr
+make
+sudo make install
+```
+ibus-setup에서 Hanjp추가
+ibus engine hanjp
+
 ## Test libhanjp
 ```
 cd libhanjp
