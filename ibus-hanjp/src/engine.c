@@ -248,6 +248,17 @@ ibus_hanjp_engine_process_key_event (IBusEngine     *engine,
     if (modifiers & (IBUS_CONTROL_MASK | IBUS_MOD1_MASK))
         return FALSE;
 
+    switch(keyval)
+    {
+        case IBUS_Left:
+        case IBUS_Right:
+        case IBUS_Up:
+        case IBUS_Down:
+        return FALSE;
+        default:
+        break;
+    }
+
     if (keyval == IBUS_Return){
         preedit = hanjp_ic_get_preedit_string(hanjp->context);
         if(preedit[0])
