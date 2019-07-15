@@ -311,7 +311,7 @@ static bool hangul_jungseong_split(ucschar cho, ucschar jung, ucschar *p_dest1, 
     }
 
     // YO-EM
-    if(cho != HANJP_CHOSEONG_IEUNG)
+    if((cho != HANJP_CHOSEONG_IEUNG) && (cho != HANGUL_CHOSEONG_FILLER))
     {
         switch(jung)
         {
