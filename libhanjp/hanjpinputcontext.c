@@ -148,7 +148,7 @@ bool hanjp_ic_process(HanjpInputContext* hjic, int ascii)
   ucschar hangul[12] = {0};
   ucschar non_hangul[12] = {0};
   ucschar converted_string[12] = {0};
-  static ucschar prev = 0;
+  ucschar prev;
 
   if(!hjic){
     return false;
@@ -158,6 +158,7 @@ bool hanjp_ic_process(HanjpInputContext* hjic, int ascii)
   hic_preedit = hangul_ic_get_preedit_string(hjic->hic);
 
   hjic->commit_string[0] = 0;
+  prev = (hjic->kana_idx > 0) ? hjic->preedit_string[hjic->kana_idx - 1] : 0;
 
 
   hangul_ret = hangul_ic_process(hjic->hic, ascii);
@@ -184,16 +185,10 @@ bool hanjp_ic_process(HanjpInputContext* hjic, int ascii)
     }
     hjic->preedit_string[hjic->kana_idx] = 0;
 
-    if(hangul[0]) //prev 저장
-      prev = (hangul[1] == HANGUL_JUNGSEONG_FILLER) ? hangul[0] : hangul[1];
-    else
-      prev = 0;
-
     if(non_hangul[0] != 0)
     {
       ucschar ch;
       ch = kana_resolve_bangjeom((hjic->kana_idx > 0) ? hjic->preedit_string[hjic->kana_idx-1] : 0);
-      prev = 0;
       if((non_hangul[0] == hangul_double_dot_tone_mark) && ch)
       {
         hjic->preedit_string[hjic->kana_idx++] = ch;

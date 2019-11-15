@@ -31,6 +31,10 @@ static bool hangul_is_choseong_p(ucschar ch);
 static ucschar hangul_to_kana_base(ucschar cho, ucschar jung, int type);
 static bool hangul_jungseong_split(ucschar cho, ucschar ch, ucschar *p_dest1, ucschar *p_dest2);
 static ucschar hangul_batchim_to_kana(ucschar cho, ucschar next, int type);
+static bool kana_is_batchim(ucschar c)
+{
+    return c == 0x3093 || c == 0x30F3 || c == 0xFF9D || c == 0x3063 || c == 0x30C3 || c == 0xFF6D;
+}
 
 static ucschar hangul_to_kana_base(ucschar cho, ucschar jung, int type) // 처리 불가능한 모음은 분리되어서 들어와야함
 {
@@ -174,7 +178,7 @@ int hangul_to_kana(ucschar* dest, ucschar prev, ucschar* hangul, ucschar next, i
     is_choseong_void = (hangul[0] == HANGUL_CHOSEONG_FILLER);
     is_jungseong_void = (hangul[1] == HANGUL_JUNGSEONG_FILLER);
  
-    if(!use_full && hangul_is_jungseong(prev) && is_jungseong_void && hangul_is_kana_batchim(hangul[0])) //받침 구현
+    if(!use_full && !kana_is_batchim(prev) && is_jungseong_void && hangul_is_kana_batchim(hangul[0])) //받침 구현
     {
         ucschar ch;
 
