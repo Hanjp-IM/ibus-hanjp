@@ -1,9 +1,5 @@
-# hanjp-im
-
-> 시연 영상을 YouTube 에서 보려면 아래 이미지를 누르세요    
-> Click the image below to watch hanjp-im demo on YouTube   
-> [![Working Hanjp IM prototype demo video](https://img.youtube.com/vi/B85Ioo3Hrio/0.jpg)](https://www.youtube.com/watch?v=B85Ioo3Hrio)
-
+Hanjp-im
+=====================
 ## 시작하기
 ```
 git clone https://github.com/ubuntu-kr/hanjp-im.git hanjp-im
@@ -12,7 +8,10 @@ cd hanjp-im
 - [git 간편 설명서](https://rogerdudler.github.io/git-guide/index.ko.html)
 
 ## About Hanjp IM
-Hanjp IM은 일본어를 한글 자소로 입력하는 방법을 제공하는 입력 메소드입니다. 이 프로젝트는 일본어 발음의 한글 표현, 가나 문자 표현 간의 유연한 전환 방법을 제공하는 것을 목적으로 하고있습니다.
+Hanjp IM은 일본어를 한글 자소로 입력하는 방법을 제공하는 입력 메소드입니다. 이 프로젝트는 리눅스, Android 등 다양한 입력 환경에서 한글로 일본어 발음을 입력해 편리한 일본어 입력 경험을 제공하는 IME를 만드는 것을 목적으로 합니다.
+
+## 설치, 개발, 기여
+GUIDE.md참고
 
 ## 라이선스
 위 소프트웨어는 LGPL 3.0 라이선스 아래 배포되고있습니다.
@@ -20,43 +19,6 @@ Hanjp IM은 일본어를 한글 자소로 입력하는 방법을 제공하는 �
 ## 바깥 고리
 - [Hanjp IM Document @ Ubuntu KR Wiki(Korean)](https://wiki.ubuntu-kr.org/index.php/HanJP_IM)
 
-## Build ibus-hanjp
-Install libhanjp
-```
-cd libhanjp
-make
-sudo make install
-```
-Install ibus-hanjp
-```
-cd ibus-hanjp
-./autogen.sh --prefix=/usr
-make
-sudo make install
-```
-Run a module
-```
-ibus restart
-ibus-setup (Hanjp추가)
-ibus engine hanjp
-```
-
-## Test libhanjp
-```
-cd libhanjp
-sudo cp ./keyboard/* /usr/share/libhangul/keyboards
-make test
-./a.out
-make clean
-```
-
-## About Hanjp IM
-The hanjp input method is input method for Japenese kana characters that use hangul for type kana string.
-Hanjp suggests easy way to type kana for Korean, and purposing affinity between hangul and kana.
-This project is currently in development state.
-
-## License
-This software is provided under LGPL 3.0, and the documents for technology reference is available under GNU FDL 1.3 or later version.
-
-## Links
-- [Hanjp IM Document @ Ubuntu KR Wiki(Korean)](https://wiki.ubuntu-kr.org/index.php/HanJP_IM)
+> 시연 영상을 YouTube 에서 보려면 아래 이미지를 누르세요    
+> Click the image below to watch hanjp-im demo on YouTube   
+> [![Working Hanjp IM prototype demo video](https://img.youtube.com/vi/B85Ioo3Hrio/0.jpg)](https://www.youtube.com/watch?v=B85Ioo3Hrio)
