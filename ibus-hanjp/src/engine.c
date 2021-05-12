@@ -1,6 +1,6 @@
 /* vim:set et sts=4: */
 
-#include <hanjp.h>
+#include "hanjp.h"
 #include <ibus.h>
 #include "engine.h"
 
