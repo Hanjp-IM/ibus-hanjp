@@ -1,0 +1,1 @@
+add_executable(ibus-engine-hanjp engine.c)
