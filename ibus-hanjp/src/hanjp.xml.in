@@ -5,7 +5,7 @@
 	<description>Hanjp Component</description>
 	<exec>${libexecdir}/ibus-engine-hanjp --ibus</exec>
 	<version>@VERSION@</version>
-	<author>Kwangyeon Kim &lt;ghemool123@gmail.com&gt;</author>
+	<author>Ubuntu Korea Community</author>
 	<license>LGPL</license>
 	<homepage>https://github.com/ubuntu-kr/hanjp-im</homepage>
 	<textdomain>ibus-hanjp</textdomain>
@@ -15,11 +15,11 @@
 			<name>hanjp</name>
 			<language>ja</language>
 			<license>LGPL</license>
-			<author>Kwangyeon Kim &lt;ghemool123@gmail.com&gt;</author>
+			<author>Kwangyeon Kim</author>
 			<icon>${pkgdatadir}/icons/ibus-hanjp.svg</icon>
 			<layout>us</layout>
 			<longname>Hanjp</longname>
-			<description>Hanjp Input Method</description>
+			<description>Hanjp Ibus Engine</description>
 			<rank>0</rank>
 		</engine>
 	</engines>
