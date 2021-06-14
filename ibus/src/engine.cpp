@@ -1,0 +1,139 @@
+#include "hanjp.h"
+#include <ibus.h>
+#include "engine.h"
+
+using namespace std;
+using namespace Hanjp;
+
+enum InputMode {
+    INPUT_MODE_EN,
+    INPUT_MODE_JP,
+    INPUT_MODE_KR
+};
+
+struct IBusHanjpEngine {
+	IBusEngine parent;
+    InputContext* context;
+};
+
+struct IBusHanjpEngineClass {
+	IBusEngineClass parent;
+};
+
+void ibus_hanjp_init() {
+    init();
+}
+
+void ibus_hanjp_exit() {
+    fini();
+}
+
+static void engine_init(IBusHanjpEngine* hanjp);
+static void engine_class_init(IBusHanjpEngineClass *klass);
+
+//event handlers
+static gboolean engine_process_key_event(
+                    IBusEngine *engine,
+                    gunit keyval,
+                    gunit keycode,
+                    gunit state);
+static void engine_focus_in(IBusEngine *engine);
+static void engine_focus_out(IBusEngine *engine);
+static void engine_reset(IBusEngine *engine);
+static void engine_enable(IBusEngine *engine);
+static void engine_disable(IBusEngine *engine);
+static void engine_cursor_up(IBusEngine *engine);
+static void engine_cursor_down(IBusEngine* engine);
+static void engine_candidate_clicked(IBusEngine *engine);
+
+static void engine_distroy(IBusEngine *engine);
+
+GType ibus_hanjp_engine_type() {
+    static GType type = 0;
+    if(type == 0) {
+        const GTypeInfo info = {
+
+        };
+        type = g_type_register_static(
+                IBUS_TYPE_ENGINE,
+                "IBusHanjpEngine",
+                &info, 0);
+    }
+    return type;
+}
+
+static void engine_init(IBusHanjpEngine* hanjp) {
+    hanjp->context = new InputContext;
+}
+
+static void engine_class_init(IBusHanjpEngineClass *klass) {
+    IBusEngineClass *engine_class = IBUS_ENGINE_CLASS(klass);
+
+    engine_class->process_key_event = engine_process_key_event;
+    engine_class->reset = engine_reset;
+    engine_class->enable = engine_enable;
+    engine_class->disable = engine_disable;
+    engine_class->focus_in = engine_focus_in;
+    engine_class->focus_out = engine_focus_out;
+    engine_class->cursor_up = engine_cursor_up;
+    engine_class->cursor_down = engine_cursor_down;
+    engine_class->candidate_clicked = engine_candidate_clicked;
+}
+
+static gboolean engine_process_key_event(
+                    IBusEngine *engine,
+                    gunit keyval,
+                    gunit keycode,
+                    gunit state) {
+    IBusHanjpEngine *hanjp = (IBusHanjpEngine *)engine;
+    IBusText *text;
+    const guint mask = IBUS_RELEASEMASK | IBUS_SHIFT_MASK | IBUS_MOD1_MASK;
+
+    if(state & mask) {
+        return FALSE;
+    }
+
+    if(keyval == IBUS_BackSpace) {
+        return hanjp->context->backspace();
+    }
+
+    if(state & IBUS_LOCK_MASK) {
+        if(keyval >= 'A' && keyval <= 'z') {
+            const int gap = 'a' - 'A';
+            if(keyval <= 'Z') {
+                key += gap;
+            }
+            else {
+                key -= gap;
+            }
+        }
+    }
+
+    //process key in automata
+    hanjp->context->process(keyval);
+    //Commit text to app when it's needed
+    if(!hanjp->context->get_commit_string().empty()) {
+        text = ibus_text_new_from_ucs4(hanjp->context->get_preedit_string().data());
+        ibus_engine_commit_text(engine, text);
+    }
+    //preedit string
+    if (!hanjp->context->get_preedit_string().empty()) {
+        text = ibus_text_new_from_ucs4(hanjp->context->get_preedit_string().data());
+        ibus_text_append_attribute (text, IBUS_ATTR_TYPE_UNDERLINE,
+                IBUS_ATTR_UNDERLINE_SINGLE, 0, hanjp->context->get_preedit_string().data());
+        ibus_text_append_attribute (text, IBUS_ATTR_TYPE_FOREGROUND,
+                0x00ffffff, preedit_len, -1);
+        ibus_text_append_attribute (text, IBUS_ATTR_TYPE_BACKGROUND,
+                0x00000000, preedit_len, -1);
+        ibus_engine_update_preedit_text_with_mode ((IBusEngine *)hangul,
+                                                   text,
+                                                   ibus_text_get_length (text),
+                                                   TRUE,
+                                                   IBUS_ENGINE_PREEDIT_COMMIT);
+    } else {
+        text = ibus_text_new_from_static_string ("");
+        ibus_engine_update_preedit_text ((IBusEngine *)hangul, text, 0, FALSE);
+    }
+
+    return TRUE;
+}

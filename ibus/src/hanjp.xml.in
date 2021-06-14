@@ -6,7 +6,7 @@
 	<exec>${libexecdir}/ibus-engine-hanjp --ibus</exec>
 	<version>@VERSION@</version>
 	<author>Ubuntu Korea Community</author>
-	<license>LGPL</license>
+	<license>GPL</license>
 	<homepage>https://github.com/ubuntu-kr/hanjp-im</homepage>
 	<textdomain>ibus-hanjp</textdomain>
 
