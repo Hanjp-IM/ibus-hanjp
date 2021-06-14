@@ -3,12 +3,12 @@
 <component>
 	<name>org.ubuntu-kr.IBus.Hanjp</name>
 	<description>Hanjp Component</description>
-	<exec>${libexecdir}/ibus-engine-hanjp --ibus</exec>
-	<version>@VERSION@</version>
+	<exec>${CMAKE_INSTALL_LIBEXECDIR}/ibus-engine-hanjp --ibus</exec>
+	<version>${CMAKE_PROJECT_VERSION}</version>
 	<author>Ubuntu Korea Community</author>
 	<license>GPL</license>
 	<homepage>https://github.com/ubuntu-kr/hanjp-im</homepage>
-	<textdomain>ibus-hanjp</textdomain>
+	<textdomain>${HANJP_TEXT_DOMAIN}</textdomain>
 
 	<engines>
 		<engine>
@@ -16,7 +16,7 @@
 			<language>ja</language>
 			<license>LGPL</license>
 			<author>Kwangyeon Kim</author>
-			<icon>${pkgdatadir}/icons/ibus-hanjp.svg</icon>
+			<icon>${CMAKE_INSTALL_DATADIR}/icons/ibus-hanjp.svg</icon>
 			<layout>us</layout>
 			<longname>Hanjp</longname>
 			<description>Hanjp Ibus Engine</description>

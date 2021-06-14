@@ -64,22 +64,16 @@ int main(int argc, char **argv)
 	
 	ibus_hanjp_init(bus);
 	component = ibus_component_new("org.ubuntu-kr.IBus.Hanjp",
-				       N_("HanJP Input Method"),
-				       "0.1.0",
-				       "GPL",
-				       "Ubuntu Korea Community",
-				       "https://github.com/ubuntu-kr/hanjp-im",
-				       "",
-				       "ibus-hanjp");
+			N_("HanJP Input Method"), "0.1.0",
+			"GPL", "Ubuntu Korea Community",
+			"https://github.com/ubuntu-kr/hanjp-im", "",
+			"ibus-hanjp");
 	ibus_component_add_engine(component, 
-						ibus_engine_desc_new("hanjp",
-						N_("HanJP Input Method"),
-						N_("Type Japanese with Korean Hangul"),
-						"ja",
-						"GPL",
-						"Ubuntu Korea Community",
-						DATADIR"/icon/ibus-hanjp.svg",
-						"us"));
+			ibus_engine_desc_new("hanjp",
+				N_("HanJP Input Method"),
+				N_("Type Japanese with Korean Hangul"),
+				"ja", "GPL", "Ubuntu Korea Community",
+				DATADIR"/icon/ibus-hanjp.svg", "us"));
 	factory = ibus_factory_new(ibus_bus_get_connection(bus));
 	ibus_factory_add_engine(factory, "hanjp", ibus_hanjp_engine_get_type());
 
