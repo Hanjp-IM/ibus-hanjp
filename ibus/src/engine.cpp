@@ -6,15 +6,15 @@ using namespace std;
 using namespace Hanjp;
 
 enum InputMode {
-    INPUT_MODE_EN,
-    INPUT_MODE_JP,
-    INPUT_MODE_KR
+	INPUT_MODE_EN,
+	INPUT_MODE_JP,
+	INPUT_MODE_KR
 };
 
 struct IBusHanjpEngine {
 	IBusEngine parent;
-    InputMode input_mode;
-    InputContext* context;
+	InputMode input_mode;
+	InputContext* context;
 };
 
 struct IBusHanjpEngineClass {
