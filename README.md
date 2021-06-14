@@ -7,7 +7,7 @@ cd hanjp-im
 ```
 
 ## About Hanjp project
-Hanjp Input Method project is a IME project that aims to give a Hangul jaso Japanese editing enviornment in Korean users friendly form. With a hanjp engine that fits in your environment, you can edit a Kana document with a Hangul jaso. This project supports(but limited to) Linux platform.
+The Hanjp Input Method project is a IME project that aims to give a Hangul jaso Japanese editing enviornment in Korean users friendly form. With a hanjp engine that fits in your environment, you can edit a Kana document with a Hangul jaso. This project supports(but not limited to) Linux platform.
 
 ## License
 This software follows LGPL 3.0.
