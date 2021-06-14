@@ -34,9 +34,9 @@ static void engine_class_init(IBusHanjpEngineClass *klass);
 //event handlers
 static gboolean engine_process_key_event(
                     IBusEngine *engine,
-                    gunit keyval,
-                    gunit keycode,
-                    gunit state);
+                    guint keyval,
+                    guint keycode,
+                    guint state);
 static void engine_focus_in(IBusEngine *engine);
 static void engine_focus_out(IBusEngine *engine);
 static void engine_reset(IBusEngine *engine);
@@ -44,7 +44,10 @@ static void engine_enable(IBusEngine *engine);
 static void engine_disable(IBusEngine *engine);
 static void engine_cursor_up(IBusEngine *engine);
 static void engine_cursor_down(IBusEngine* engine);
-static void engine_candidate_clicked(IBusEngine *engine);
+static void engine_candidate_clicked(IBusEngine *engine,
+        guint   index,
+        guint   button,
+        guint   state);
 
 static void engine_distroy(IBusEngine *engine);
 
@@ -57,7 +60,7 @@ GType ibus_hanjp_engine_type() {
         type = g_type_register_static(
                 IBUS_TYPE_ENGINE,
                 "IBusHanjpEngine",
-                &info, 0);
+                &info, (GTypeFlags) 0);
     }
     return type;
 }
@@ -82,12 +85,14 @@ static void engine_class_init(IBusHanjpEngineClass *klass) {
 
 static gboolean engine_process_key_event(
                     IBusEngine *engine,
-                    gunit keyval,
-                    gunit keycode,
-                    gunit state) {
+                    guint keyval,
+                    guint keycode,
+                    guint state) {
     IBusHanjpEngine *hanjp = (IBusHanjpEngine *)engine;
     IBusText *text;
-    const guint mask = IBUS_RELEASEMASK | IBUS_SHIFT_MASK | IBUS_MOD1_MASK;
+    const guint mask = IBUS_RELEASE_MASK | IBUS_SHIFT_MASK | IBUS_MOD1_MASK;
+    const u32string& preedit = hanjp->context->get_preedit_string();
+    const u32string& committed = hanjp->context->get_commit_string();
 
     if(state & mask) {
         return FALSE;
@@ -101,10 +106,10 @@ static gboolean engine_process_key_event(
         if(keyval >= 'A' && keyval <= 'z') {
             const int gap = 'a' - 'A';
             if(keyval <= 'Z') {
-                key += gap;
+                keyval += gap;
             }
             else {
-                key -= gap;
+                keyval -= gap;
             }
         }
     }
@@ -113,26 +118,26 @@ static gboolean engine_process_key_event(
     hanjp->context->process(keyval);
     //Commit text to app when it's needed
     if(!hanjp->context->get_commit_string().empty()) {
-        text = ibus_text_new_from_ucs4(hanjp->context->get_preedit_string().data());
+        text = ibus_text_new_from_ucs4((const gunichar *)preedit.data());
         ibus_engine_commit_text(engine, text);
     }
     //preedit string
     if (!hanjp->context->get_preedit_string().empty()) {
-        text = ibus_text_new_from_ucs4(hanjp->context->get_preedit_string().data());
+        text = ibus_text_new_from_ucs4((const gunichar *)preedit.data());
         ibus_text_append_attribute (text, IBUS_ATTR_TYPE_UNDERLINE,
-                IBUS_ATTR_UNDERLINE_SINGLE, 0, hanjp->context->get_preedit_string().data());
+                IBUS_ATTR_UNDERLINE_SINGLE, 0, preedit.size());
         ibus_text_append_attribute (text, IBUS_ATTR_TYPE_FOREGROUND,
-                0x00ffffff, preedit_len, -1);
+                0x00ffffff, preedit.size(), -1);
         ibus_text_append_attribute (text, IBUS_ATTR_TYPE_BACKGROUND,
-                0x00000000, preedit_len, -1);
-        ibus_engine_update_preedit_text_with_mode ((IBusEngine *)hangul,
+                0x00000000, preedit.size(), -1);
+        ibus_engine_update_preedit_text_with_mode ((IBusEngine *)hanjp,
                                                    text,
-                                                   ibus_text_get_length (text),
+                                                   ibus_text_get_length(text),
                                                    TRUE,
                                                    IBUS_ENGINE_PREEDIT_COMMIT);
     } else {
         text = ibus_text_new_from_static_string ("");
-        ibus_engine_update_preedit_text ((IBusEngine *)hangul, text, 0, FALSE);
+        ibus_engine_update_preedit_text ((IBusEngine *)hanjp, text, 0, FALSE);
     }
 
     return TRUE;

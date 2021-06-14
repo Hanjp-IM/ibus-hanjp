@@ -1,4 +1,4 @@
-#include <ibus.h>
+#include "engine.h"
 #include <glib/gi18n.h>
 #include <locale.h>
 
@@ -13,10 +13,6 @@ static const GOptionEntry entries[] = {
     { "verbose", 'v', 0, G_OPTION_ARG_NONE, &verbose, "verbose", NULL },
     { NULL },
 };
-
-extern GType ibus_hanjp_engine_get_type();
-extern void ibus_hanjp_init(IBusBus *bus);
-extern void ibus_hanjp_exit();
 
 static void ibus_disconnected_callback(IBusBus *bus, gpointer user_data) {
 	g_debug("bus disconnected");
@@ -41,7 +37,7 @@ int main(int argc, char **argv)
 	// Init Option contect
 	context = g_option_context_new("- ibus hanjp engine component");
 	g_option_context_add_main_entries(context, entries, "ibus-hanjp");
-	g_option_context_parse(context, &argc, &argv, &error)
+	g_option_context_parse(context, &argc, &argv, &error);
 	g_option_context_free(context);
 	if(error) {
 		g_print("Option Paring Failed: %s\n", error->message);
