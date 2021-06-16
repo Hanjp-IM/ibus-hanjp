@@ -9,9 +9,9 @@ static gboolean ibus = FALSE;
 static gboolean verbose = FALSE;
 
 static const GOptionEntry entries[] = {
-    { "ibus", 'i', 0, G_OPTION_ARG_NONE, &ibus, "component is executed by ibus", NULL },
-    { "verbose", 'v', 0, G_OPTION_ARG_NONE, &verbose, "verbose", NULL },
-    { NULL },
+	{ "ibus", 'i', 0, G_OPTION_ARG_NONE, &ibus, "component is executed by ibus", NULL },
+	{ "verbose", 'v', 0, G_OPTION_ARG_NONE, &verbose, "verbose", NULL },
+	{ NULL },
 };
 
 static void ibus_disconnected_callback(IBusBus *bus, gpointer user_data) {
@@ -31,7 +31,7 @@ int main(int argc, char **argv)
 	// Set System Locale
 	setlocale(LC_ALL, "");
 	bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR);
-    bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
+	bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8");
 	textdomain(GETTEXT_PACKAGE);
 
 	// Init Option contect
