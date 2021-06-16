@@ -173,6 +173,14 @@ static void engine_enable(IBusEngine *engine) {
     ((IBusHanjpEngine *)engine)->context->reset();
 }
 
+static void engine_focus_in(IBusEngine *engine) {
+    parent_class->focus_in(engine);
+}
+
+static void engine_focus_out(IBusEngine *engine) {
+    parent_class->focus_out(engine);
+}
+
 static void engine_disable(IBusEngine *engine) {
     parent_class->disable(engine);
 }
