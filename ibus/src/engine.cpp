@@ -7,9 +7,9 @@ using namespace std;
 using namespace Hanjp;
 
 enum InputMode {
-    INPUT_MODE_EN,
-    INPUT_MODE_JP,
-    INPUT_MODE_KR
+	INPUT_MODE_EN,
+	INPUT_MODE_JP,
+	INPUT_MODE_KR
 };
 
 struct IBusHanjpEngine {
