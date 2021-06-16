@@ -62,7 +62,6 @@ int main(int argc, char **argv)
 
 	g_signal_connect(bus, "disconnected", G_CALLBACK(ibus_disconnected_callback), NULL);
 	
-	ibus_hanjp_init(bus);
 	component = ibus_component_new("org.ubuntu-kr.IBus.Hanjp",
 			N_("HanJP Input Method"), "0.1.0",
 			"GPL", "Ubuntu Korea Community",
@@ -85,7 +84,6 @@ int main(int argc, char **argv)
 	}
 	g_object_unref(component);
 	ibus_main(); //start engine loop
-	ibus_hanjp_exit(); //deinit hanjp library
 
 	//end of component
 	
