@@ -1,6 +1,7 @@
 #include "hanjp.h"
 #include <ibus.h>
 #include "engine.h"
+#include <memory>
 
 using namespace std;
 using namespace Hanjp;
@@ -14,7 +15,7 @@ enum InputMode {
 struct IBusHanjpEngine {
 	IBusEngine parent;
     InputMode input_mode;
-    InputContext* context;
+    unique_ptr<InputContext> context;
 };
 
 struct IBusHanjpEngineClass {
@@ -56,7 +57,18 @@ GType ibus_hanjp_engine_type() {
     static GType type = 0;
     if(type == 0) {
         const GTypeInfo info = {
+            sizeof(IBusHanjpEngineClass),
 
+            (GBaseInitFunc) NULL,
+            (GBaseFinalizeFunc) NULL,
+
+            (GClassInitFunc) engine_init,
+            (GClassFinalizeFunc) NULL,
+            NULL,
+
+            sizeof(IBusHanjpEngine),
+            0,
+            (GInstanceInitFunc) engine_init,    
         };
         type = g_type_register_static(
                 IBUS_TYPE_ENGINE,
@@ -67,7 +79,7 @@ GType ibus_hanjp_engine_type() {
 }
 
 static void engine_init(IBusHanjpEngine* hanjp) {
-    hanjp->context = new InputContext;
+    hanjp->context = make_unique<InputContext>();
     hanjp->input_mode = INPUT_MODE_JP;
 }
 
