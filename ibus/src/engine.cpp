@@ -22,16 +22,9 @@ struct IBusHanjpEngineClass {
 	IBusEngineClass parent;
 };
 
-void ibus_hanjp_init() {
-    init();
-}
-
-void ibus_hanjp_exit() {
-    fini();
-}
-
 static void engine_init(IBusHanjpEngine* hanjp);
 static void engine_class_init(IBusHanjpEngineClass *klass);
+static void engine_class_fini(IBusHanjpEngineClass *klass);
 
 //event handlers
 static gboolean engine_process_key_event(
@@ -51,7 +44,7 @@ static void engine_candidate_clicked(IBusEngine *engine,
         guint   button,
         guint   state);
 
-static void engine_distroy(IBusEngine *engine);
+static IBusEngineClass* parent_class = nullptr;
 
 GType ibus_hanjp_engine_type() {
     static GType type = 0;
@@ -62,8 +55,8 @@ GType ibus_hanjp_engine_type() {
             (GBaseInitFunc) NULL,
             (GBaseFinalizeFunc) NULL,
 
-            (GClassInitFunc) engine_init,
-            (GClassFinalizeFunc) NULL,
+            (GClassInitFunc) engine_class_init,
+            (GClassFinalizeFunc) engine_class_fini,
             NULL,
 
             sizeof(IBusHanjpEngine),
@@ -86,6 +79,8 @@ static void engine_init(IBusHanjpEngine* hanjp) {
 static void engine_class_init(IBusHanjpEngineClass *klass) {
     IBusEngineClass *engine_class = IBUS_ENGINE_CLASS(klass);
 
+    parent_class = (IBusEngineClass *)g_type_class_peek_parent(klass);
+
     engine_class->process_key_event = engine_process_key_event;
     engine_class->reset = engine_reset;
     engine_class->enable = engine_enable;
@@ -95,6 +90,12 @@ static void engine_class_init(IBusHanjpEngineClass *klass) {
     engine_class->cursor_up = engine_cursor_up;
     engine_class->cursor_down = engine_cursor_down;
     engine_class->candidate_clicked = engine_candidate_clicked;
+
+    init();
+}
+
+static void engine_class_fini(IBusHanjpEngineClass *klass) {
+    fini();
 }
 
 static gboolean engine_process_key_event(IBusEngine *engine,
@@ -155,4 +156,39 @@ static gboolean engine_process_key_event(IBusEngine *engine,
     }
 
     return TRUE;
+}
+
+static void engine_reset(IBusEngine *engine) {
+    IBusHanjpEngine* hanjp = (IBusHanjpEngine*)engine;
+
+    parent_class->reset(engine);
+    hanjp->input_mode = INPUT_MODE_JP;
+    hanjp->context->reset();
+}
+
+
+static void engine_enable(IBusEngine *engine) {
+    parent_class->enable(engine);
+    // Set inputcontext to clean
+    ((IBusHanjpEngine *)engine)->context->reset();
+}
+
+static void engine_disable(IBusEngine *engine) {
+    parent_class->disable(engine);
+}
+
+static void engine_cursor_up(IBusEngine *engine) {
+    parent_class->cursor_up(engine);
+}
+
+static void engine_cursor_down(IBusEngine* engine) {
+    parent_class->cursor_down(engine);
+}
+
+static void engine_candidate_clicked(IBusEngine *engine,
+        guint   index,
+        guint   button,
+        guint   state)
+{
+    parent_class->candidate_clicked(engine, index, button, state);
 }
