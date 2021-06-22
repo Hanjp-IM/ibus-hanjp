@@ -1,5 +1,4 @@
 #include "hanjp.h"
-#include <ibus.h>
 #include "engine.h"
 #include <memory>
 
