@@ -46,7 +46,7 @@ static void engine_candidate_clicked(IBusEngine *engine,
 
 static IBusEngineClass* parent_class = nullptr;
 
-GType ibus_hanjp_engine_type() {
+GType ibus_hanjp_engine_get_type() {
     static GType type = 0;
     if(type == 0) {
         const GTypeInfo info = {
