@@ -1,3 +1,7 @@
+find_package(Gettext REQUIRED)
+find_package(PkgConfig)
+pkg_check_modules(IBUS REQUIRED ibus-1.0)
+pkg_check_modules(hangul REQUIRED libhangul)
 
 configure_file(config.h.in config.h)
 configure_file(hanjp.xml.in hanjp.xml)
