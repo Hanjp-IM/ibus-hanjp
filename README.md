@@ -4,7 +4,13 @@ Hanjp Input Method
 ```
 git clone --recurse-submodules https://github.com/ubuntu-kr/hanjp-im.git hanjp-im
 cd hanjp-im
+# Then, you can build engine mannually
+mkdir build
+cd build
+cmake ..
+make
 ```
+Although you can build it mannually, we recommend to use IDE such as VS Code, CLion.
 
 ## About Hanjp project
 The Hanjp Input Method project is a IME project that aims to give a Hangul jaso Japanese editing enviornment in Korean users friendly form. With a hanjp engine that fits in your environment, you can edit a Kana document with a Hangul jaso. This project supports(but not limited to) Linux platform.
