@@ -1,0 +1,4 @@
+[submodule "libhanjp"]
+	path = libhanjp
+	url = https://github.com/onting/libhanjp
+	branch = develop
