@@ -132,7 +132,7 @@ static gboolean engine_process_key_event(IBusEngine *engine,
 
     //Commit text
     if(!committed.empty()) {
-        text = ibus_text_new_from_ucs4((const gunichar *)preedit.data());
+        text = ibus_text_new_from_ucs4((const gunichar *)committed.data());
         ibus_engine_commit_text(engine, text);
     }
 
