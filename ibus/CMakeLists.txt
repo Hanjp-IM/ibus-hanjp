@@ -10,4 +10,5 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR} ${IBUS_INCLUDE_DIRS} ${PROJECT_S
 target_link_libraries(ibus-engine-hanjp ${IBUS_LIBRARIES} ${PROJECT_BINARY_DIR}/libhanjp/libhanjp.a ${hangul_LIBRARIES})
 
 install(TARGETS ibus-engine-hanjp DESTINATION ${CMAKE_INSTALL_LIBEXECDIR})
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/hanjp.xml ibus-hanjp.svg DESTINATION ${CMAKE_INSTALL_SHAREDSTATEDIR})
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/hanjp.xml DESTINATION "/usr/share/ibus/component")
+install(FILES ibus-hanjp.svg DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/ibus)
