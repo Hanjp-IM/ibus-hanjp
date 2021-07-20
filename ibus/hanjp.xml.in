@@ -14,9 +14,9 @@
 		<engine>
 			<name>hanjp</name>
 			<language>ja</language>
-			<license>LGPL</license>
-			<author>Kwangyeon Kim</author>
-			<icon>${CMAKE_INSTALL_DATADIR}/icons/ibus-hanjp.svg</icon>
+			<license>GPL v3.0</license>
+			<author>Ubuntu Korea community</author>
+			<icon>${CMAKE_INSTALL_DATADIR}/ibus-hanjp.svg</icon>
 			<layout>us</layout>
 			<longname>Hanjp</longname>
 			<description>Hanjp Ibus Engine</description>
