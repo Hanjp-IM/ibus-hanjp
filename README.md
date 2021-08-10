@@ -2,7 +2,7 @@ Hanjp Input Method
 =====================
 ## Getting Started
 ```
-git clone --recurse-submodules https://github.com/ubuntu-kr/hanjp-im.git hanjp-im
+git clone --recurse-submodules https://github.com/Hanjp-IM/hanjp-im.git
 cd hanjp-im
 # Then, you can build engine mannually
 mkdir build
@@ -15,8 +15,20 @@ Although you can build it mannually, we recommend to use IDE such as VS Code, CL
 ## About Hanjp project
 The Hanjp Input Method project is a IME project that aims to give a Hangul jaso Japanese editing enviornment in Korean users friendly form. With a hanjp engine that fits in your environment, you can edit a Kana document with a Hangul jaso. This project supports(but not limited to) Linux platform.
 
+## Dependencies
+Currently, the software depends on two packages.
+```
+libhangul
+libibus
+```
+We can install packages with fllowing command.
+```
+# On Ubuntu
+sudo apt update && sudo apt install libibus-1.0-dev libhangul-dev
+```
+
 ## License
-This software is licensed under LGPL 3.0.
+It is noted in [License](https://github.com/Hanjp-IM/hanjp-im/blob/master/LICENSE)
 
 ## Links
 - [Hanjp Wiki](https://github.com/ubuntu-kr/hanjp-im/wiki)
