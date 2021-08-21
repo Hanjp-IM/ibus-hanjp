@@ -1,8 +1,6 @@
-#include "engine.h"
+#include "hanjpengine.h"
 #include <glib/gi18n.h>
 #include <locale.h>
-
-using namespace std;
 
 /* options */
 static gboolean ibus = FALSE;
@@ -21,12 +19,12 @@ static void ibus_disconnected_callback(IBusBus *bus, gpointer user_data) {
 
 int main(int argc, char **argv)
 {
-	GError *error = nullptr;
-	GOptionContext *context = nullptr;
-	IBusComponent *component = nullptr;
-	IBusConfig *config = nullptr;
-	IBusBus *bus = nullptr;
-	IBusFactory *factory = nullptr;
+	GError *error = NULL;
+	GOptionContext *context = NULL;
+	IBusComponent *component = NULL;
+	IBusConfig *config = NULL;
+	IBusBus *bus = NULL;
+	IBusFactory *factory = NULL;
 
 	// Set System Locale
 	setlocale(LC_ALL, "");
@@ -74,7 +72,7 @@ int main(int argc, char **argv)
 				"ja", "GPL", "Ubuntu Korea Community",
 				DATADIR"/icon/ibus-hanjp.svg", "us"));
 	factory = ibus_factory_new(ibus_bus_get_connection(bus));
-	ibus_factory_add_engine(factory, "hanjp", ibus_hanjp_engine_get_type());
+	ibus_factory_add_engine(factory, "hanjp", IBUS_TYPE_HANJP_ENGINE);
 
 	if(ibus) {
 		ibus_bus_request_name(bus, "org.ubuntu-kr.IBus.Hanjp", 0);
