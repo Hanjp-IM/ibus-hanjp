@@ -1,38 +1,64 @@
 #include "hanjpengine.h"
 #include "hanjp.h"
 
-struct _IBusHanjpEngine {
+typedef struct {
     IBusEngine parent_instance;
     gint input_mode;
     HanjpInputContext *context;
-};
+} IBusHanjpEngine;
 
-G_DEFINE_TYPE(IBusHanjpEngine, ibus_hanjp_engine, IBUS_TYPE_ENGINE)
+typedef struct {
+    IBusEngineClass parent_class;
+} IBusHanjpEngineClass;
 
-static void
-hanjp_engine_dispose(GObject *gobject)
+static void engine_init(IBusHanjpEngine* hanjp);
+static void engine_class_init(IBusHanjpEngineClass *klass);
+static void engine_class_fini(IBusHanjpEngineClass *klass);
+
+//event handlers
+static gboolean engine_process_key_event(
+        IBusEngine *engine,
+        guint keyval,
+        guint keycode,
+        guint state);
+static void engine_focus_in(IBusEngine *engine);
+static void engine_focus_out(IBusEngine *engine);
+static void engine_reset(IBusEngine *engine);
+static void engine_enable(IBusEngine *engine);
+static void engine_disable(IBusEngine *engine);
+static void engine_cursor_up(IBusEngine *engine);
+static void engine_cursor_down(IBusEngine* engine);
+static void engine_candidate_clicked(IBusEngine *engine,
+        guint   index,
+        guint   button,
+        guint   state);
+
+GType ibus_hanjp_engine_get_type()
 {
-    g_clear_object(&IBUS_HANJPENGINE(gobject)->context);
-    G_OBJECT_CLASS(ibus_hanjp_engine_parent_class)->dispose(gobject);
+    static GType type = 0;
+    if(type == 0) {
+        const GTypeInfo info = {
+            sizeof(IBusHanjpEngineClass),
+            NULL,       // base_init
+            NULL,       // base_finalize
+            (GClassInitFunc) engine_class_init,
+            NULL,       // class_finalize
+            NULL,       // class_data
+            sizeof(IBusHanjpEngine),
+            0,          // n_preallocs
+            (GInstanceInitFunc) engine_init
+        };
+    }
 }
 
 static void
-hanjp_engine_finalize(GObject *gobject)
-{
-    G_OBJECT_CLASS(ibus_hanjp_engine_parent_class)->finalize(gobject);
-}
-
-static void
-ibus_hanjp_engine_class_init(IBusHanjpEngineClass *klass)
+engine_class_init(IBusHanjpEngineClass *klass)
 {
     GObjectClass *object_class = G_OBJECT_CLASS(klass);
-
-    object_class->dispose = hanjp_engine_dispose;
-    object_class->finalize = hanjp_engine_finalize;
 }
 
 static void
-ibus_hanjp_engine_init(IBusHanjpEngine *self)
+engine_init(IBusHanjpEngine *self)
 {
 
 }

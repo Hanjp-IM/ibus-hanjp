@@ -14,9 +14,7 @@ enum {
 };
 
 #define IBUS_TYPE_HANJP_ENGINE ibus_hanjp_engine_get_type()
-G_DECLARE_FINAL_TYPE(IBusHanjpEngine, ibus_hanjp_engine, IBUS, HANJPENGINE, IBusEngine)
-
-IBusHanjpEngine *ibus_hanjp_engine_new();
+GType ibus_hanjp_engine_get_type();
 
 G_END_DECLS
 
