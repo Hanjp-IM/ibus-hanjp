@@ -42,17 +42,25 @@ GType ibus_hanjp_engine_get_type()
             NULL,       // base_init
             NULL,       // base_finalize
             (GClassInitFunc) engine_class_init,
-            NULL,       // class_finalize
+            (GClassFinalizeFunc) engine_class_fini,
             NULL,       // class_data
             sizeof(IBusHanjpEngine),
             0,          // n_preallocs
             (GInstanceInitFunc) engine_init
         };
+        type = g_type_register_static(IBUS_TYPE_ENGINE, "IBusHanjpEngine", &info, 0);
     }
+    return type;
 }
 
 static void
 engine_class_init(IBusHanjpEngineClass *klass)
+{
+    GObjectClass *object_class = G_OBJECT_CLASS(klass);
+}
+
+static void 
+engine_class_fini(IBusHanjpEngineClass *klass)
 {
     GObjectClass *object_class = G_OBJECT_CLASS(klass);
 }
