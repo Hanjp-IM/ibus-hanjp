@@ -3,7 +3,7 @@
 <component>
 	<name>org.ubuntu-kr.IBus.Hanjp</name>
 	<description>Hanjp Component</description>
-	<exec>${CMAKE_INSTALL_LIBEXECDIR}/ibus-engine-hanjp --ibus</exec>
+	<exec>/usr/libexec/ibus-engine-hanjp --ibus</exec>
 	<version>${CMAKE_PROJECT_VERSION}</version>
 	<author>Ubuntu Korea Community</author>
 	<license>GPL</license>
@@ -16,7 +16,7 @@
 			<language>ja</language>
 			<license>GPL v3.0</license>
 			<author>Ubuntu Korea community</author>
-			<icon>${CMAKE_INSTALL_DATAROOTDIR}/ibus/ibus-hanjp.svg</icon>
+			<icon>/usr/share/ibus/ibus-hanjp.svg</icon>
 			<layout>us</layout>
 			<longname>Hanjp</longname>
 			<description>Hanjp Ibus Engine</description>
