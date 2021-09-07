@@ -109,7 +109,7 @@ static gboolean engine_process_key_event(
     }
 
     if(keyval == IBUS_BackSpace) {
-        return hanjp_ic_backspace(hanjp);
+        return hanjp_ic_backspace(hanjp->context);
     }
 
     if(state & IBUS_LOCK_MASK) {
