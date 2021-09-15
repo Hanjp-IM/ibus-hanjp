@@ -114,10 +114,12 @@ static gboolean engine_process_key_event(
 
     if(state & IBUS_LOCK_MASK) {
         if(keyval >= 'A' && keyval <= 'z') {
-            keyval += 'a' - 'A';
-        }
-        else {
-            keyval -= 'a' - 'A';
+            if(keyval <= 'Z') {
+                keyval += 'a' - 'A';
+            }
+            else {
+                keyval -= 'a' - 'A';
+            }
         }
     }
 
