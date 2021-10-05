@@ -75,7 +75,7 @@ static void
 engine_class_init(IBusHanjpEngineClass *klass)
 {
     GObjectClass *object_class = G_OBJECT_CLASS(klass);
-    IBusEngineClass *engine_class = IBUS_OBJECT_CLASS(klass);
+    IBusEngineClass *engine_class = IBUS_ENGINE_CLASS(klass);
 
     parent_class = (IBusEngineClass*) g_type_class_peek_parent(klass);
     object_class->dispose = engine_dispose;
@@ -102,7 +102,7 @@ static gboolean engine_process_key_event(
     IBusHanjpEngine *hanjp = (IBusHanjpEngine*)engine;
     IBusText *text = NULL;
     const guint mask = IBUS_RELEASE_MASK | IBUS_SHIFT_MASK | IBUS_MOD1_MASK;
-    gint am_sig;
+    gint ret;
     
     if(state & mask) {
         return FALSE;
@@ -123,11 +123,9 @@ static gboolean engine_process_key_event(
         }
     }
 
-    am_sig = hanjp_ic_process(hanjp->context, keyval);
+    ret = hanjp_ic_process(hanjp->context, keyval);
 
-    switch(am_sig) {
-    case 0: // EAT
-    case 1: // POP
+    if(ret > 0) {
         text = ibus_text_new_from_ucs4((const gunichar*)hanjp->preedit->data);
 
         if(hanjp->preedit->len != 0) {
@@ -144,13 +142,10 @@ static gboolean engine_process_key_event(
         else{
             ibus_engine_update_preedit_text(engine, text, 0, FALSE);
         }
-        break;
-    case 2: // FAIL
+    }
+    else if(ret < 0) {
         text = ibus_text_new_from_ucs4((const gunichar*)hanjp->committed->data);
         ibus_engine_commit_text(engine, text);
-        break;
-    default:
-        return FALSE;
     }
 
     return TRUE;
