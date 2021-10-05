@@ -64,9 +64,12 @@ engine_dispose(GObject *gobject)
     IBusHanjpEngine *engine = (IBusHanjpEngine*) gobject;
 
     g_clear_object(&engine->context);
-    g_clear_object(&engine->preedit);
-    g_clear_object(&engine->committed);
-    g_clear_object(&engine->hangul);
+    g_array_unref(engine->preedit);
+    engine->preedit = NULL;
+    g_array_unref(engine->committed);
+    engine->committed = NULL;
+    g_array_unref(engine->hangul);
+    engine->hangul = NULL;
 
     G_OBJECT_CLASS(parent_class)->dispose(gobject);
 }
