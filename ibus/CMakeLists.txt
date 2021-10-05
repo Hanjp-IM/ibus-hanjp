@@ -1,4 +1,5 @@
 set(IBUS_DIR_PREFIX "/usr/share/ibus")
+set(HANJP_TEXT_DOMAIN "hanjp")
 
 find_package(Gettext REQUIRED)
 find_package(PkgConfig)
@@ -12,5 +13,5 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR} ${IBUS_INCLUDE_DIRS} ${PROJECT_S
 target_link_libraries(ibus-engine-hanjp ${IBUS_LIBRARIES} ${PROJECT_BINARY_DIR}/libhanjp/libhanjp.a ${hangul_LIBRARIES})
 
 install(TARGETS ibus-engine-hanjp DESTINATION libexec)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/hanjp.xml DESTINATION IBUS_DIR_PREFIX/component)
-install(FILES ibus-hanjp.svg DESTINATION IBUS_DIR_PREFIX)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/hanjp.xml DESTINATION ${IBUS_DIR_PREFIX}/component)
+install(FILES ibus-hanjp.svg DESTINATION ${IBUS_DIR_PREFIX})
