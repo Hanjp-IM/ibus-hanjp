@@ -16,7 +16,7 @@
 			<language>ja</language>
 			<license>GPL v3.0</license>
 			<author>Ubuntu Korea community</author>
-			<icon>/usr/share/ibus/ibus-hanjp.svg</icon>
+			<icon>@IBUS_DIR_PREFIX@/ibus-hanjp.svg</icon>
 			<layout>us</layout>
 			<longname>Hanjp</longname>
 			<description>Hanjp Ibus Engine</description>
