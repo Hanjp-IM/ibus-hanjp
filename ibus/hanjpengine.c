@@ -92,7 +92,7 @@ engine_init(IBusHanjpEngine *self)
     self->context = hanjp_ic_new();
     self->input_mode = HANJP_INPUT_MODE_JP;
     self->preedit = hanjp_ic_ref_preedit_string(self->context);
-    self->committed = hanjp_ic_ref_hangul_string(self->context);
+    self->committed = hanjp_ic_ref_commit_string(self->context);
     self->hangul = hanjp_ic_ref_hangul_string(self->context);
 }
 
@@ -147,6 +147,9 @@ static gboolean engine_process_key_event(
         }
     }
     else if(ret < 0) {
+		text = ibus_text_new_from_static_string ("");
+		ibus_engine_update_preedit_text (engine, text, 0, FALSE);
+
         text = ibus_text_new_from_ucs4((const gunichar*)hanjp->committed->data);
         ibus_engine_commit_text(engine, text);
     }
