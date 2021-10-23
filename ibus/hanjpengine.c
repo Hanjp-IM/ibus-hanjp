@@ -92,7 +92,7 @@ engine_init(IBusHanjpEngine *self)
     self->context = hanjp_ic_new();
     self->input_mode = HANJP_INPUT_MODE_JP;
     self->preedit = hanjp_ic_ref_preedit_string(self->context);
-    self->committed = hanjp_ic_ref_hangul_string(self->context);
+    self->committed = hanjp_ic_ref_commit_string(self->context);
     self->hangul = hanjp_ic_ref_hangul_string(self->context);
 }
 
