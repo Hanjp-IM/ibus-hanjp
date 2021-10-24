@@ -7,7 +7,7 @@
 	<version>${CMAKE_PROJECT_VERSION}</version>
 	<author>Ubuntu Korea Community</author>
 	<license>GPL</license>
-	<homepage>https://github.com/ubuntu-kr/hanjp-im</homepage>
+	<homepage>https://github.com/Hanjp-IM/ibus-hanjp</homepage>
 	<textdomain>${HANJP_TEXT_DOMAIN}</textdomain>
 
 	<engines>
