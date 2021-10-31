@@ -3,7 +3,7 @@
 <component>
 	<name>org.ubuntu-kr.IBus.Hanjp</name>
 	<description>Hanjp Component</description>
-	<exec>/usr/libexec/ibus-engine-hanjp --ibus</exec>
+	<exec>${CMAKE_INSTALL_FULL_LIBEXECDIR}/ibus-engine-hanjp --ibus</exec>
 	<version>${CMAKE_PROJECT_VERSION}</version>
 	<author>Ubuntu Korea Community</author>
 	<license>GPL</license>
